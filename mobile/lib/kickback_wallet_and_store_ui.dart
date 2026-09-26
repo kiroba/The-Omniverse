@@ -19,14 +19,14 @@ class KickBackWalletAndStoreScreen extends StatefulWidget {
   final Map<String, dynamic>? activeLiveNotification;
 
   const KickBackWalletAndStoreScreen({
-    Key? key,
+    super.key,
     this.currentRoleTier = 'COMMON',
     this.usdBalance = 7.50,
     this.omniCreditBalance = 1200,
     this.verifiedFanCount = 342,
     this.giftTransactions = const [],
     this.activeLiveNotification,
-  }) : super(key: key);
+  });
 
   @override
   State<KickBackWalletAndStoreScreen> createState() => _KickBackWalletAndStoreScreenState();
@@ -57,11 +57,11 @@ class _KickBackWalletAndStoreScreenState extends State<KickBackWalletAndStoreScr
       appBar: AppBar(
         backgroundColor: const Color(0xFF1E293B),
         elevation: 0,
-        title: Row(
+        title: const Row(
           children: [
-            const Icon(Icons.account_balance_wallet_outlined, color: Color(0xFF38BDF8)),
-            const SizedBox(width: 10),
-            const Text(
+            Icon(Icons.account_balance_wallet_outlined, color: Color(0xFF38BDF8)),
+            SizedBox(width: 10),
+            Text(
               'KickBack Treasury & Wallet',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
             ),
@@ -154,7 +154,7 @@ class _KickBackWalletAndStoreScreenState extends State<KickBackWalletAndStoreScr
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0284C7).withOpacity(0.2),
+                      color: const Color(0xFF0284C7).withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -204,10 +204,10 @@ class LiveGiftNotificationBanner extends StatelessWidget {
   final VoidCallback onDismiss;
 
   const LiveGiftNotificationBanner({
-    Key? key,
+    super.key,
     required this.notificationData,
     required this.onDismiss,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -231,7 +231,7 @@ class LiveGiftNotificationBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha: 0.5),
             blurRadius: 10,
             offset: const Offset(0, 4),
           )
@@ -275,7 +275,7 @@ class LiveGiftNotificationBanner extends StatelessWidget {
                 ),
                 Text(
                   'Effect: $animation | 98% Net Routed to Creator',
-                  style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 9),
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 9),
                 ),
               ],
             ),
@@ -302,20 +302,19 @@ class _WalletEarningsTab extends StatelessWidget {
   final VoidCallback onOpenGiftModal;
 
   const _WalletEarningsTab({
-    Key? key,
     required this.roleTier,
     required this.usdBalance,
     required this.omniCreditBalance,
     required this.verifiedFanCount,
     required this.transactions,
     required this.onOpenGiftModal,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     final bool isCommon = roleTier.toUpperCase() == 'COMMON';
-    final double minCashout = 10.00;
-    final int minFans = 500;
+    const double minCashout = 10.00;
+    const int minFans = 500;
     final bool canCashout = !isCommon || usdBalance >= minCashout;
     final bool autoPayoutActive = verifiedFanCount >= minFans;
 
@@ -446,8 +445,8 @@ class _WalletEarningsTab extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: const [
+                      const Row(
+                        children: [
                           Icon(Icons.people_alt_outlined, color: Color(0xFF38BDF8), size: 18),
                           SizedBox(width: 6),
                           Text('500-Fan Auto-Payout Milestone',
@@ -489,7 +488,7 @@ class _WalletEarningsTab extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF0284C7).withOpacity(0.15),
+                color: const Color(0xFF0284C7).withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: const Color(0xFF0284C7)),
               ),
@@ -585,7 +584,7 @@ class _WalletEarningsTab extends StatelessWidget {
 class _OmniCreditStoreTab extends StatelessWidget {
   final int currentCredits;
 
-  const _OmniCreditStoreTab({Key? key, required this.currentCredits}) : super(key: key);
+  const _OmniCreditStoreTab({required this.currentCredits});
 
   static const List<Map<String, dynamic>> bundles = [
     {"usd": 5.0, "credits": 500, "bonus": 25, "percent": "5% Bonus", "badge": "STARTER"},
@@ -625,7 +624,7 @@ class _OmniCreditStoreTab extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        ...bundles.map((b) => _buildBundleCard(context, b)).toList(),
+        ...bundles.map((b) => _buildBundleCard(context, b)),
       ],
     );
   }
@@ -647,7 +646,7 @@ class _OmniCreditStoreTab extends StatelessWidget {
             Row(
               children: [
                 CircleAvatar(
-                  backgroundColor: const Color(0xFF0284C7).withOpacity(0.2),
+                  backgroundColor: const Color(0xFF0284C7).withValues(alpha: 0.2),
                   child: const Icon(Icons.monetization_on, color: Colors.amber),
                 ),
                 const SizedBox(width: 12),
@@ -704,12 +703,11 @@ class _Expanded100GiftCatalogGridTab extends StatefulWidget {
   final Function(String giftName, double priceUsd)? onGiftSent;
 
   const _Expanded100GiftCatalogGridTab({
-    Key? key,
     required this.userRoleTier,
     required this.currentCredits,
     this.scrollController,
     this.onGiftSent,
-  }) : super(key: key);
+  });
 
   @override
   State<_Expanded100GiftCatalogGridTab> createState() => _Expanded100GiftCatalogGridTabState();
@@ -833,7 +831,7 @@ class _Expanded100GiftCatalogGridTabState extends State<_Expanded100GiftCatalogG
                   color: const Color(0xFF1E293B),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: isUnlocked ? const Color(0xFF334155) : Colors.red.shade900.withOpacity(0.5),
+                    color: isUnlocked ? const Color(0xFF334155) : Colors.red.shade900.withValues(alpha: 0.5),
                   ),
                 ),
                 child: Column(
@@ -948,7 +946,7 @@ class _RoleBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(4),
         border: Border.all(color: color, width: 0.8),
       ),
@@ -963,7 +961,7 @@ class _RoleBadge extends StatelessWidget {
 class _TransactionList extends StatelessWidget {
   final List<Map<String, dynamic>> transactions;
 
-  const _TransactionList({Key? key, required this.transactions}) : super(key: key);
+  const _TransactionList({required this.transactions});
 
   @override
   Widget build(BuildContext context) {

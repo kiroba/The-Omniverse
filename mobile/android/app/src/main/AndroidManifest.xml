@@ -19,6 +19,11 @@
         android:hardwareAccelerated="true"
         android:allowBackup="false">
 
+        <!-- Enforce Android v2 Embedding -->
+    <meta-data
+        android:name="flutterEmbedding"
+        android:value="2" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

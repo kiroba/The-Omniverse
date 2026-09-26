@@ -15,11 +15,11 @@ class LiveStreamReactionOverlay extends StatefulWidget {
   final bool isHost;
 
   const LiveStreamReactionOverlay({
-    Key? key,
+    super.key,
     required this.child,
     required this.streamId,
     this.isHost = false,
-  }) : super(key: key);
+  });
 
   @override
   State<LiveStreamReactionOverlay> createState() => _LiveStreamReactionOverlayState();
@@ -100,7 +100,7 @@ class _LiveStreamReactionOverlayState extends State<LiveStreamReactionOverlay> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.6),
+              color: Colors.black.withValues(alpha: 0.6),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: Colors.white24, width: 1),
             ),
@@ -149,7 +149,7 @@ class _LiveStreamReactionOverlayState extends State<LiveStreamReactionOverlay> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: const Color(0xFF0F172A).withOpacity(0.85),
+              color: const Color(0xFF0F172A).withValues(alpha: 0.85),
               borderRadius: BorderRadius.circular(30),
               border: Border.all(color: const Color(0xFF334155)),
             ),
@@ -203,9 +203,9 @@ class _FloatingParticleWidget extends StatefulWidget {
   final _FloatingParticle particle;
 
   const _FloatingParticleWidget({
-    Key? key,
+    super.key,
     required this.particle,
-  }) : super(key: key);
+  });
 
   @override
   State<_FloatingParticleWidget> createState() => _FloatingParticleWidgetState();
@@ -277,7 +277,7 @@ class _FloatingParticleWidgetState extends State<_FloatingParticleWidget>
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.lightBlueAccent.withOpacity(0.6),
+                            color: Colors.lightBlueAccent.withValues(alpha: 0.6),
                             blurRadius: 10,
                             spreadRadius: 2,
                           )

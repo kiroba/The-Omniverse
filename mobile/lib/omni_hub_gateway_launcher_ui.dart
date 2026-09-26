@@ -17,7 +17,7 @@ void main() {
 }
 
 class KickBackGatewayApp extends StatelessWidget {
-  const KickBackGatewayApp({Key? key}) : super(key: key);
+  const KickBackGatewayApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +39,7 @@ class KickBackGatewayApp extends StatelessWidget {
 }
 
 class StargateGatewayScreen extends StatefulWidget {
-  const StargateGatewayScreen({Key? key}) : super(key: key);
+  const StargateGatewayScreen({super.key});
 
   @override
   State<StargateGatewayScreen> createState() => _StargateGatewayScreenState();
@@ -134,7 +134,7 @@ class _StargateGatewayScreenState extends State<StargateGatewayScreen> {
         });
       } else {
         // Provision new local key identity
-        final String newPubkey = "0x" + DateTime.now().millisecondsSinceEpoch.toRadixString(16);
+        final String newPubkey = "0x${DateTime.now().millisecondsSinceEpoch.toRadixString(16)}";
         final String defaultHandle = "@citizen.${newPubkey.substring(2, 8)}";
 
         final newIdentity = {

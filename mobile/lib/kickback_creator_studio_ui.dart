@@ -1,4 +1,3 @@
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
@@ -14,10 +13,10 @@ class KickBackCreatorStudioUI extends StatefulWidget {
   final String userRoleTier; // COMMON, CREATOR, INFLUENCER, EDUCATOR
 
   const KickBackCreatorStudioUI({
-    Key? key,
+    super.key,
     required this.userId,
     this.userRoleTier = 'CREATOR',
-  }) : super(key: key);
+  });
 
   @override
   State<KickBackCreatorStudioUI> createState() => _KickBackCreatorStudioUIState();
@@ -28,10 +27,10 @@ class _KickBackCreatorStudioUIState extends State<KickBackCreatorStudioUI>
   late TabController _tabController;
 
   // Mock State Data (Connected via Continuity-Engine & OmniLedger)
-  int _omniCreditsBalance = 14850;
-  int _verifiedFansCount = 382;
+  final int _omniCreditsBalance = 14850;
+  final int _verifiedFansCount = 382;
   final int _verifiedFanTarget = 500;
-  double _platformFeePercent = 2.0; // Fixed 2% Platform Treasury Fee
+  final double _platformFeePercent = 2.0; // Fixed 2% Platform Treasury Fee
   
   double get _creatorSplitPercent {
     switch (widget.userRoleTier.toUpperCase()) {
@@ -241,7 +240,7 @@ class _KickBackCreatorStudioUIState extends State<KickBackCreatorStudioUI>
                 _buildFeeRow('Platform Treasury Cut ($_platformFeePercent%)', '-\$${platformFeeUSD.toStringAsFixed(2)} USD', Colors.redAccent, const Divider(color: Color(0xFF334155), height: 20)),
                 _buildFeeRow('Role Subscription Split Tier', '${_creatorSplitPercent.toStringAsFixed(0)}% Net', const Color.fromARGB(171, 14, 141, 37),
                 const Divider(color: Color(0xFF334155), height: 20)),
-                _buildFeeRow('Estimated Net Bank Payout', '\$${netPayoutUSD.toStringAsFixed(2)} USD', const Color.fromARGB(685, 425, 152, 3), const Divider(color: const Color(0xFF334155), height: 20), isBold: true),
+                _buildFeeRow('Estimated Net Bank Payout', '\$${netPayoutUSD.toStringAsFixed(2)} USD', const Color.fromARGB(685, 425, 152, 3), const Divider(color: Color(0xFF334155), height: 20), isBold: true),
 
                 const SizedBox(height: 16),
                 SizedBox(
@@ -403,7 +402,7 @@ class _KickBackCreatorStudioUIState extends State<KickBackCreatorStudioUI>
             onPressed: () => Navigator.pop(context),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Color.fromARGB(625, 256, 354, 698)),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(625, 256, 354, 698)),
             child: const Text('Confirm & Sign (FaceID)', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
             onPressed: () {
               Navigator.pop(context);

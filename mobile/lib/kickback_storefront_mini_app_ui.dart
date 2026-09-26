@@ -9,7 +9,7 @@ import 'dart:convert';
 import 'dart:crypto' as crypto;
 
 class OmniMarketStorefrontMiniApp extends StatefulWidget {
-  const OmniMarketStorefrontMiniApp({Key? key}) : super(key: key);
+  const OmniMarketStorefrontMiniApp({super.key});
 
   @override
   _OmniMarketStorefrontMiniAppState createState() => _OmniMarketStorefrontMiniAppState();
@@ -188,8 +188,8 @@ class _OmniMarketStorefrontMiniAppState extends State<OmniMarketStorefrontMiniAp
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1E1E2C),
-        title: Row(
-          children: const [
+        title: const Row(
+          children: [
             Icon(Icons.check_circle_outline, color: Colors.greenAccent),
             SizedBox(width: 8),
             Text("Purchased & Logged to WAL", style: TextStyle(color: Colors.white, fontSize: 16)),
@@ -253,8 +253,8 @@ class _OmniMarketStorefrontMiniAppState extends State<OmniMarketStorefrontMiniAp
       appBar: AppBar(
         backgroundColor: const Color(0xFF181824),
         elevation: 0,
-        title: Row(
-          children: const [
+        title: const Row(
+          children: [
             Icon(Icons.shopping_bag_outlined, color: Colors.cyanAccent),
             SizedBox(width: 8),
             Text("OmniMarket Boutique", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -265,9 +265,9 @@ class _OmniMarketStorefrontMiniAppState extends State<OmniMarketStorefrontMiniAp
             margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.cyan.withOpacity(0.15),
+              color: Colors.cyan.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.cyanAccent.withOpacity(0.4)),
+              border: Border.all(color: Colors.cyanAccent.withValues(alpha: 0.4)),
             ),
             child: Row(
               children: [
@@ -310,12 +310,12 @@ class _OmniMarketStorefrontMiniAppState extends State<OmniMarketStorefrontMiniAp
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.purple.shade900.withOpacity(0.5), Colors.blue.shade900.withOpacity(0.5)],
+              colors: [Colors.purple.shade900.withValues(alpha: 0.5), Colors.blue.shade900.withValues(alpha: 0.5)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.purpleAccent.withOpacity(0.3)),
+            border: Border.all(color: Colors.purpleAccent.withValues(alpha: 0.3)),
           ),
           child: Row(
             children: [
@@ -330,10 +330,10 @@ class _OmniMarketStorefrontMiniAppState extends State<OmniMarketStorefrontMiniAp
                 child: const Icon(Icons.person_pin_rounded, color: Colors.cyanAccent, size: 36),
               ),
               const SizedBox(width: 16),
-              Expanded(
+              const Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text("LPE Live Dressing Room", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
                     SizedBox(height: 4),
                     Text("SQLite WAL Synchronized Ledger Active", style: TextStyle(color: Colors.white60, fontSize: 12)),
@@ -371,7 +371,7 @@ class _OmniMarketStorefrontMiniAppState extends State<OmniMarketStorefrontMiniAp
                     Expanded(
                       child: Container(
                         decoration: BoxDecoration(
-                          color: (item["color"] as Color).withOpacity(0.1),
+                          color: (item["color"] as Color).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Center(
@@ -389,7 +389,7 @@ class _OmniMarketStorefrontMiniAppState extends State<OmniMarketStorefrontMiniAp
                         Text("${item['price']} CR", style: const TextStyle(color: Colors.amberAccent, fontWeight: FontWeight.bold)),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: item["equipped"] ? Colors.green.withOpacity(0.2) : Colors.cyan,
+                            backgroundColor: item["equipped"] ? Colors.green.withValues(alpha: 0.2) : Colors.cyan,
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           ),
                           onPressed: () => _purchaseItem(item),
@@ -460,13 +460,13 @@ class _OmniMarketStorefrontMiniAppState extends State<OmniMarketStorefrontMiniAp
             decoration: BoxDecoration(
               color: const Color(0xFF181824),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.cyanAccent.withOpacity(0.3)),
+              border: Border.all(color: Colors.cyanAccent.withValues(alpha: 0.3)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Column(
-                  children: const [
+                const Column(
+                  children: [
                     Text("Licensed Status", style: TextStyle(color: Colors.white54, fontSize: 12)),
                     SizedBox(height: 4),
                     Text("ACTIVE", style: TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold, fontSize: 16)),

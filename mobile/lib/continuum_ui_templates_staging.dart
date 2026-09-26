@@ -11,6 +11,7 @@
 /// 4. Q3: Zero-Trust Spatial Holographic Anchors (`#spatial_anchor`)
 /// 5. Q4: Interactive Branching Continuum Stories (`#branching_story`)
 /// ============================================================================
+library;
 
 import 'package:flutter/material.dart';
 
@@ -66,11 +67,11 @@ class ContinuumCardContainer extends StatelessWidget {
   final Widget child;
 
   const ContinuumCardContainer({
-    Key? key,
+    super.key,
     required this.featureType,
     required this.tags,
     required this.child,
-  }) : super(key: key);
+  });
 
   Color _getBadgeColor() {
     switch (featureType) {
@@ -109,10 +110,10 @@ class ContinuumCardContainer extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF121824),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _getBadgeColor().withOpacity(0.4), width: 1.5),
+        border: Border.all(color: _getBadgeColor().withValues(alpha: 0.4), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: _getBadgeColor().withOpacity(0.1),
+            color: _getBadgeColor().withValues(alpha: 0.1),
             blurRadius: 12,
             spreadRadius: 2,
           ),
@@ -130,7 +131,7 @@ class ContinuumCardContainer extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: _getBadgeColor().withOpacity(0.2),
+                    color: _getBadgeColor().withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: _getBadgeColor(), width: 1),
                   ),
@@ -149,7 +150,7 @@ class ContinuumCardContainer extends StatelessWidget {
                   children: tags.map((t) => Text(
                     t,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.6),
+                      color: Colors.white.withValues(alpha: 0.6),
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
                     ),
@@ -179,10 +180,10 @@ class ContinuumMeshFusionTemplate extends StatefulWidget {
   final List<PerspectiveAngle> perspectives;
 
   const ContinuumMeshFusionTemplate({
-    Key? key,
+    super.key,
     required this.title,
     required this.perspectives,
-  }) : super(key: key);
+  });
 
   @override
   _ContinuumMeshFusionTemplateState createState() => _ContinuumMeshFusionTemplateState();
@@ -311,11 +312,11 @@ class ContinuumOfflinePrecogTemplate extends StatelessWidget {
   final int pendingOutboxEvents;
 
   const ContinuumOfflinePrecogTemplate({
-    Key? key,
+    super.key,
     required this.draftTitle,
     required this.lastSavedTime,
     required this.pendingOutboxEvents,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -391,12 +392,12 @@ class ContinuumTimeVaultTemplate extends StatelessWidget {
   final String remainingTime;
 
   const ContinuumTimeVaultTemplate({
-    Key? key,
+    super.key,
     required this.vaultTitle,
     required this.unlockCondition,
     required this.progressPercent,
     required this.remainingTime,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -463,11 +464,11 @@ class ContinuumSpatialAnchorTemplate extends StatelessWidget {
   final String spatialHash;
 
   const ContinuumSpatialAnchorTemplate({
-    Key? key,
+    super.key,
     required this.anchorName,
     required this.locationTag,
     required this.spatialHash,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -500,7 +501,7 @@ class ContinuumSpatialAnchorTemplate extends StatelessWidget {
             decoration: BoxDecoration(
               color: const Color(0xFF1A2232),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: const Color(0xFF4CC9F0).withOpacity(0.3)),
+              border: Border.all(color: const Color(0xFF4CC9F0).withValues(alpha: 0.3)),
             ),
             child: Row(
               children: [
@@ -544,12 +545,12 @@ class ContinuumBranchingStoryTemplate extends StatelessWidget {
   final String timeRemaining;
 
   const ContinuumBranchingStoryTemplate({
-    Key? key,
+    super.key,
     required this.storyTitle,
     required this.currentPrompt,
     required this.options,
     required this.timeRemaining,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -571,7 +572,7 @@ class ContinuumBranchingStoryTemplate extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF72585).withOpacity(0.2),
+                  color: const Color(0xFFF72585).withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(color: const Color(0xFFF72585)),
                 ),
@@ -642,7 +643,7 @@ class ContinuumBranchingStoryTemplate extends StatelessWidget {
 // ============================================================================
 
 class ContinuumFeedStagingPage extends StatelessWidget {
-  const ContinuumFeedStagingPage({Key? key}) : super(key: key);
+  const ContinuumFeedStagingPage({super.key});
 
   @override
   Widget build(BuildContext context) {

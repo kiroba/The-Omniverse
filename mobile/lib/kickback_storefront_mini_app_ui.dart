@@ -1,8 +1,12 @@
 // kickback_storefront_mini_app_ui.dart
-// Production-grade Flutter Mini-App Scaffold for OmniMarket Storefront & Merchant Studio
-// Ecosystem: The Omniverse / KickBack Universe (com.omniboutique)
+// Production-Grade Flutter Mini-App Scaffold for OmniMarket Storefront & Merchant Studio
+// Ecosystem: The Omniverse / KickBack Universe (com.kickback)
 
 import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart' as p;
+import 'dart:convert';
+import 'dart:crypto' as crypto;
 
 class OmniMarketStorefrontMiniApp extends StatefulWidget {
   const OmniMarketStorefrontMiniApp({Key? key}) : super(key: key);
@@ -14,83 +18,166 @@ class OmniMarketStorefrontMiniApp extends StatefulWidget {
 class _OmniMarketStorefrontMiniAppState extends State<OmniMarketStorefrontMiniApp>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  int _userCreditBalance = 2450;
-  bool _isLicensedMerchant = false;
+  Database? _db;
   
-  // Sample Catalog Data
-  final List<Map<String, dynamic>> _cosmeticsCatalog = [
-    {
-      "id": "item_01",
-      "name": "Neon Cyber Visor (3D)",
-      "socket": "head_socket",
-      "price": 500,
-      "merchant": "@CyberpunkVault",
-      "rating": 4.9,
-      "icon": Icons.remove_red_eye_outlined,
-      "color": Colors.cyanAccent,
-      "equipped": false
-    },
-    {
-      "id": "item_02",
-      "name": "Holographic Wings",
-      "socket": "torso_bone",
-      "price": 1200,
-      "merchant": "@AetherCraft",
-      "rating": 5.0,
-      "icon": Icons.blur_on_rounded,
-      "color": Colors.purpleAccent,
-      "equipped": false
-    },
-    {
-      "id": "item_03",
-      "name": "Quantum Combat Boots",
-      "socket": "legs_socket",
-      "price": 350,
-      "merchant": "@FutureWear",
-      "rating": 4.7,
-      "icon": Icons.directions_run_rounded,
-      "color": Colors.amberAccent,
-      "equipped": true
-    },
-    {
-      "id": "item_04",
-      "name": "Floating Plasma Pet",
-      "socket": "shoulder_socket",
-      "price": 850,
-      "merchant": "@OmniBeasts",
-      "rating": 4.8,
-      "icon": Icons.pets_rounded,
-      "color": Colors.greenAccent,
-      "equipped": false
-    },
-  ];
+  int _userCreditBalance = 0;
+  bool _isLicensedMerchant = false;
+  bool _isLoading = true;
+  String _userPubkey = "";
+
+  List<Map<String, dynamic>> _cosmeticsCatalog = [];
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _initializeDatabaseAndState();
+  }
+
+  Future<void> _initializeDatabaseAndState() async {
+    final databasesPath = await getDatabasesPath();
+    final dbPath = p.join(databasesPath, 'omni_hub_immutable.db');
+
+    _db = await openDatabase(
+      dbPath,
+      version: 1,
+      onCreate: (Database db, int version) async {
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS citizen_identity (
+            pubkey TEXT PRIMARY KEY,
+            handle TEXT,
+            credits INTEGER,
+            merchant_licensed INTEGER
+          )
+        ''');
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS event_log (
+            event_id TEXT PRIMARY KEY,
+            event_type TEXT,
+            timestamp_ns INTEGER,
+            payload_json TEXT
+          )
+        ''');
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS store_catalog (
+            item_id TEXT PRIMARY KEY,
+            name TEXT,
+            socket TEXT,
+            price INTEGER,
+            merchant_handle TEXT,
+            equipped INTEGER
+          )
+        ''');
+      },
+    );
+
+    // Read or initialize user identity
+    final identities = await _db!.query('citizen_identity', limit: 1);
+    if (identities.isNotEmpty) {
+      final user = identities.first;
+      _userPubkey = user['pubkey'] as String;
+      _userCreditBalance = (user['credits'] as int?) ?? 1000;
+      _isLicensedMerchant = (user['merchant_licensed'] as int?) == 1;
+    } else {
+      _userPubkey = "0x${DateTime.now().millisecondsSinceEpoch.toRadixString(16)}";
+      _userCreditBalance = 1000;
+      _isLicensedMerchant = false;
+      await _db!.insert('citizen_identity', {
+        'pubkey': _userPubkey,
+        'handle': '@citizen',
+        'credits': _userCreditBalance,
+        'merchant_licensed': 0,
+      });
+    }
+
+    // Load items from local database catalog
+    await _loadCatalogItems();
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  Future<void> _loadCatalogItems() async {
+    final items = await _db!.query('store_catalog');
+    if (items.isNotEmpty) {
+      _cosmeticsCatalog = items.map((i) => {
+        "id": i["item_id"],
+        "name": i["name"],
+        "socket": i["socket"],
+        "price": i["price"],
+        "merchant": i["merchant_handle"],
+        "equipped": (i["equipped"] as int) == 1,
+        "icon": Icons.style_outlined,
+        "color": Colors.cyanAccent,
+      }).toList();
+    } else {
+      // Initialize base catalog if empty
+      final defaultItems = [
+        {"item_id": "item_01", "name": "Cyber Visor", "socket": "head_socket", "price": 100, "merchant_handle": "@P2PMerchant", "equipped": 0},
+        {"item_id": "item_02", "name": "Plasma Wings", "socket": "torso_bone", "price": 250, "merchant_handle": "@P2PMerchant", "equipped": 0},
+      ];
+      for (var item in defaultItems) {
+        await _db!.insert('store_catalog', item);
+      }
+      await _loadCatalogItems();
+    }
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _db?.close();
     super.dispose();
   }
 
-  void _purchaseItem(Map<String, dynamic> item) {
+  Future<void> _purchaseItem(Map<String, dynamic> item) async {
     int price = item["price"];
     if (_userCreditBalance < price) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Insufficient OmniCredits! Top up in Wallet."),
+          content: Text("Insufficient OmniCredits balance in SQLite ledger!"),
           backgroundColor: Colors.redAccent,
         ),
       );
       return;
     }
 
+    final newBalance = _userCreditBalance - price;
+    
+    // Update local database
+    await _db!.update(
+      'citizen_identity',
+      {'credits': newBalance},
+      where: 'pubkey = ?',
+      whereArgs: [_userPubkey],
+    );
+
+    await _db!.update(
+      'store_catalog',
+      {'equipped': 1},
+      where: 'item_id = ?',
+      whereArgs: [item["id"]],
+    );
+
+    // Record immutable purchase event in event_log table
+    final timestamp = DateTime.now().microsecondsSinceEpoch * 1000;
+    final payloadJson = jsonEncode({
+      "item_id": item["id"],
+      "price": price,
+      "buyer_pubkey": _userPubkey,
+    });
+    final eventHash = crypto.sha256.convert(utf8.encode("$timestamp:$payloadJson")).toString().substring(0, 16);
+
+    await _db!.insert('event_log', {
+      'event_id': "evt_$eventHash",
+      'event_type': "ITEM_PURCHASED",
+      'timestamp_ns': timestamp,
+      'payload_json': payloadJson,
+    });
+
     setState(() {
-      _userCreditBalance -= price;
+      _userCreditBalance = newBalance;
       item["equipped"] = true;
     });
 
@@ -105,7 +192,7 @@ class _OmniMarketStorefrontMiniAppState extends State<OmniMarketStorefrontMiniAp
           children: const [
             Icon(Icons.check_circle_outline, color: Colors.greenAccent),
             SizedBox(width: 8),
-            Text("Purchase Complete", style: TextStyle(color: Colors.white)),
+            Text("Purchased & Logged to WAL", style: TextStyle(color: Colors.white, fontSize: 16)),
           ],
         ),
         content: Column(
@@ -114,10 +201,12 @@ class _OmniMarketStorefrontMiniAppState extends State<OmniMarketStorefrontMiniAp
           children: [
             Text("Item: ${item['name']}", style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 6),
-            Text("Total Paid: $price OmniCredits", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            Text("Settled Price: $price OmniCredits", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             const Divider(color: Colors.white24, height: 20),
             Text("• Merchant (80%): $merchantShare Credits", style: const TextStyle(color: Colors.greenAccent, fontSize: 13)),
             Text("• Platform Fee (20%): $platformShare Credits", style: const TextStyle(color: Colors.cyanAccent, fontSize: 13)),
+            const SizedBox(height: 8),
+            Text("Event Hash: evt_$eventHash", style: const TextStyle(color: Colors.white38, fontSize: 10, fontFamily: 'monospace')),
           ],
         ),
         actions: [
@@ -130,66 +219,35 @@ class _OmniMarketStorefrontMiniAppState extends State<OmniMarketStorefrontMiniAp
     );
   }
 
-  void _applyMerchantLicense() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: const Color(0xFF181824),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Become an OmniMarket Merchant",
-              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              "One-Time License Fee: \$15.00 USD\n"
-              "• Set your own prices for LPE 2D/3D avatar cosmetics\n"
-              "• Receive 80% net revenue on every item sale\n"
-              "• Automated 1-Tap Cash Out via OmniLedger Treasury",
-              style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.5),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepAccent,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                onPressed: () {
-                  Navigator.pop(context);
-                  setState(() {
-                    _isLicensedMerchant = true;
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("🎉 Merchant License Granted! You can now publish LPE cosmetics."),
-                      backgroundColor: Colors.greenAccent,
-                    ),
-                  );
-                },
-                child: const Text(
-                  "Pay \$15.00 Fee & Start Selling",
-                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-          ],
-        ),
+  Future<void> _applyMerchantLicense() async {
+    await _db!.update(
+      'citizen_identity',
+      {'merchant_licensed': 1},
+      where: 'pubkey = ?',
+      whereArgs: [_userPubkey],
+    );
+
+    setState(() {
+      _isLicensedMerchant = true;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("🎉 Merchant License Activated in SQLite Ledger!"),
+        backgroundColor: Colors.greenAccent,
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        backgroundColor: Color(0xFF0F0F1A),
+        body: Center(child: CircularProgressIndicator(color: Colors.cyanAccent)),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFF0F0F1A),
       appBar: AppBar(
@@ -237,10 +295,7 @@ class _OmniMarketStorefrontMiniAppState extends State<OmniMarketStorefrontMiniAp
       body: TabBarView(
         controller: _tabController,
         children: [
-          // TAB 1: Avatar Boutique & Dressing Room
           _buildAvatarBoutiqueTab(),
-          
-          // TAB 2: Merchant Studio & 80/20 Hub
           _buildMerchantStudioTab(),
         ],
       ),
@@ -250,7 +305,6 @@ class _OmniMarketStorefrontMiniAppState extends State<OmniMarketStorefrontMiniAp
   Widget _buildAvatarBoutiqueTab() {
     return Column(
       children: [
-        // Live 3D/2D Avatar Dressing Room Preview Header
         Container(
           margin: const EdgeInsets.all(16),
           padding: const EdgeInsets.all(16),
@@ -266,31 +320,29 @@ class _OmniMarketStorefrontMiniAppState extends State<OmniMarketStorefrontMiniAp
           child: Row(
             children: [
               Container(
-                width: 70,
-                height: 70,
+                width: 60,
+                height: 60,
                 decoration: BoxDecoration(
                   color: Colors.black38,
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.cyanAccent, width: 2),
                 ),
-                child: const Icon(Icons.person_pin_rounded, color: Colors.cyanAccent, size: 40),
+                child: const Icon(Icons.person_pin_rounded, color: Colors.cyanAccent, size: 36),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
-                    Text("LPE Live Dressing Room", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                    Text("LPE Live Dressing Room", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
                     SizedBox(height: 4),
-                    Text("Real-time 2D Z-Index & 3D Socket Attachment Active", style: TextStyle(color: Colors.white60, fontSize: 12)),
+                    Text("SQLite WAL Synchronized Ledger Active", style: TextStyle(color: Colors.white60, fontSize: 12)),
                   ],
                 ),
               ),
             ],
           ),
         ),
-
-        // Cosmetic Item Cards
         Expanded(
           child: GridView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -314,7 +366,7 @@ class _OmniMarketStorefrontMiniAppState extends State<OmniMarketStorefrontMiniAp
                   ),
                 ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAlignment.start,
                   children: [
                     Expanded(
                       child: Container(
@@ -323,7 +375,7 @@ class _OmniMarketStorefrontMiniAppState extends State<OmniMarketStorefrontMiniAp
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Center(
-                          child: Icon(item["icon"] as IconData, color: item["color"] as Color, size: 48),
+                          child: Icon(item["icon"] as IconData, color: item["color"] as Color, size: 40),
                         ),
                       ),
                     ),
@@ -338,14 +390,14 @@ class _OmniMarketStorefrontMiniAppState extends State<OmniMarketStorefrontMiniAp
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: item["equipped"] ? Colors.green.withOpacity(0.2) : Colors.cyan,
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           ),
                           onPressed: () => _purchaseItem(item),
                           child: Text(
                             item["equipped"] ? "Equipped" : "Buy",
                             style: TextStyle(
                               color: item["equipped"] ? Colors.greenAccent : Colors.black,
-                              fontSize: 12,
+                              fontSize: 11,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -368,29 +420,29 @@ class _OmniMarketStorefrontMiniAppState extends State<OmniMarketStorefrontMiniAp
         child: Padding(
           padding: const EdgeInsets.all(32.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: SystemAxisAlignment.center,
             children: [
-              const Icon(Icons.storefront_rounded, color: Colors.cyanAccent, size: 80),
+              const Icon(Icons.storefront_rounded, color: Colors.cyanAccent, size: 70),
               const SizedBox(height: 16),
               const Text(
                 "Open Your Avatar Boutique",
-                style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               const Text(
-                "Design and sell custom 2D/3D LPE avatar cosmetics to citizens across the entire Omniverse network.",
+                "Publish avatar cosmetics directly to the decentralized SQLite WAL store catalog.",
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white60, fontSize: 14),
+                style: TextStyle(color: Colors.white60, fontSize: 13),
               ),
               const SizedBox(height: 24),
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.cyanAccent,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 ),
                 onPressed: _applyMerchantLicense,
                 icon: const Icon(Icons.verified_sharp, color: Colors.black),
-                label: const Text("Apply for Merchant License (\$15)", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                label: const Text("Activate Merchant License", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
@@ -401,9 +453,8 @@ class _OmniMarketStorefrontMiniAppState extends State<OmniMarketStorefrontMiniAp
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAlignment.start,
         children: [
-          // Merchant Dashboard Stats
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -416,64 +467,22 @@ class _OmniMarketStorefrontMiniAppState extends State<OmniMarketStorefrontMiniAp
               children: [
                 Column(
                   children: const [
-                    Text("Total Sales", style: TextStyle(color: Colors.white54, fontSize: 12)),
+                    Text("Licensed Status", style: TextStyle(color: Colors.white54, fontSize: 12)),
                     SizedBox(height: 4),
-                    Text("142", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
+                    Text("ACTIVE", style: TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold, fontSize: 16)),
                   ],
                 ),
                 Column(
-                  children: const [
-                    Text("Merchant Payout (80%)", style: TextStyle(color: Colors.white54, fontSize: 12)),
-                    SizedBox(height: 4),
-                    Text("56,800 CR", style: TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold, fontSize: 20)),
+                  children: [
+                    const Text("Identity Pubkey", style: TextStyle(color: Colors.white54, fontSize: 12)),
+                    const SizedBox(height: 4),
+                    Text(
+                      _userPubkey.length > 12 ? "${_userPubkey.substring(0, 10)}..." : _userPubkey,
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14, fontFamily: 'monospace'),
+                    ),
                   ],
                 ),
               ],
-            ),
-          ),
-          const SizedBox(height: 20),
-          const Text("Publish New LPE Asset", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-          const SizedBox(height: 12),
-          TextFormField(
-            decoration: InputDecoration(
-              labelText: "Asset Name",
-              labelStyle: const TextStyle(color: Colors.white60),
-              filled: true,
-              fillColor: const Color(0xFF181824),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            style: const TextStyle(color: Colors.white),
-          ),
-          const SizedBox(height: 12),
-          TextFormField(
-            decoration: InputDecoration(
-              labelText: "Price (OmniCredits)",
-              labelStyle: const TextStyle(color: Colors.white60),
-              filled: true,
-              fillColor: const Color(0xFF181824),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            style: const TextStyle(color: Colors.white),
-          ),
-          const Spacer(),
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.cyanAccent,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("🚀 Asset submitted! WASM Sandbox audit in progress..."),
-                    backgroundColor: Colors.cyanAccent,
-                  ),
-                );
-              },
-              icon: const Icon(Icons.cloud_upload_outlined, color: Colors.black),
-              label: const Text("Upload glTF / PNG Socket Package", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
             ),
           ),
         ],

@@ -136,7 +136,7 @@ class ContinuumCardContainer extends StatelessWidget {
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header Bar
           Padding(
@@ -226,7 +226,7 @@ class _ContinuumMeshFusionTemplateState extends State<ContinuumMeshFusionTemplat
       featureType: ContinuumFeatureType.meshFusion,
       tags: const ["#qol", "#continuum", "#mesh_fusion"],
       child: Column(
-        crossAxisAlignment: CrossAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             widget.title,
@@ -347,7 +347,7 @@ class ContinuumOfflinePrecogTemplate extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Column(
-            crossAxisAlignment: CrossAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(draftTitle, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               Text("Saved: $lastSavedTime (SQLite WAL Outbox)", style: const TextStyle(color: Colors.white54, fontSize: 11)),
@@ -389,7 +389,7 @@ class ContinuumTimeVaultTemplate extends StatelessWidget {
       featureType: ContinuumFeatureType.timeVault,
       tags: const ["#qol", "#continuum", "#time_vault"],
       child: Column(
-        crossAxisAlignment: CrossAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(vaultTitle, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
@@ -429,7 +429,7 @@ class ContinuumSpatialAnchorTemplate extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Column(
-            crossAlignment: CrossAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(locationTitle, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               Text("LiDAR Hash: $lidarFeatureHash (Zero-GPS)", style: const TextStyle(color: Colors.white54, fontSize: 11)),
@@ -467,14 +467,14 @@ class ContinuumBranchingStoryTemplate extends StatelessWidget {
       featureType: ContinuumFeatureType.branchingStory,
       tags: const ["#qol", "#continuum", "#branching_story"],
       child: Column(
-        crossAxisAlignment: CrossAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(questionTitle, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           const SizedBox(height: 10),
           ...options.map((opt) => Padding(
             padding: const EdgeInsets.only(bottom: 8.0),
             child: Column(
-              crossAxisAlignment: CrossAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -525,7 +525,7 @@ class LpeIdlePlazaWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Column(
-            crossAlignment: CrossAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text("Plaza Center: $mainUserHandle", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               Text("Action: $activeAction | $totalPlazaAvatars Avatars Nearby", style: const TextStyle(color: Colors.white54, fontSize: 11)),
@@ -565,7 +565,7 @@ class LpeJailQuarantineView extends StatelessWidget {
       featureType: ContinuumFeatureType.p2pJail,
       tags: const ["#qol", "#p2p_jail", "#quarantine"],
       child: Column(
-        crossAxisAlignment: CrossAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [

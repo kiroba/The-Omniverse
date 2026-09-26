@@ -119,7 +119,7 @@ class ContinuumCardContainer extends StatelessWidget {
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header Bar
           Padding(
@@ -199,7 +199,7 @@ class _ContinuumMeshFusionTemplateState extends State<ContinuumMeshFusionTemplat
       featureType: ContinuumFeatureType.meshFusion,
       tags: const ["#qol", "#continuum", "#mesh_fusion"],
       child: Column(
-        crossAxisAlignment: CrossAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             widget.title,
@@ -323,7 +323,7 @@ class ContinuumOfflinePrecogTemplate extends StatelessWidget {
       featureType: ContinuumFeatureType.edgePreCognition,
       tags: const ["#qol", "#offline_draft", "#edge_precog"],
       child: Column(
-        crossAxisAlignment: CrossAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
@@ -348,7 +348,7 @@ class ContinuumOfflinePrecogTemplate extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(
-                  crossAxisAlignment: CrossAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text("Local SQLite WAL Outbox:", style: TextStyle(color: Colors.white54, fontSize: 11)),
                     Text(
@@ -404,7 +404,7 @@ class ContinuumTimeVaultTemplate extends StatelessWidget {
       featureType: ContinuumFeatureType.timeVault,
       tags: const ["#qol", "#time_vault", "#shamir_lock"],
       child: Column(
-        crossAxisAlignment: CrossAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
@@ -475,7 +475,7 @@ class ContinuumSpatialAnchorTemplate extends StatelessWidget {
       featureType: ContinuumFeatureType.spatialAnchor,
       tags: const ["#qol", "#spatial_anchor", "#zero_gps_ar"],
       child: Column(
-        crossAxisAlignment: CrossAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
@@ -508,7 +508,7 @@ class ContinuumSpatialAnchorTemplate extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text("LiDAR Camera Feature Match:", style: TextStyle(color: Colors.white54, fontSize: 10)),
                       Text(
@@ -557,7 +557,7 @@ class ContinuumBranchingStoryTemplate extends StatelessWidget {
       featureType: ContinuumFeatureType.branchingStory,
       tags: const ["#qol", "#branching_story", "#p2p_consensus"],
       child: Column(
-        crossAxisAlignment: CrossAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -600,7 +600,7 @@ class ContinuumBranchingStoryTemplate extends StatelessWidget {
                     border: Border.all(color: Colors.white12),
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 /// KickBack Creator Studio Hub
@@ -62,11 +64,11 @@ class _KickBackCreatorStudioUIState extends State<KickBackCreatorStudioUI>
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A), // Dark Slate Background
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1E293B),
+        backgroundColor: const Color.fromARGB(255, 57, 37, 128),
         elevation: 2,
         title: Row(
           children: [
-            const Icon(Icons.auto_awesome, color: Colors.skyBlue),
+            const Icon(Icons.auto_awesome, color: Color(0xFF87EBDC)),
             const SizedBox(width: 8),
             const Text(
               'KickBack Creator Studio',
@@ -80,14 +82,14 @@ class _KickBackCreatorStudioUIState extends State<KickBackCreatorStudioUI>
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.skyBlue.withOpacity(0.2),
+                color: const Color.fromARGB(255, 86, 202, 184),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.skyBlue),
+                border: Border.all(color: const Color.fromARGB(255, 57, 37, 128), width: 1.5)
               ),
               child: Text(
                 widget.userRoleTier,
                 style: const TextStyle(
-                  color: Colors.skyBlue,
+                  color: Color.fromARGB(255, 57, 37, 128),
                   fontWeight: FontWeight.bold,
                   fontSize: 11,
                 ),
@@ -97,9 +99,9 @@ class _KickBackCreatorStudioUIState extends State<KickBackCreatorStudioUI>
         ),
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: Colors.skyBlue,
-          labelColor: Colors.skyBlue,
-          unselectedLabelColor: Colors.slateGrey,
+          indicatorColor: const Color.fromARGB(255, 93, 128, 37),
+          labelColor: const Color.fromARGB(455, 93, 128, 37),
+          unselectedLabelColor: const Color.fromARGB(255, 100, 100, 100),
           tabs: const [
             Tab(icon: Icon(Icons.analytics_outlined), text: "Analytics"),
             Tab(icon: Icon(Icons.account_balance_wallet_outlined), text: "Treasury"),
@@ -133,7 +135,7 @@ class _KickBackCreatorStudioUIState extends State<KickBackCreatorStudioUI>
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
-              crossAxisAlignment: Start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -144,7 +146,7 @@ class _KickBackCreatorStudioUIState extends State<KickBackCreatorStudioUI>
                     ),
                     Text(
                       '$_verifiedFansCount / $_verifiedFanTarget Fans',
-                      style: const TextStyle(color: Colors.skyBlue, fontWeight: FontWeight.bold),
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -152,14 +154,14 @@ class _KickBackCreatorStudioUIState extends State<KickBackCreatorStudioUI>
                 LinearProgressIndicator(
                   value: fanProgress,
                   backgroundColor: const Color(0xFF334155),
-                  color: Colors.skyBlue,
+                  color: const Color.fromARGB(255, 23, 35, 3),
                   minHeight: 10,
                   borderRadius: BorderRadius.circular(5),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Reach $_verifiedFanTarget verified fans to unlock zero-touch automated weekly payout distributions.',
-                  style: const TextStyle(color: Colors.slateGrey, fontSize: 12),
+                  style: const TextStyle(color: Color.fromARGB(255, 140, 140, 140), fontSize: 12),
                 ),
               ],
             ),
@@ -218,7 +220,7 @@ class _KickBackCreatorStudioUIState extends State<KickBackCreatorStudioUI>
               ),
               Text(
                 '≈ \$${usdEquivalent.toStringAsFixed(2)} USD',
-                style: const TextStyle(color: Colors.white90, fontSize: 14),
+                style: const TextStyle(color: Colors.white, fontSize: 14),
               ),
             ],
           ),
@@ -235,18 +237,19 @@ class _KickBackCreatorStudioUIState extends State<KickBackCreatorStudioUI>
               children: [
                 const Text('Transparent Payout Breakdown', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
                 const Divider(color: Color(0xFF334155), height: 20),
-                _buildFeeRow('Gross Earnings', '\$${grossUSD.toStringAsFixed(2)} USD', Colors.white),
-                _buildFeeRow('Platform Treasury Cut ($_platformFeePercent%)', '-\$${platformFeeUSD.toStringAsFixed(2)} USD', Colors.redAccent),
-                _buildFeeRow('Role Subscription Split Tier', '${_creatorSplitPercent.toStringAsFixed(0)}% Net', Colors.skyBlue),
-                const Divider(color: Color(0xFF334155), height: 20),
-                _buildFeeRow('Estimated Net Bank Payout', '\$${netPayoutUSD.toStringAsFixed(2)} USD', Colors.greenAccent, isBold: true),
+                _buildFeeRow('Gross Earnings', '\$${grossUSD.toStringAsFixed(2)} USD', Colors.white, const Divider(color: Color(0xFF334155), height: 20)),
+                _buildFeeRow('Platform Treasury Cut ($_platformFeePercent%)', '-\$${platformFeeUSD.toStringAsFixed(2)} USD', Colors.redAccent, const Divider(color: Color(0xFF334155), height: 20)),
+                _buildFeeRow('Role Subscription Split Tier', '${_creatorSplitPercent.toStringAsFixed(0)}% Net', const Color.fromARGB(171, 14, 141, 37),
+                const Divider(color: Color(0xFF334155), height: 20)),
+                _buildFeeRow('Estimated Net Bank Payout', '\$${netPayoutUSD.toStringAsFixed(2)} USD', const Color.fromARGB(685, 425, 152, 3), const Divider(color: const Color(0xFF334155), height: 20), isBold: true),
+
                 const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
                   height: 48,
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.skyBlue,
+                      backgroundColor: const Color.fromARGB(255, 93, 128, 37),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                     icon: const Icon(Icons.account_balance, color: Colors.black),
@@ -313,18 +316,18 @@ class _KickBackCreatorStudioUIState extends State<KickBackCreatorStudioUI>
               children: [
                 const CircleAvatar(
                   radius: 40,
-                  backgroundColor: Colors.skyBlue,
+                  backgroundColor: Color.fromARGB(255, 14, 141, 37),
                   child: Icon(Icons.person, size: 50, color: Colors.black),
                 ),
                 const SizedBox(height: 10),
                 const Text('Live Persona Avatar Config', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
                 const SizedBox(height: 4),
-                const Text('Layer 0: Standard Body Mesh  |  Layer 1: Equipped Cosmetics', style: TextStyle(color: Colors.slateGrey, fontSize: 12)),
+                const Text('Layer 0: Standard Body Mesh  |  Layer 1: Equipped Cosmetics', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
                 const SizedBox(height: 16),
                 OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(side: const BorderSide(color: Colors.skyBlue)),
-                  icon: const Icon(Icons.style, color: Colors.skyBlue),
-                  label: const Text('Edit LPE Cosmetic Layers', style: TextStyle(color: Colors.skyBlue)),
+                  style: OutlinedButton.styleFrom(side: const BorderSide(color:Color(0xFFFF9000)), backgroundColor: const Color.fromARGB(255, 14, 141, 37), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                  icon: const Icon(Icons.style, color: Color.fromARGB(234, 14, 141, 37)),
+                  label: const Text('Edit LPE Cosmetic Layers', style: TextStyle(color: Color.fromARGB(234, 14, 141, 37), fontWeight: FontWeight.bold)),
                   onPressed: () {},
                 ),
               ],
@@ -350,13 +353,13 @@ class _KickBackCreatorStudioUIState extends State<KickBackCreatorStudioUI>
           Icon(icon, color: color, size: 22),
           const SizedBox(height: 8),
           Text(value, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-          Text(title, style: const TextStyle(color: Colors.slateGrey, fontSize: 11)),
+          Text(title, style: const TextStyle(color: Color.fromARGB(563, 45, 63, 76), fontSize: 11)),
         ],
       ),
     );
   }
 
-  Widget _buildFeeRow(String label, String amount, Color amountColor, {bool isBold = false}) {
+  Widget _buildFeeRow(String label, String amount, Color amountColor, Divider divider, {bool isBold = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -377,8 +380,8 @@ class _KickBackCreatorStudioUIState extends State<KickBackCreatorStudioUI>
       child: ListTile(
         leading: Icon(icon, color: iconColor, size: 30),
         title: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-        subtitle: Text(subtitle, style: const TextStyle(color: Colors.slateGrey, fontSize: 12)),
-        trailing: const Icon(Icons.arrow_forward_ios, color: Colors.slateGrey, size: 14),
+        subtitle: Text(subtitle, style: const TextStyle(color: Color.fromARGB(563, 45, 63, 45), fontSize: 12)),
+        trailing: const Icon(Icons.arrow_forward_ios, color: Color.fromARGB(563, 45, 63, 15), size: 14),
         onTap: () {},
       ),
     );
@@ -396,11 +399,11 @@ class _KickBackCreatorStudioUIState extends State<KickBackCreatorStudioUI>
         ),
         actions: [
           TextButton(
-            child: const Text('Cancel', style: TextStyle(color: Colors.slateGrey)),
+            child: const Text('Cancel', style: TextStyle(color: Color.fromARGB(563, 45, 63, 68))),
             onPressed: () => Navigator.pop(context),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.skyBlue),
+            style: ElevatedButton.styleFrom(backgroundColor: Color.fromARGB(625, 256, 354, 698)),
             child: const Text('Confirm & Sign (FaceID)', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
             onPressed: () {
               Navigator.pop(context);

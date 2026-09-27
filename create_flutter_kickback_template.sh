@@ -1,19 +1,20 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# ==============================================================================
+# The KickBack — 1-Click Desktop & Repository Bootstrapper
+# Creates directory structures and writes all required build files with
+# clean YAML syntax and Android v2 Embedding.
+# ==============================================================================
+
 set -e
 
-echo "==========================================================================="
-echo "  THE KICKBACK (com.kickback) — REPOSITORY BOOTSTRAPPER"
-echo "  Creating directory hierarchy and writing core Flutter/Android build files"
-echo "==========================================================================="
+echo "🚀 Bootstrapping The KickBack repository tree..."
 
-# Create Directories
+# Create directory structures
 mkdir -p .github/workflows
-mkdir -p mobile/android/app/src/main/res/values
+mkdir -p mobile/android/app/src/main/kotlin/com/kickback
 mkdir -p mobile/android/app/src/main/res/mipmap-hdpi
 mkdir -p mobile/lib
 mkdir -p mobile/assets/images
-mkdir -p mobile/assets/config
-mkdir -p core/engines
 
 # 1. Write GitHub Actions Workflow (.github/workflows/build_apk.yml)
 cat << 'EOF' > .github/workflows/build_apk.yml
@@ -62,7 +63,7 @@ jobs:
             build/app/outputs/flutter-apk/app-release.apk
 EOF
 
-# 2. Write Flutter pubspec.yaml (mobile/pubspec.yaml)
+# 2. Write Flutter Dependencies (mobile/pubspec.yaml)
 cat << 'EOF' > mobile/pubspec.yaml
 name: kickback
 description: "The KickBack — Sovereign, Serverless P2P Social Ecosystem"
@@ -96,21 +97,23 @@ dev_dependencies:
   flutter_lints: ^3.0.0
   flutter_launcher_icons: ^0.13.1
 
-flutter_launcher_icons:
-  android: "ic_launcher"
-  ios: true
-  image_path: "assets/images/kickback_app_icon.png"
-  min_sdk_android: 21
-  adaptive_icon_background: "#0F172A"
-
 flutter:
   uses-material-design: true
   assets:
     - assets/images/
-    - assets/config/
 EOF
 
-# 3. Write Android build.gradle (mobile/android/app/build.gradle)
+# 3. Write Kotlin MainActivity with v2 Embedding (mobile/android/app/src/main/kotlin/com/kickback/MainActivity.kt)
+cat << 'EOF' > mobile/android/app/src/main/kotlin/com/kickback/MainActivity.kt
+package com.kickback
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity: FlutterActivity() {
+}
+EOF
+
+# 4. Write Android Gradle Build Config (mobile/android/app/build.gradle)
 cat << 'EOF' > mobile/android/app/build.gradle
 plugins {
     id "com.android.application"
@@ -126,15 +129,8 @@ if (localPropertiesFile.exists()) {
     }
 }
 
-def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
-if (flutterVersionCode == null) {
-    flutterVersionCode = '1'
-}
-
-def flutterVersionName = localProperties.getProperty('flutter.versionName')
-if (flutterVersionName == null) {
-    flutterVersionName = '1.0'
-}
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode') ?: '1'
+def flutterVersionName = localProperties.getProperty('flutter.versionName') ?: '1.0'
 
 android {
     namespace "com.kickback"
@@ -172,7 +168,7 @@ flutter {
 }
 EOF
 
-# 4. Write AndroidManifest.xml (mobile/android/app/src/main/AndroidManifest.xml)
+# 5. Write AndroidManifest.xml (mobile/android/app/src/main/AndroidManifest.xml)
 cat << 'EOF' > mobile/android/app/src/main/AndroidManifest.xml
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.kickback">
@@ -193,6 +189,10 @@ cat << 'EOF' > mobile/android/app/src/main/AndroidManifest.xml
         android:icon="@mipmap/ic_launcher"
         android:hardwareAccelerated="true"
         android:allowBackup="false">
+
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
 
         <activity
             android:name=".MainActivity"
@@ -215,25 +215,8 @@ cat << 'EOF' > mobile/android/app/src/main/AndroidManifest.xml
                 <data android:scheme="kickback" android:host="invite" />
             </intent-filter>
         </activity>
-
-        <meta-data
-            android:name="flutterEmbedding"
-            android:value="2" />
     </application>
 </manifest>
 EOF
 
-# 5. Write Styles XML (mobile/android/app/src/main/res/values/styles.xml)
-cat << 'EOF' > mobile/android/app/src/main/res/values/styles.xml
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <style name="LaunchTheme" parent="@android:style/Theme.Black.NoTitleBar">
-        <item name="android:windowBackground">@android:color/black</item>
-    </style>
-    <style name="NormalTheme" parent="@android:style/Theme.Black.NoTitleBar">
-        <item name="android:windowBackground">@android:color/black</item>
-    </style>
-</resources>
-EOF
-
-echo "✓ All configuration files and folder hierarchy created successfully!"
+echo "✅ Bootstrap complete! All build files created with clean YAML formatting and Android v2 embedding."

@@ -1,0 +1,43 @@
+name: Build Standalone KickBack Alpha APK
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'microsoft'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: 'stable'
+
+      - name: Install Dependencies
+        run: |
+          if [ -d "mobile" ]; then cd mobile; fi
+          flutter pub get
+
+      - name: Build Release APK
+        run: |
+          if [ -d "mobile" ]; then cd mobile; fi
+          flutter build apk --release --target=lib/omni_hub_gateway_launcher_ui.dart
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: The-KickBack-Alpha-v1.0
+          path: |
+            mobile/build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/flutter-apk/app-release.apk

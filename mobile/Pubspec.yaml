@@ -1,45 +1,35 @@
 name: kickback
 description: "The KickBack — Sovereign, Serverless P2P Social Ecosystem"
-publish_to: 'none'
-
+publish\_to: 'none' # Private release build
 version: 1.0.0+1
+environment: 
+  sdk: '>=3.0.0 <4.0.0' 
+  flutter: '>=3.16.0' 
+dependencies: flutter: sdk: flutter 
 
-environment:
-  sdk: '>=3.0.0 <4.0.0'
-  flutter: '>=3.16.0'
+# --- UI & Media Layer --- 
+cupertino\_icons: ^1.0.6 camera: ^0.10.5+9 # Multi-perspective camera switching 
+video\_player: ^2.8.2 # High-entropy video feed playback 
+google\_fonts: ^6.1.0 # Dynamic visual typography 
 
-dependencies:
-  flutter:
-    sdk: flutter
+# --- Local Ledger & Persistence --- 
+sqflite: ^2.3.0 # Embedded SQLite Write-Ahead Logging (WAL) 
+path\_provider: ^2.1.2 # Device storage sandbox resolution 
 
-  cupertino_icons: ^1.0.6
-  camera: ^0.10.5+9
-  video_player: ^2.8.2
-  google_fonts: ^6.1.0
-  sqflite: ^2.3.0
-  path_provider: ^2.1.2
-  crypto: ^3.0.3
-  pointycastle: ^3.7.3
-  device_info_plus: ^9.1.1
-  web_socket_channel: ^2.4.1
-  connectivity_plus: ^5.0.2
+# --- Cryptography & Attestation --- 
+crypto: ^3.0.3 # SHA-256 Merkle DAG hashing 
+pointycastle: ^3.7.3 # Ed25519 Stargate hardware signing keys 
+device\_info\_plus: ^9.1.1 # Hardware remote attestation telemetry 
 
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^3.0.0
-  flutter_launcher_icons: ^0.13.1
-
-flutter_launcher_icons:
-  android: "ic_launcher"
-  ios: true
-  image_path: "assets/images/kickback_app_icon.png"
-  min_sdk_android: 21
-  adaptive_icon_background: "#0F172A"
-  adaptive\_icon\_foreground: "assets/images/kickback\_icon\_foreground.png"
-
-flutter:
-  uses-material-design: true
-  assets:
-    - assets/images/
-    - assets/config/
+# --- P2P Mesh Transport --- 
+web\_socket\_channel: ^2.4.1 # Local &  cellular GossipSub socket streams 
+connectivity\_plus: ^5.0.2 # Dynamic CGNAT/Wi-Fi connection state
+dev\_dependencies: 
+  flutter\_test: 
+    sdk: flutter 
+  flutter\_lints: ^3.0.0 
+flutter: 
+uses-material-design: true 
+# Embedded Web Manifest & Local Assets assets: 
+- assets/images/ 
+- assets/config/

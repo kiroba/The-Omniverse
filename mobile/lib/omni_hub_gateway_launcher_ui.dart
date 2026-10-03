@@ -101,6 +101,24 @@ class _StargateGatewayScreenState extends State<StargateGatewayScreen> {
     }
   }
 
+  Future<void> _loadCitizenIdentityFromDatabase() async {
+    final Database? database = _db;
+    if (database == null) return;
+
+    final List<Map<String, dynamic>> identities = await database.query(
+      'citizen_identity',
+      columns: ['handle'],
+      limit: 1,
+    );
+    if (!mounted || identities.isEmpty) return;
+
+    final String handle = identities.first['handle'] as String;
+    setState(() {
+      _authStepMessage =
+          'Returning citizen found: $handle. Authenticate to continue.';
+    });
+  }
+
   /// REAL PRODUCTION LOGIN: Reads/Provisions citizen profile directly from local database
   Future<void> _executeStargateLogin() async {
     if (_db == null) return;
@@ -134,7 +152,8 @@ class _StargateGatewayScreenState extends State<StargateGatewayScreen> {
         });
       } else {
         // Provision new local key identity
-        final String newPubkey = "0x${DateTime.now().millisecondsSinceEpoch.toRadixString(16)}";
+        final String newPubkey =
+            "0x${DateTime.now().millisecondsSinceEpoch.toRadixString(16)}";
         final String defaultHandle = "@citizen.${newPubkey.substring(2, 8)}";
 
         final newIdentity = {
@@ -203,7 +222,8 @@ class _StargateGatewayScreenState extends State<StargateGatewayScreen> {
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text("Diagnostic Event Logged: evt_${DateTime.now().millisecondsSinceEpoch}"),
+                  content: Text(
+                      "Diagnostic Event Logged: evt_${DateTime.now().millisecondsSinceEpoch}"),
                   backgroundColor: const Color(0xFF7209B7),
                 ),
               );
@@ -229,25 +249,33 @@ class _StargateGatewayScreenState extends State<StargateGatewayScreen> {
                       children: [
                         Text(
                           _authStepMessage,
-                          style: const TextStyle(color: Colors.white70, fontSize: 14),
+                          style: const TextStyle(
+                              color: Colors.white70, fontSize: 14),
                         ),
                         const SizedBox(height: 12),
                         ElevatedButton.icon(
-                          onPressed: _isAuthenticating ? null : _executeStargateLogin,
+                          onPressed:
+                              _isAuthenticating ? null : _executeStargateLogin,
                           icon: _isAuthenticating
                               ? const SizedBox(
                                   width: 16,
                                   height: 16,
-                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2, color: Colors.black),
                                 )
                               : const Icon(Icons.key, color: Colors.black),
                           label: Text(
-                            _isAuthenticating ? "Authenticating..." : "Stargate Enclave Login",
-                            style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                            _isAuthenticating
+                                ? "Authenticating..."
+                                : "Stargate Enclave Login",
+                            style: const TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF00FFCC),
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 12),
                           ),
                         ),
                       ],
@@ -268,7 +296,8 @@ class _StargateGatewayScreenState extends State<StargateGatewayScreen> {
                             ),
                             Text(
                               "Key: ${_authenticatedCitizen!['pubkey'].toString().substring(0, 10)}...",
-                              style: const TextStyle(color: Colors.white54, fontSize: 12),
+                              style: const TextStyle(
+                                  color: Colors.white54, fontSize: 12),
                             ),
                           ],
                         ),
@@ -277,11 +306,14 @@ class _StargateGatewayScreenState extends State<StargateGatewayScreen> {
                           children: [
                             Text(
                               "${_authenticatedCitizen!['omniCredits']} Credits",
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
                             ),
                             Text(
                               "\$${_authenticatedCitizen!['usdBalance'].toStringAsFixed(2)} USD",
-                              style: const TextStyle(color: Colors.greenAccent, fontSize: 12),
+                              style: const TextStyle(
+                                  color: Colors.greenAccent, fontSize: 12),
                             ),
                           ],
                         ),
@@ -293,7 +325,10 @@ class _StargateGatewayScreenState extends State<StargateGatewayScreen> {
             // Live Social Feed Section
             const Text(
               "Sovereign Human Feed",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
             ),
             const SizedBox(height: 10),
 
@@ -305,7 +340,8 @@ class _StargateGatewayScreenState extends State<StargateGatewayScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.rss_feed, size: 48, color: Colors.white24),
+                              const Icon(Icons.rss_feed,
+                                  size: 48, color: Colors.white24),
                               const SizedBox(height: 12),
                               const Text(
                                 "No events recorded in local WAL database yet.",
@@ -327,12 +363,14 @@ class _StargateGatewayScreenState extends State<StargateGatewayScreen> {
                               color: const Color(0xFF1E293B),
                               margin: const EdgeInsets.symmetric(vertical: 6),
                               child: ListTile(
-                                leading: const Icon(Icons.verified, color: Color(0xFF00FFCC)),
+                                leading: const Icon(Icons.verified,
+                                    color: Color(0xFF00FFCC)),
                                 title: Text(event['event_type'] ?? 'EVENT'),
                                 subtitle: Text(event['payload_json'] ?? '{}'),
                                 trailing: Text(
                                   event['event_id'].toString().substring(0, 8),
-                                  style: const TextStyle(color: Colors.white38, fontSize: 10),
+                                  style: const TextStyle(
+                                      color: Colors.white38, fontSize: 10),
                                 ),
                               ),
                             );

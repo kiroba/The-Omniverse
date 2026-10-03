@@ -30,7 +30,6 @@ class CoreEnginesDashboard extends StatefulWidget {
 
 class _CoreEnginesDashboardState extends State<CoreEnginesDashboard> {
   bool _isDaemonActive = true;
-  int _activePeers = 4;
   int _secretTapCount = 0;
 
   @override
@@ -49,7 +48,10 @@ class _CoreEnginesDashboardState extends State<CoreEnginesDashboard> {
           },
           child: const Text(
             '🕹 OMNIVERSE CORE ENGINES GATEWAY',
-            style: TextStyle(color: Color(0xFF00FFCC), fontWeight: FontWeight.bold, fontSize: 16),
+            style: TextStyle(
+                color: Color(0xFF00FFCC),
+                fontWeight: FontWeight.bold,
+                fontSize: 16),
           ),
         ),
         backgroundColor: const Color(0xFF121A29),
@@ -87,10 +89,13 @@ class _CoreEnginesDashboardState extends State<CoreEnginesDashboard> {
               child: ElevatedButton.icon(
                 onPressed: () => _showEasterEggDialog(context),
                 icon: const Icon(Icons.monitor, color: Colors.black),
-                label: const Text('OPEN PROCESS MONITOR & EASTER EGG', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                label: const Text('OPEN PROCESS MONITOR & EASTER EGG',
+                    style: TextStyle(
+                        color: Colors.black, fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF00FFCC),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 ),
               ),
             ),
@@ -106,7 +111,8 @@ class _CoreEnginesDashboardState extends State<CoreEnginesDashboard> {
       decoration: BoxDecoration(
         color: const Color(0xFF162235),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF00FFCC).withValues(alpha: 0.4)),
+        border:
+            Border.all(color: const Color(0xFF00FFCC).withValues(alpha: 0.4)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -114,10 +120,14 @@ class _CoreEnginesDashboardState extends State<CoreEnginesDashboard> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('GATEWAY STATUS', style: TextStyle(color: Colors.grey, fontSize: 12)),
+              const Text('GATEWAY STATUS',
+                  style: TextStyle(color: Colors.grey, fontSize: 12)),
               Text(
                 _isDaemonActive ? 'ACTIVE (127.0.0.1:9200)' : 'STOPPED',
-                style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold, fontSize: 16),
+                style: const TextStyle(
+                    color: Colors.greenAccent,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16),
               ),
             ],
           ),
@@ -131,7 +141,11 @@ class _CoreEnginesDashboardState extends State<CoreEnginesDashboard> {
     );
   }
 
-  Widget _buildEngineCard({required String title, required String status, required String detail, required Color color}) {
+  Widget _buildEngineCard(
+      {required String title,
+      required String status,
+      required String detail,
+      required Color color}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -143,11 +157,15 @@ class _CoreEnginesDashboardState extends State<CoreEnginesDashboard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 14)),
+          Text(title,
+              style: TextStyle(
+                  color: color, fontWeight: FontWeight.bold, fontSize: 14)),
           const SizedBox(height: 6),
-          Text(status, style: const TextStyle(color: Colors.white, fontSize: 13)),
+          Text(status,
+              style: const TextStyle(color: Colors.white, fontSize: 13)),
           const SizedBox(height: 4),
-          Text(detail, style: const TextStyle(color: Colors.grey, fontSize: 11)),
+          Text(detail,
+              style: const TextStyle(color: Colors.grey, fontSize: 11)),
         ],
       ),
     );
@@ -158,15 +176,16 @@ class _CoreEnginesDashboardState extends State<CoreEnginesDashboard> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: const Color(0xFF0A0E17),
-        title: const Text('🕹 CORE ENGINES PROCESS MONITOR', style: TextStyle(color: Color(0xFF00FFCC))),
+        title: const Text('🕹 CORE ENGINES PROCESS MONITOR',
+            style: TextStyle(color: Color(0xFF00FFCC))),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              'Running Standalone Daemon Loop:
-• P2P GossipSub Mesh: ACTIVE
-• Merkle Root: 0x0185D7BE
-• Local SQLite WAL: READY',
+              '''Running Standalone Daemon Loop:
+  • P2P GossipSub Mesh: ACTIVE
+  • Merkle Root: 0x0185D7BE
+  • Local SQLite WAL: READY''',
               style: TextStyle(color: Colors.white70, fontSize: 12),
             ),
             const SizedBox(height: 16),
@@ -175,7 +194,8 @@ class _CoreEnginesDashboardState extends State<CoreEnginesDashboard> {
               width: double.infinity,
               color: Colors.black,
               child: const Center(
-                child: Text('[ EASTER EGG GIF VISUALIZER PLACEHOLDER ]', style: TextStyle(color: Color(0xFF00FFCC), fontSize: 10)),
+                child: Text('[ EASTER EGG GIF VISUALIZER PLACEHOLDER ]',
+                    style: TextStyle(color: Color(0xFF00FFCC), fontSize: 10)),
               ),
             ),
           ],
@@ -183,7 +203,8 @@ class _CoreEnginesDashboardState extends State<CoreEnginesDashboard> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('CLOSE', style: TextStyle(color: Color(0xFF00FFCC))),
+            child:
+                const Text('CLOSE', style: TextStyle(color: Color(0xFF00FFCC))),
           ),
         ],
       ),

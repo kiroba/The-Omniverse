@@ -148,7 +148,7 @@ class _KickBackWalletAndStoreScreenState extends State<KickBackWalletAndStoreScr
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Send OmniGifts ($1 - $100)',
+                    'Send OmniGifts (\$1 - \$100)',
                     style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   Container(
@@ -395,7 +395,7 @@ class _WalletEarningsTab extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Minimum Cashout Floor ($10.00)',
+                      const Text('Minimum Cashout Floor (\$10.00)',
                           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                       Text(
                         '\$${usdBalance.toStringAsFixed(2)} / \$10.00',
@@ -555,7 +555,7 @@ class _WalletEarningsTab extends StatelessWidget {
           children: [
             ListTile(
               leading: const Icon(Icons.attach_money, color: Colors.green),
-              title: const Text('Cash App ($cashtag)', style: TextStyle(color: Colors.white)),
+              title: const Text('Cash App (\$cashtag)', style: TextStyle(color: Colors.white)),
               subtitle: const Text('Instant 0-fee transfer', style: TextStyle(color: Colors.grey, fontSize: 11)),
               onTap: () => Navigator.pop(ctx),
             ),
@@ -801,7 +801,7 @@ class _Expanded100GiftCatalogGridTabState extends State<_Expanded100GiftCatalogG
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           child: Row(
             children: [
-              _buildCategoryChip('ALL', 'Universal (70 Gifts $1-$100)'),
+              _buildCategoryChip('ALL', 'Universal (70 Gifts \$1-\$100)'),
               _buildCategoryChip('CREATOR', 'Creator Exclusives (10)'),
               _buildCategoryChip('INFLUENCER', 'Influencer Exclusives (10)'),
               _buildCategoryChip('EDUCATOR', 'Educator Exclusives (10)'),
@@ -988,7 +988,7 @@ class _TransactionList extends StatelessWidget {
             title: Text(tx['title'] ?? 'Gift Received', style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
             subtitle: Text(tx['subtitle'] ?? 'Net payout after 2% fee', style: const TextStyle(color: Colors.grey, fontSize: 11)),
             trailing: Text(
-              tx['amount'] ?? '+$0.00',
+              tx['amount'] ?? '+\$0.00',
               style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold),
             ),
           ),

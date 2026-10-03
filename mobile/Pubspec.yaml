@@ -3,23 +3,10 @@ description: "The KickBack — Sovereign, Serverless P2P Social Ecosystem"
 publish_to: 'none'
 
 version: 1.0.0+1
-<<<<<<< Updated upstream
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
   flutter: '>=3.16.0'
-=======
-environment: 
-  sdk: '>=3.0.0 <4.0.0' 
-  flutter: '>=3.16.0' 
-dependencies: flutter 
-sdk: flutter 
-
-# --- UI & Media Layer --- 
-cupertino\_icons: ^1.0.6 camera ^0.10.5+9 # Multi-perspective camera switching 
-video\_player: ^2.8.2 # High-entropy video feed playback 
-google\_fonts: ^6.1.0 # Dynamic visual typography 
->>>>>>> Stashed changes
 
 dependencies:
   flutter:
@@ -37,7 +24,6 @@ dependencies:
   web_socket_channel: ^2.4.1
   connectivity_plus: ^5.0.2
 
-<<<<<<< Updated upstream
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -56,17 +42,3 @@ flutter:
   assets:
     - assets/images/
     - assets/config/
-=======
-# --- P2P Mesh Transport --- 
-web\_socket\_channel: ^2.4.1 # Local &  cellular GossipSub socket streams 
-connectivity\_plus: ^5.0.2 # Dynamic CGNAT/Wi-Fi connection state
-dev\_dependencies: 
-  flutter\_test: 
-    sdk: flutter 
-  flutter\_lints: ^3.0.0 
-flutter: 
-uses-material-design: true 
-# Embedded Web Manifest & Local Assets assets: 
- -assets/images/ 
- -assets/config/
->>>>>>> Stashed changes

@@ -29,10 +29,12 @@ class KickBackWalletAndStoreScreen extends StatefulWidget {
   });
 
   @override
-  State<KickBackWalletAndStoreScreen> createState() => _KickBackWalletAndStoreScreenState();
+  State<KickBackWalletAndStoreScreen> createState() =>
+      _KickBackWalletAndStoreScreenState();
 }
 
-class _KickBackWalletAndStoreScreenState extends State<KickBackWalletAndStoreScreen>
+class _KickBackWalletAndStoreScreenState
+    extends State<KickBackWalletAndStoreScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   Map<String, dynamic>? _liveNotification;
@@ -59,11 +61,15 @@ class _KickBackWalletAndStoreScreenState extends State<KickBackWalletAndStoreScr
         elevation: 0,
         title: const Row(
           children: [
-            Icon(Icons.account_balance_wallet_outlined, color: Color(0xFF38BDF8)),
+            Icon(Icons.account_balance_wallet_outlined,
+                color: Color(0xFF38BDF8)),
             SizedBox(width: 10),
             Text(
               'KickBack Treasury & Wallet',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Colors.white),
             ),
           ],
         ),
@@ -149,17 +155,23 @@ class _KickBackWalletAndStoreScreenState extends State<KickBackWalletAndStoreScr
                 children: [
                   const Text(
                     'Send OmniGifts (\$1 - \$100)',
-                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: const Color(0xFF0284C7).withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
                       '${widget.omniCreditBalance} Credits',
-                      style: const TextStyle(color: Color(0xFF38BDF8), fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          color: Color(0xFF38BDF8),
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -180,7 +192,9 @@ class _KickBackWalletAndStoreScreenState extends State<KickBackWalletAndStoreScr
                         "gift_name": giftName,
                         "gross_usd": priceUsd,
                         "visual_effects": {
-                          "overlay_animation": priceUsd >= 50.0 ? "3D_GALACTIC_SUPERNOVA" : "CELEBRATION_SPARKLES",
+                          "overlay_animation": priceUsd >= 50.0
+                              ? "3D_GALACTIC_SUPERNOVA"
+                              : "CELEBRATION_SPARKLES",
                           "sound_effect": "ROYAL_CHIME_FANFARE"
                         }
                       };
@@ -212,10 +226,13 @@ class LiveGiftNotificationBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String sender = notificationData['sender_username'] ?? 'Anonymous';
-    final String recipient = notificationData['recipient_username'] ?? 'Creator';
+    final String recipient =
+        notificationData['recipient_username'] ?? 'Creator';
     final String giftName = notificationData['gift_name'] ?? 'Gift';
-    final double grossUsd = (notificationData['gross_usd'] as num?)?.toDouble() ?? 1.0;
-    final Map<String, dynamic> effects = notificationData['visual_effects'] ?? {};
+    final double grossUsd =
+        (notificationData['gross_usd'] as num?)?.toDouble() ?? 1.0;
+    final Map<String, dynamic> effects =
+        notificationData['visual_effects'] ?? {};
     final String animation = effects['overlay_animation'] ?? 'SPARKLE_BURST';
 
     return Container(
@@ -256,7 +273,10 @@ class LiveGiftNotificationBanner extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       'LIVE GIFT: $giftName (\$${grossUsd.toStringAsFixed(2)})',
-                      style: const TextStyle(color: Colors.amber, fontSize: 11, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          color: Colors.amber,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -265,17 +285,28 @@ class LiveGiftNotificationBanner extends StatelessWidget {
                   text: TextSpan(
                     style: const TextStyle(color: Colors.white, fontSize: 13),
                     children: [
-                      TextSpan(text: sender, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF38BDF8))),
+                      TextSpan(
+                          text: sender,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF38BDF8))),
                       const TextSpan(text: ' sent '),
-                      TextSpan(text: giftName, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.amber)),
+                      TextSpan(
+                          text: giftName,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.amber)),
                       const TextSpan(text: ' to '),
-                      TextSpan(text: recipient, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      TextSpan(
+                          text: recipient,
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
                 Text(
                   'Effect: $animation | 98% Net Routed to Creator',
-                  style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 9),
+                  style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.7), fontSize: 9),
                 ),
               ],
             ),
@@ -343,10 +374,15 @@ class _WalletEarningsTab extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Available Earnings', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13)),
+                        const Text('Available Earnings',
+                            style: TextStyle(
+                                color: Color(0xFF94A3B8), fontSize: 13)),
                         const SizedBox(height: 4),
                         Text('\$${usdBalance.toStringAsFixed(2)} USD',
-                            style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold)),
                       ],
                     ),
                     _RoleBadge(roleTier: roleTier),
@@ -358,15 +394,20 @@ class _WalletEarningsTab extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.monetization_on, color: Colors.amber, size: 20),
+                        const Icon(Icons.monetization_on,
+                            color: Colors.amber, size: 20),
                         const SizedBox(width: 6),
-                        Text('$omniCreditBalance OmniCredits', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                        Text('$omniCreditBalance OmniCredits',
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600)),
                       ],
                     ),
                     ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF0284C7),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
                       ),
                       onPressed: onOpenGiftModal,
                       icon: const Icon(Icons.card_giftcard, size: 16),
@@ -396,11 +437,15 @@ class _WalletEarningsTab extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text('Minimum Cashout Floor (\$10.00)',
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold)),
                       Text(
                         '\$${usdBalance.toStringAsFixed(2)} / \$10.00',
                         style: TextStyle(
-                            color: usdBalance >= 10.00 ? Colors.greenAccent : const Color(0xFF38BDF8),
+                            color: usdBalance >= 10.00
+                                ? Colors.greenAccent
+                                : const Color(0xFF38BDF8),
                             fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -412,7 +457,9 @@ class _WalletEarningsTab extends StatelessWidget {
                       value: (usdBalance / minCashout).clamp(0.0, 1.0),
                       backgroundColor: const Color(0xFF0F172A),
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        usdBalance >= 10.00 ? Colors.greenAccent : const Color(0xFF0284C7),
+                        usdBalance >= 10.00
+                            ? Colors.greenAccent
+                            : const Color(0xFF0284C7),
                       ),
                       minHeight: 8,
                     ),
@@ -427,16 +474,16 @@ class _WalletEarningsTab extends StatelessWidget {
                 ],
               ),
             ),
-
             const SizedBox(height: 12),
-
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: const Color(0xFF1E293B),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: autoPayoutActive ? Colors.green.shade700 : const Color(0xFF334155),
+                  color: autoPayoutActive
+                      ? Colors.green.shade700
+                      : const Color(0xFF334155),
                 ),
               ),
               child: Column(
@@ -447,16 +494,21 @@ class _WalletEarningsTab extends StatelessWidget {
                     children: [
                       const Row(
                         children: [
-                          Icon(Icons.people_alt_outlined, color: Color(0xFF38BDF8), size: 18),
+                          Icon(Icons.people_alt_outlined,
+                              color: Color(0xFF38BDF8), size: 18),
                           SizedBox(width: 6),
                           Text('500-Fan Auto-Payout Milestone',
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold)),
                         ],
                       ),
                       Text(
                         '$verifiedFanCount / $minFans Fans',
                         style: TextStyle(
-                          color: autoPayoutActive ? Colors.greenAccent : Colors.orangeAccent,
+                          color: autoPayoutActive
+                              ? Colors.greenAccent
+                              : Colors.orangeAccent,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -469,7 +521,9 @@ class _WalletEarningsTab extends StatelessWidget {
                       value: (verifiedFanCount / minFans).clamp(0.0, 1.0),
                       backgroundColor: const Color(0xFF0F172A),
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        autoPayoutActive ? Colors.greenAccent : Colors.orangeAccent,
+                        autoPayoutActive
+                            ? Colors.greenAccent
+                            : Colors.orangeAccent,
                       ),
                       minHeight: 8,
                     ),
@@ -501,10 +555,14 @@ class _WalletEarningsTab extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('$roleTier Tier Privilege: 24/7 Instant Payouts',
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold)),
                         const SizedBox(height: 2),
-                        const Text('No minimum floor or fan requirements. Withdraw directly to Cash App, Venmo, or PayPal.',
-                            style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11)),
+                        const Text(
+                            'No minimum floor or fan requirements. Withdraw directly to Cash App, Venmo, or PayPal.',
+                            style: TextStyle(
+                                color: Color(0xFF94A3B8), fontSize: 11)),
                       ],
                     ),
                   ),
@@ -520,14 +578,20 @@ class _WalletEarningsTab extends StatelessWidget {
             height: 50,
             child: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: canCashout ? Colors.green.shade600 : Colors.grey.shade800,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                backgroundColor:
+                    canCashout ? Colors.green.shade600 : Colors.grey.shade800,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
               ),
-              onPressed: canCashout ? () => _handleCashoutRequest(context) : null,
+              onPressed:
+                  canCashout ? () => _handleCashoutRequest(context) : null,
               icon: const Icon(Icons.account_balance, color: Colors.white),
               label: Text(
-                canCashout ? 'Request Instant Payout (\$${usdBalance.toStringAsFixed(2)})' : 'Cash-out Locked (Min \$10.00 Required)',
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                canCashout
+                    ? 'Request Instant Payout (\$${usdBalance.toStringAsFixed(2)})'
+                    : 'Cash-out Locked (Min \$10.00 Required)',
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -535,7 +599,10 @@ class _WalletEarningsTab extends StatelessWidget {
           const SizedBox(height: 24),
 
           const Text('Recent Gift & Payout Transactions',
-              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
 
           _TransactionList(transactions: transactions),
@@ -549,26 +616,33 @@ class _WalletEarningsTab extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF1E293B),
-        title: const Text('Select Payout Rail', style: TextStyle(color: Colors.white)),
+        title: const Text('Select Payout Rail',
+            style: TextStyle(color: Colors.white)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
               leading: const Icon(Icons.attach_money, color: Colors.green),
-              title: const Text('Cash App (\$cashtag)', style: TextStyle(color: Colors.white)),
-              subtitle: const Text('Instant 0-fee transfer', style: TextStyle(color: Colors.grey, fontSize: 11)),
+              title: const Text('Cash App (\$cashtag)',
+                  style: TextStyle(color: Colors.white)),
+              subtitle: const Text('Instant 0-fee transfer',
+                  style: TextStyle(color: Colors.grey, fontSize: 11)),
               onTap: () => Navigator.pop(ctx),
             ),
             ListTile(
               leading: const Icon(Icons.payment, color: Colors.blue),
-              title: const Text('Venmo / PayPal', style: TextStyle(color: Colors.white)),
-              subtitle: const Text('Direct handle payout', style: TextStyle(color: Colors.grey, fontSize: 11)),
+              title: const Text('Venmo / PayPal',
+                  style: TextStyle(color: Colors.white)),
+              subtitle: const Text('Direct handle payout',
+                  style: TextStyle(color: Colors.grey, fontSize: 11)),
               onTap: () => Navigator.pop(ctx),
             ),
             ListTile(
               leading: const Icon(Icons.bolt, color: Colors.amber),
-              title: const Text('Lightning Network', style: TextStyle(color: Colors.white)),
-              subtitle: const Text('Atomic LNURL payout', style: TextStyle(color: Colors.grey, fontSize: 11)),
+              title: const Text('Lightning Network',
+                  style: TextStyle(color: Colors.white)),
+              subtitle: const Text('Atomic LNURL payout',
+                  style: TextStyle(color: Colors.grey, fontSize: 11)),
               onTap: () => Navigator.pop(ctx),
             ),
           ],
@@ -587,11 +661,41 @@ class _OmniCreditStoreTab extends StatelessWidget {
   const _OmniCreditStoreTab({required this.currentCredits});
 
   static const List<Map<String, dynamic>> bundles = [
-    {"usd": 5.0, "credits": 500, "bonus": 25, "percent": "5% Bonus", "badge": "STARTER"},
-    {"usd": 10.0, "credits": 1000, "bonus": 100, "percent": "10% Bonus", "badge": "POPULAR"},
-    {"usd": 25.0, "credits": 2500, "bonus": 375, "percent": "15% Bonus", "badge": "VALUE"},
-    {"usd": 50.0, "credits": 5000, "bonus": 1000, "percent": "20% Bonus", "badge": "PRO"},
-    {"usd": 100.0, "credits": 10000, "bonus": 2500, "percent": "25% Bonus", "badge": "VIP WHALE"},
+    {
+      "usd": 5.0,
+      "credits": 500,
+      "bonus": 25,
+      "percent": "5% Bonus",
+      "badge": "STARTER"
+    },
+    {
+      "usd": 10.0,
+      "credits": 1000,
+      "bonus": 100,
+      "percent": "10% Bonus",
+      "badge": "POPULAR"
+    },
+    {
+      "usd": 25.0,
+      "credits": 2500,
+      "bonus": 375,
+      "percent": "15% Bonus",
+      "badge": "VALUE"
+    },
+    {
+      "usd": 50.0,
+      "credits": 5000,
+      "bonus": 1000,
+      "percent": "20% Bonus",
+      "badge": "PRO"
+    },
+    {
+      "usd": 100.0,
+      "credits": 10000,
+      "bonus": 2500,
+      "percent": "25% Bonus",
+      "badge": "VIP WHALE"
+    },
   ];
 
   @override
@@ -608,16 +712,22 @@ class _OmniCreditStoreTab extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const Icon(Icons.account_balance_wallet, color: Colors.amber, size: 32),
+              const Icon(Icons.account_balance_wallet,
+                  color: Colors.amber, size: 32),
               const SizedBox(width: 12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('Preload Profile with OmniCredits',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15)),
                   const SizedBox(height: 2),
-                  Text('Current Balance: $currentCredits Credits (Extensible across Omniverse Apps)',
-                      style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11)),
+                  Text(
+                      'Current Balance: $currentCredits Credits (Extensible across Omniverse Apps)',
+                      style: const TextStyle(
+                          color: Color(0xFF94A3B8), fontSize: 11)),
                 ],
               ),
             ],
@@ -646,7 +756,8 @@ class _OmniCreditStoreTab extends StatelessWidget {
             Row(
               children: [
                 CircleAvatar(
-                  backgroundColor: const Color(0xFF0284C7).withValues(alpha: 0.2),
+                  backgroundColor:
+                      const Color(0xFF0284C7).withValues(alpha: 0.2),
                   child: const Icon(Icons.monetization_on, color: Colors.amber),
                 ),
                 const SizedBox(width: 12),
@@ -656,27 +767,37 @@ class _OmniCreditStoreTab extends StatelessWidget {
                     Row(
                       children: [
                         Text('$totalCredits Credits',
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16)),
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
                             color: Colors.green.shade800,
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: Text(b['percent'], style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
+                          child: Text(b['percent'],
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.bold)),
                         ),
                       ],
                     ),
                     const SizedBox(height: 2),
                     Text('${b['credits']} Base + ${b['bonus']} Bonus Credits',
-                        style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11)),
+                        style: const TextStyle(
+                            color: Color(0xFF94A3B8), fontSize: 11)),
                   ],
                 ),
               ],
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0284C7)),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0284C7)),
               onPressed: () => _handlePurchaseBundle(context, b),
               child: Text('\$${(b['usd'] as double).toStringAsFixed(2)}'),
             )
@@ -688,7 +809,9 @@ class _OmniCreditStoreTab extends StatelessWidget {
 
   void _handlePurchaseBundle(BuildContext context, Map<String, dynamic> b) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Processing Cash App / Fiat Preload for \$${b['usd']} (${b['credits'] + b['bonus']} Credits)...')),
+      SnackBar(
+          content: Text(
+              'Processing Cash App / Fiat Preload for \$${b['usd']} (${b['credits'] + b['bonus']} Credits)...')),
     );
   }
 }
@@ -710,11 +833,14 @@ class _Expanded100GiftCatalogGridTab extends StatefulWidget {
   });
 
   @override
-  State<_Expanded100GiftCatalogGridTab> createState() => _Expanded100GiftCatalogGridTabState();
+  State<_Expanded100GiftCatalogGridTab> createState() =>
+      _Expanded100GiftCatalogGridTabState();
 }
 
-class _Expanded100GiftCatalogGridTabState extends State<_Expanded100GiftCatalogGridTab> {
-  String _selectedCategory = 'ALL'; // ALL (Universal), CREATOR, INFLUENCER, EDUCATOR
+class _Expanded100GiftCatalogGridTabState
+    extends State<_Expanded100GiftCatalogGridTab> {
+  String _selectedCategory =
+      'ALL'; // ALL (Universal), CREATOR, INFLUENCER, EDUCATOR
 
   // Generate catalog of gifts ($1 to $100)
   List<Map<String, dynamic>> _getFilteredGifts() {
@@ -734,8 +860,30 @@ class _Expanded100GiftCatalogGridTabState extends State<_Expanded100GiftCatalogG
     }
 
     // 10 Creator Exclusives ($1 to $100)
-    final creatorPrices = [2.0, 5.0, 12.0, 20.0, 35.0, 50.0, 65.0, 80.0, 90.0, 100.0];
-    final creatorNames = ["Creator Mic", "Studio Light", "Gold Play Button", "Director Chair", "4K Camera", "Pro Synth", "Vinyl Master", "Hologram Stage", "Producer Desk", "Masterpiece"];
+    final creatorPrices = [
+      2.0,
+      5.0,
+      12.0,
+      20.0,
+      35.0,
+      50.0,
+      65.0,
+      80.0,
+      90.0,
+      100.0
+    ];
+    final creatorNames = [
+      "Creator Mic",
+      "Studio Light",
+      "Gold Play Button",
+      "Director Chair",
+      "4K Camera",
+      "Pro Synth",
+      "Vinyl Master",
+      "Hologram Stage",
+      "Producer Desk",
+      "Masterpiece"
+    ];
     for (int i = 0; i < 10; i++) {
       allGifts.add({
         "name": creatorNames[i],
@@ -748,8 +896,30 @@ class _Expanded100GiftCatalogGridTabState extends State<_Expanded100GiftCatalogG
     }
 
     // 10 Influencer Exclusives ($1 to $100)
-    final infPrices = [3.0, 8.0, 15.0, 25.0, 40.0, 55.0, 70.0, 85.0, 95.0, 100.0];
-    final infNames = ["VIP Pass", "Red Carpet", "Neon Spotlight", "Cyber Supercar", "Hollywood Star", "Golden Throne", "Fashion Runway", "Yacht Party", "Private Jet", "Met Gala Crown"];
+    final infPrices = [
+      3.0,
+      8.0,
+      15.0,
+      25.0,
+      40.0,
+      55.0,
+      70.0,
+      85.0,
+      95.0,
+      100.0
+    ];
+    final infNames = [
+      "VIP Pass",
+      "Red Carpet",
+      "Neon Spotlight",
+      "Cyber Supercar",
+      "Hollywood Star",
+      "Golden Throne",
+      "Fashion Runway",
+      "Yacht Party",
+      "Private Jet",
+      "Met Gala Crown"
+    ];
     for (int i = 0; i < 10; i++) {
       allGifts.add({
         "name": infNames[i],
@@ -762,8 +932,30 @@ class _Expanded100GiftCatalogGridTabState extends State<_Expanded100GiftCatalogG
     }
 
     // 10 Educator Exclusives ($1 to $100)
-    final eduPrices = [1.5, 6.0, 10.0, 18.0, 30.0, 45.0, 60.0, 75.0, 88.0, 100.0];
-    final eduNames = ["Wisdom Scroll", "Graduation Cap", "Honor Quill", "Academy Podium", "Library Key", "Research Telescope", "Scholar Globe", "Encyclopedia", "Observatory", "Galaxy Castle"];
+    final eduPrices = [
+      1.5,
+      6.0,
+      10.0,
+      18.0,
+      30.0,
+      45.0,
+      60.0,
+      75.0,
+      88.0,
+      100.0
+    ];
+    final eduNames = [
+      "Wisdom Scroll",
+      "Graduation Cap",
+      "Honor Quill",
+      "Academy Podium",
+      "Library Key",
+      "Research Telescope",
+      "Scholar Globe",
+      "Encyclopedia",
+      "Observatory",
+      "Galaxy Castle"
+    ];
     for (int i = 0; i < 10; i++) {
       allGifts.add({
         "name": eduNames[i],
@@ -782,8 +974,14 @@ class _Expanded100GiftCatalogGridTabState extends State<_Expanded100GiftCatalogG
   }
 
   bool _isGiftUnlocked(String requiredTier) {
-    if (requiredTier.toUpperCase() == 'COMMON') return true; // Universal gifts unlocked for ALL senders
-    final Map<String, int> ranks = {'COMMON': 1, 'CREATOR': 2, 'INFLUENCER': 3, 'EDUCATOR': 4};
+    if (requiredTier.toUpperCase() == 'COMMON')
+      return true; // Universal gifts unlocked for ALL senders
+    final Map<String, int> ranks = {
+      'COMMON': 1,
+      'CREATOR': 2,
+      'INFLUENCER': 3,
+      'EDUCATOR': 4
+    };
     final int userRank = ranks[widget.userRoleTier.toUpperCase()] ?? 1;
     final int reqRank = ranks[requiredTier.toUpperCase()] ?? 1;
     return userRank >= reqRank;
@@ -823,7 +1021,8 @@ class _Expanded100GiftCatalogGridTabState extends State<_Expanded100GiftCatalogG
             itemBuilder: (context, index) {
               final g = filteredGifts[index];
               final bool isUnlocked = _isGiftUnlocked(g['tier']);
-              final bool canAfford = widget.currentCredits >= (g['credits'] as int);
+              final bool canAfford =
+                  widget.currentCredits >= (g['credits'] as int);
 
               return Container(
                 padding: const EdgeInsets.all(12),
@@ -831,7 +1030,9 @@ class _Expanded100GiftCatalogGridTabState extends State<_Expanded100GiftCatalogG
                   color: const Color(0xFF1E293B),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: isUnlocked ? const Color(0xFF334155) : Colors.red.shade900.withValues(alpha: 0.5),
+                    color: isUnlocked
+                        ? const Color(0xFF334155)
+                        : Colors.red.shade900.withValues(alpha: 0.5),
                   ),
                 ),
                 child: Column(
@@ -842,7 +1043,8 @@ class _Expanded100GiftCatalogGridTabState extends State<_Expanded100GiftCatalogG
                       children: [
                         _RoleBadge(roleTier: g['tier']),
                         if (!isUnlocked)
-                          const Icon(Icons.lock, color: Colors.redAccent, size: 16),
+                          const Icon(Icons.lock,
+                              color: Colors.redAccent, size: 16),
                       ],
                     ),
                     Icon(
@@ -863,11 +1065,16 @@ class _Expanded100GiftCatalogGridTabState extends State<_Expanded100GiftCatalogG
                     ),
                     Text(
                       '${g['credits']} Credits (\$${(g['usd'] as double).toStringAsFixed(2)})',
-                      style: const TextStyle(color: Colors.amber, fontSize: 10, fontWeight: FontWeight.w600),
+                      style: const TextStyle(
+                          color: Colors.amber,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600),
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: isUnlocked && canAfford ? const Color(0xFF0284C7) : Colors.grey.shade800,
+                        backgroundColor: isUnlocked && canAfford
+                            ? const Color(0xFF0284C7)
+                            : Colors.grey.shade800,
                         minimumSize: const Size(double.infinity, 28),
                         padding: EdgeInsets.zero,
                       ),
@@ -875,8 +1082,11 @@ class _Expanded100GiftCatalogGridTabState extends State<_Expanded100GiftCatalogG
                           ? () => _sendGift(context, g)
                           : () => _explainLock(context, g, isUnlocked),
                       child: Text(
-                        !isUnlocked ? 'Requires ${g['tier']}' : (canAfford ? 'Send Gift' : 'Need Credits'),
-                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                        !isUnlocked
+                            ? 'Requires ${g['tier']}'
+                            : (canAfford ? 'Send Gift' : 'Need Credits'),
+                        style: const TextStyle(
+                            fontSize: 10, fontWeight: FontWeight.bold),
                       ),
                     )
                   ],
@@ -895,7 +1105,10 @@ class _Expanded100GiftCatalogGridTabState extends State<_Expanded100GiftCatalogG
       padding: const EdgeInsets.only(right: 6),
       child: FilterChip(
         selected: isSelected,
-        label: Text(label, style: TextStyle(color: isSelected ? Colors.white : const Color(0xFF94A3B8), fontSize: 11)),
+        label: Text(label,
+            style: TextStyle(
+                color: isSelected ? Colors.white : const Color(0xFF94A3B8),
+                fontSize: 11)),
         selectedColor: const Color(0xFF0284C7),
         backgroundColor: const Color(0xFF1E293B),
         onSelected: (_) => setState(() => _selectedCategory = categoryKey),
@@ -907,18 +1120,22 @@ class _Expanded100GiftCatalogGridTabState extends State<_Expanded100GiftCatalogG
     final double price = g['usd'] as double;
     final String name = g['name'] as String;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Sent $name (\$${price.toStringAsFixed(2)})! Live broadcast sent to stream overlay.')),
+      SnackBar(
+          content: Text(
+              'Sent $name (\$${price.toStringAsFixed(2)})! Live broadcast sent to stream overlay.')),
     );
     if (widget.onGiftSent != null) {
       widget.onGiftSent!(name, price);
     }
   }
 
-  void _explainLock(BuildContext context, Map<String, dynamic> g, bool isUnlocked) {
+  void _explainLock(
+      BuildContext context, Map<String, dynamic> g, bool isUnlocked) {
     final String msg = !isUnlocked
         ? 'Gift "${g['name']}" is exclusive to ${g['tier']} tier.'
         : 'Insufficient OmniCredits balance. Preload credits in Store.';
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg), backgroundColor: Colors.red));
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg), backgroundColor: Colors.red));
   }
 }
 
@@ -952,7 +1169,8 @@ class _RoleBadge extends StatelessWidget {
       ),
       child: Text(
         roleTier.toUpperCase(),
-        style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.bold),
+        style:
+            TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -973,7 +1191,8 @@ class _TransactionList extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
         ),
         child: const Center(
-          child: Text('No recent gift or payout transactions logged.', style: TextStyle(color: Colors.grey, fontSize: 12)),
+          child: Text('No recent gift or payout transactions logged.',
+              style: TextStyle(color: Colors.grey, fontSize: 12)),
         ),
       );
     }
@@ -985,11 +1204,17 @@ class _TransactionList extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 8),
           child: ListTile(
             leading: const Icon(Icons.card_giftcard, color: Color(0xFF38BDF8)),
-            title: Text(tx['title'] ?? 'Gift Received', style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-            subtitle: Text(tx['subtitle'] ?? 'Net payout after 2% fee', style: const TextStyle(color: Colors.grey, fontSize: 11)),
+            title: Text(tx['title'] ?? 'Gift Received',
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold)),
+            subtitle: Text(tx['subtitle'] ?? 'Net payout after 2% fee',
+                style: const TextStyle(color: Colors.grey, fontSize: 11)),
             trailing: Text(
               tx['amount'] ?? '+\$0.00',
-              style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Colors.greenAccent, fontWeight: FontWeight.bold),
             ),
           ),
         );

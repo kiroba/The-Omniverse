@@ -9,7 +9,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart' as crypto;
 
 class OmniMarketStorefrontMiniApp extends StatefulWidget {
-  const OmniMarketStorefrontMiniApp({Key? key}) : super(key: key);
+  const OmniMarketStorefrontMiniApp({super.key});
 
   @override
   _OmniMarketStorefrontMiniAppState createState() =>
@@ -210,8 +210,8 @@ class _OmniMarketStorefrontMiniAppState
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1E1E2C),
-        title: Row(
-          children: const [
+        title: const Row(
+          children: [
             Icon(Icons.check_circle_outline, color: Colors.greenAccent),
             SizedBox(width: 8),
             Text("Purchased & Logged to WAL",
@@ -288,8 +288,8 @@ class _OmniMarketStorefrontMiniAppState
       appBar: AppBar(
         backgroundColor: const Color(0xFF181824),
         elevation: 0,
-        title: Row(
-          children: const [
+        title: const Row(
+          children: [
             Icon(Icons.shopping_bag_outlined, color: Colors.cyanAccent),
             SizedBox(width: 8),
             Text("OmniMarket Boutique",
@@ -302,9 +302,9 @@ class _OmniMarketStorefrontMiniAppState
             margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.cyan.withOpacity(0.15),
+              color: Colors.cyan.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.cyanAccent.withOpacity(0.4)),
+              border: Border.all(color: Colors.cyanAccent.withValues(alpha: 0.4)),
             ),
             child: Row(
               children: [
@@ -351,14 +351,14 @@ class _OmniMarketStorefrontMiniAppState
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Colors.purple.shade900.withOpacity(0.5),
-                Colors.blue.shade900.withOpacity(0.5)
+                Colors.purple.shade900.withValues(alpha: 0.5),
+                Colors.blue.shade900.withValues(alpha: 0.5)
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.purpleAccent.withOpacity(0.3)),
+            border: Border.all(color: Colors.purpleAccent.withValues(alpha: 0.3)),
           ),
           child: Row(
             children: [
@@ -374,10 +374,10 @@ class _OmniMarketStorefrontMiniAppState
                     color: Colors.cyanAccent, size: 36),
               ),
               const SizedBox(width: 16),
-              Expanded(
+              const Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text("LPE Live Dressing Room",
                         style: TextStyle(
                             color: Colors.white,
@@ -421,7 +421,7 @@ class _OmniMarketStorefrontMiniAppState
                     Expanded(
                       child: Container(
                         decoration: BoxDecoration(
-                          color: (item["color"] as Color).withOpacity(0.1),
+                          color: (item["color"] as Color).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Center(
@@ -450,7 +450,7 @@ class _OmniMarketStorefrontMiniAppState
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: item["equipped"]
-                                ? Colors.green.withOpacity(0.2)
+                                ? Colors.green.withValues(alpha: 0.2)
                                 : Colors.cyan,
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 4),
@@ -532,13 +532,13 @@ class _OmniMarketStorefrontMiniAppState
             decoration: BoxDecoration(
               color: const Color(0xFF181824),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.cyanAccent.withOpacity(0.3)),
+              border: Border.all(color: Colors.cyanAccent.withValues(alpha: 0.3)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Column(
-                  children: const [
+                const Column(
+                  children: [
                     Text("Licensed Status",
                         style: TextStyle(color: Colors.white54, fontSize: 12)),
                     SizedBox(height: 4),

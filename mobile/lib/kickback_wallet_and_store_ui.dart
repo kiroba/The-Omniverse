@@ -974,8 +974,9 @@ class _Expanded100GiftCatalogGridTabState
   }
 
   bool _isGiftUnlocked(String requiredTier) {
-    if (requiredTier.toUpperCase() == 'COMMON')
+    if (requiredTier.toUpperCase() == 'COMMON') {
       return true; // Universal gifts unlocked for ALL senders
+    }
     final Map<String, int> ranks = {
       'COMMON': 1,
       'CREATOR': 2,

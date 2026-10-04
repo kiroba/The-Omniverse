@@ -17,6 +17,8 @@ import os
 import sys
 import shutil
 import json
+import subprocess
+import tempfile
 from pathlib import Path
 
 # Dynamic base directory resolution (supports Android local storage, Termux, Codespaces, and sandbox)
@@ -41,6 +43,34 @@ def init_standalone_structure():
     print(f"  ✓ Mobile Root: {MOBILE_DIR}")
     print(f"  ✓ Core Engines: {CORE_ENGINES_DIR}")
     print(f"  ✓ Android Wrapper: {ANDROID_DIR}")
+
+def generate_android_scaffold():
+    """Generates current Flutter Android build files without replacing existing files."""
+    with tempfile.TemporaryDirectory(prefix="omni_core_android_") as temp_dir:
+        project_dir = Path(temp_dir) / "project"
+        flutter_command = [
+          "flutter",
+          "create",
+          "--platforms=android",
+          "--org",
+          "com.omniverse",
+          "--project-name",
+          "core_engines",
+          str(project_dir),
+        ]
+        if os.name == "nt":
+          flutter_command = ["cmd.exe", "/c", *flutter_command]
+        subprocess.run(flutter_command, check=True)
+
+        scaffold_android_dir = project_dir / "android"
+        for source_path in scaffold_android_dir.rglob("*"):
+            relative_path = source_path.relative_to(scaffold_android_dir)
+            destination_path = MOBILE_DIR / "android" / relative_path
+            if source_path.is_dir():
+                destination_path.mkdir(parents=True, exist_ok=True)
+            elif relative_path.name != "local.properties" and not destination_path.exists():
+                destination_path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source_path, destination_path)
 
 def generate_flutter_main():
     """Generates the Flutter main.dart entrypoint integrating GUI and Easter Egg Monitor."""
@@ -237,7 +267,7 @@ class _CoreEnginesDashboardState extends State<CoreEnginesDashboard> {
   }
 }
 """
-    with open(MOBILE_DIR / "lib" / "main.dart", "w") as f:
+    with open(MOBILE_DIR / "lib" / "main.dart", "w", encoding="utf-8") as f:
         f.write(main_dart)
     print("  ✓ Packaging Dart GUI & Easter Egg Monitor...")
 
@@ -247,8 +277,11 @@ def generate_android_manifest():
     package="com.omniverse.core_engines">
     <application
         android:label="Omniverse Core Engines"
-        android:name=""
+      android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+      <meta-data
+        android:name="flutterEmbedding"
+        android:value="2" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -265,7 +298,7 @@ def generate_android_manifest():
     </application>
 </manifest>
 """
-    with open(ANDROID_DIR / "AndroidManifest.xml", "w") as f:
+    with open(ANDROID_DIR / "AndroidManifest.xml", "w", encoding="utf-8") as f:
         f.write(manifest_xml)
 
 def generate_kotlin_activity():
@@ -277,7 +310,7 @@ import io.flutter.embedding.android.FlutterActivity
 class MainActivity: FlutterActivity() {
 }
 """
-    with open(ANDROID_DIR / "kotlin" / "com" / "omniverse" / "core_engines" / "MainActivity.kt", "w") as f:
+    with open(ANDROID_DIR / "kotlin" / "com" / "omniverse" / "core_engines" / "MainActivity.kt", "w", encoding="utf-8") as f:
         f.write(kotlin_code)
 
 def generate_pubspec():
@@ -301,12 +334,13 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 """
-    with open(MOBILE_DIR / "pubspec.yaml", "w") as f:
+    with open(MOBILE_DIR / "pubspec.yaml", "w", encoding="utf-8") as f:
         f.write(pubspec)
 
 def generate_runner_script():
     """Generates the standalone build script."""
     runner = """#!/usr/bin/env bash
+set -euo pipefail
 echo "🚀 Building Standalone Core Engines App APK..."
 cd mobile
 flutter clean
@@ -314,7 +348,7 @@ flutter pub get
 flutter build apk --release
 echo "✅ Build Complete: mobile/build/app/outputs/flutter-apk/app-release.apk"
 """
-    with open(BASE_DIR / "run_build.sh", "w") as f:
+    with open(BASE_DIR / "run_build.sh", "w", encoding="utf-8") as f:
         f.write(runner)
     os.chmod(BASE_DIR / "run_build.sh", 0o755)
     print("  ✓ Packaging Build Launcher Shell Script...")
@@ -324,6 +358,7 @@ def main():
     print("🚀 OMNIVERSE CORE ENGINES STANDALONE BUILD GENERATOR")
     print("==============================================================================")
     init_standalone_structure()
+    generate_android_scaffold()
     generate_flutter_main()
     generate_android_manifest()
     generate_kotlin_activity()

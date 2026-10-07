@@ -6,10 +6,9 @@ OMNIVERSE CORE ENGINES STANDALONE APP BUILDER
 System Design Architecture:
 - Packages all low-level, zero-dependency core engine runners and local IPC gateway
   into an isolated, self-contained Flutter/Android application directory.
-- Embeds the Flutter GUI Gateway Launcher (),
+- Embeds the Flutter GUI Gateway Launcher (`omni_hub_gateway_launcher_ui.dart`),
   the ANSI Process Telemetry Monitor, and the Easter Egg visualizer.
 - Configures Android manifest and build properties for offline loopback execution.
-- Dynamically resolves paths to work on local mobile devices, Termux, Codespaces, or sandboxes.
 ==============================================================================
 """
 
@@ -17,17 +16,9 @@ import os
 import sys
 import shutil
 import json
-import subprocess
-import tempfile
 from pathlib import Path
 
-# Dynamic base directory resolution (supports Android local storage, Termux, Codespaces, and sandbox)
-script_dir = Path(__file__).resolve().parent
-if script_dir.exists() and os.access(script_dir, os.W_OK):
-    BASE_DIR = script_dir / "omni_core_engines_standalone"
-else:
-    BASE_DIR = Path.cwd() / "omni_core_engines_standalone"
-
+BASE_DIR = Path("/workspace/scratch/omni_core_engines_standalone")
 MOBILE_DIR = BASE_DIR / "mobile"
 CORE_ENGINES_DIR = BASE_DIR / "core" / "engines"
 ANDROID_DIR = MOBILE_DIR / "android" / "app" / "src" / "main"
@@ -39,38 +30,9 @@ def init_standalone_structure():
     os.makedirs(CORE_ENGINES_DIR, exist_ok=True)
     os.makedirs(ANDROID_DIR / "kotlin" / "com" / "omniverse" / "core_engines", exist_ok=True)
     
-    print(f"  ✓ Target Output Root: {BASE_DIR}")
     print(f"  ✓ Mobile Root: {MOBILE_DIR}")
     print(f"  ✓ Core Engines: {CORE_ENGINES_DIR}")
     print(f"  ✓ Android Wrapper: {ANDROID_DIR}")
-
-def generate_android_scaffold():
-    """Generates current Flutter Android build files without replacing existing files."""
-    with tempfile.TemporaryDirectory(prefix="omni_core_android_") as temp_dir:
-        project_dir = Path(temp_dir) / "project"
-        flutter_command = [
-          "flutter",
-          "create",
-          "--platforms=android",
-          "--org",
-          "com.omniverse",
-          "--project-name",
-          "core_engines",
-          str(project_dir),
-        ]
-        if os.name == "nt":
-          flutter_command = ["cmd.exe", "/c", *flutter_command]
-        subprocess.run(flutter_command, check=True)
-
-        scaffold_android_dir = project_dir / "android"
-        for source_path in scaffold_android_dir.rglob("*"):
-            relative_path = source_path.relative_to(scaffold_android_dir)
-            destination_path = MOBILE_DIR / "android" / relative_path
-            if source_path.is_dir():
-                destination_path.mkdir(parents=True, exist_ok=True)
-            elif relative_path.name != "local.properties" and not destination_path.exists():
-                destination_path.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(source_path, destination_path)
 
 def generate_flutter_main():
     """Generates the Flutter main.dart entrypoint integrating GUI and Easter Egg Monitor."""
@@ -148,7 +110,7 @@ class _CoreEnginesDashboardState extends State<CoreEnginesDashboard> {
             _buildEngineCard(
               title: 'ENGINE 02: KNIT P2P MESH & MERKLE DAG',
               status: 'Local Loopback 127.0.0.1:9200',
-              detail: ' Peer Nodes (Wi-Fi Aware & BLE) | GossipSub Relays',
+              detail: '$_activePeers Peer Nodes (Wi-Fi Aware & BLE) | GossipSub Relays',
               color: Colors.cyanAccent,
             ),
             const SizedBox(height: 12),
@@ -239,10 +201,7 @@ class _CoreEnginesDashboardState extends State<CoreEnginesDashboard> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              'Running Standalone Daemon Loop:
-• P2P GossipSub Mesh: ACTIVE
-• Merkle Root: 0x0185D7BE
-• Local SQLite WAL: READY',
+              'Running Standalone Daemon Loop:\\n• P2P GossipSub Mesh: ACTIVE\\n• Merkle Root: 0x0185D7BE\\n• Local SQLite WAL: READY',
               style: TextStyle(color: Colors.white70, fontSize: 12),
             ),
             const SizedBox(height: 16),
@@ -277,11 +236,8 @@ def generate_android_manifest():
     package="com.omniverse.core_engines">
     <application
         android:label="Omniverse Core Engines"
-      android:name="${applicationName}"
+        android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-      <meta-data
-        android:name="flutterEmbedding"
-        android:value="2" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -340,7 +296,6 @@ flutter:
 def generate_runner_script():
     """Generates the standalone build script."""
     runner = """#!/usr/bin/env bash
-set -euo pipefail
 echo "🚀 Building Standalone Core Engines App APK..."
 cd mobile
 flutter clean
@@ -358,7 +313,6 @@ def main():
     print("🚀 OMNIVERSE CORE ENGINES STANDALONE BUILD GENERATOR")
     print("==============================================================================")
     init_standalone_structure()
-    generate_android_scaffold()
     generate_flutter_main()
     generate_android_manifest()
     generate_kotlin_activity()

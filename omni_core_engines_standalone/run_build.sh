@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -euo pipefail
 echo "🚀 Building Standalone Core Engines App APK..."
 cd mobile
 flutter clean

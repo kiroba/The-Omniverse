@@ -17,8 +17,12 @@ import shutil
 import json
 from pathlib import Path
 
-# Dynamic target path resolution (works in sandbox and native OS filesystem)
-BASE_DIR = Path(__file__).resolve().parent / "omni_core_engines_desktop"
+# Dynamic target path resolution (works in sandbox, REPL/Pyodide, and native OS filesystem)
+try:
+    BASE_DIR = Path(__file__).resolve().parent / "omni_core_engines_desktop"
+except NameError:
+    BASE_DIR = Path.cwd() / "omni_core_engines_desktop"
+
 DESKTOP_DIR = BASE_DIR / "desktop"
 CORE_ENGINES_DIR = BASE_DIR / "core" / "engines"
 SCRIPTS_DIR = BASE_DIR / "scripts"
@@ -316,7 +320,7 @@ class _DesktopGatewayShellState extends State<DesktopGatewayShell> {
   }
 }
 """
-    with open(DESKTOP_DIR / "lib" / "main.dart", "w") as f:
+    with open(DESKTOP_DIR / "lib" / "main.dart", "w", encoding="utf-8") as f:
         f.write(main_dart)
     print("  ✓ Generated Desktop Flutter UI Gateway (`main.dart`).")
 
@@ -341,7 +345,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 """
-    with open(DESKTOP_DIR / "pubspec.yaml", "w") as f:
+    with open(DESKTOP_DIR / "pubspec.yaml", "w", encoding="utf-8") as f:
         f.write(pubspec)
     print("  ✓ Generated `pubspec.yaml` configured for Desktop.")
 
@@ -364,7 +368,7 @@ fi
 
 echo "✅ Desktop Build Complete!"
 """
-    with open(SCRIPTS_DIR / "build_desktop.sh", "w") as f:
+    with open(SCRIPTS_DIR / "build_desktop.sh", "w", encoding="utf-8") as f:
         f.write(build_sh)
     os.chmod(SCRIPTS_DIR / "build_desktop.sh", 0o755)
 
@@ -376,7 +380,7 @@ call flutter pub get
 call flutter build windows --release
 echo ✅ Windows Desktop Build Complete!
 """
-    with open(SCRIPTS_DIR / "build_desktop.bat", "w") as f:
+    with open(SCRIPTS_DIR / "build_desktop.bat", "w", encoding="utf-8") as f:
         f.write(build_bat)
 
     # Pure Python Desktop Daemon Runner
@@ -395,7 +399,7 @@ try:
 except KeyboardInterrupt:
     print("\\n🛑 Core Services Daemon Stopped.")
 """
-    with open(BASE_DIR / "run_desktop_daemon.py", "w") as f:
+    with open(BASE_DIR / "run_desktop_daemon.py", "w", encoding="utf-8") as f:
         f.write(py_runner)
     os.chmod(BASE_DIR / "run_desktop_daemon.py", 0o755)
     print("  ✓ Generated Desktop Launchers (`build_desktop.sh`, `build_desktop.bat`, `run_desktop_daemon.py`).")
@@ -472,7 +476,7 @@ jobs:
           name: ${{ matrix.artifact_name }}
           path: ${{ matrix.output_path }}
 """
-    with open(SCRIPTS_DIR / "build_desktop.yml", "w") as f:
+    with open(SCRIPTS_DIR / "build_desktop.yml", "w", encoding="utf-8") as f:
         f.write(workflow_yml)
     print("  ✓ Generated GitHub Actions Desktop Workflow (`build_desktop.yml`).")
 

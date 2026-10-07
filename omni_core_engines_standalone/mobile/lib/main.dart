@@ -72,7 +72,7 @@ class _CoreEnginesDashboardState extends State<CoreEnginesDashboard> {
             _buildEngineCard(
               title: 'ENGINE 02: KNIT P2P MESH & MERKLE DAG',
               status: 'Local Loopback 127.0.0.1:9200',
-              detail: ' Peer Nodes (Wi-Fi Aware & BLE) | GossipSub Relays',
+              detail: '$_activePeers Peer Nodes (Wi-Fi Aware & BLE) | GossipSub Relays',
               color: Colors.cyanAccent,
             ),
             const SizedBox(height: 12),
@@ -106,7 +106,7 @@ class _CoreEnginesDashboardState extends State<CoreEnginesDashboard> {
       decoration: BoxDecoration(
         color: const Color(0xFF162235),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF00FFCC).withValues(alpha: 0.4)),
+        border: Border.all(color: const Color(0xFF00FFCC).withOpacity(0.4)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -123,7 +123,7 @@ class _CoreEnginesDashboardState extends State<CoreEnginesDashboard> {
           ),
           Switch(
             value: _isDaemonActive,
-            activeThumbColor: const Color(0xFF00FFCC),
+            activeColor: const Color(0xFF00FFCC),
             onChanged: (val) => setState(() => _isDaemonActive = val),
           ),
         ],
@@ -138,7 +138,7 @@ class _CoreEnginesDashboardState extends State<CoreEnginesDashboard> {
       decoration: BoxDecoration(
         color: const Color(0xFF121A29),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+        border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,10 +163,7 @@ class _CoreEnginesDashboardState extends State<CoreEnginesDashboard> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              'Running Standalone Daemon Loop:
-• P2P GossipSub Mesh: ACTIVE
-• Merkle Root: 0x0185D7BE
-• Local SQLite WAL: READY',
+              'Running Standalone Daemon Loop:\n• P2P GossipSub Mesh: ACTIVE\n• Merkle Root: 0x0185D7BE\n• Local SQLite WAL: READY',
               style: TextStyle(color: Colors.white70, fontSize: 12),
             ),
             const SizedBox(height: 16),

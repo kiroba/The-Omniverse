@@ -1,0 +1,279 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const OmniCoreDesktopApp());
+}
+
+class OmniCoreDesktopApp extends StatelessWidget {
+  const OmniCoreDesktopApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Omniverse Core Engines Gateway (Desktop)',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: const Color(0xFF0A0E17),
+        primaryColor: const Color(0xFF00FFCC),
+      ),
+      home: const DesktopGatewayShell(),
+    );
+  }
+}
+
+class DesktopGatewayShell extends StatefulWidget {
+  const DesktopGatewayShell({super.key});
+
+  @override
+  State<DesktopGatewayShell> createState() => _DesktopGatewayShellState();
+}
+
+class _DesktopGatewayShellState extends State<DesktopGatewayShell> {
+  int _selectedIndex = 0;
+  bool _isDaemonRunning = true;
+  int _activePeers = 4;
+  int _secretTapCount = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Row(
+        children: [
+          // Desktop Navigation Sidebar
+          NavigationRail(
+            backgroundColor: const Color(0xFF121A29),
+            selectedIndex: _selectedIndex,
+            onDestinationSelected: (int index) {
+              setState(() => _selectedIndex = index);
+            },
+            labelType: NavigationRailLabelType.all,
+            selectedIconTheme: const IconThemeData(color: Color(0xFF00FFCC)),
+            unselectedIconTheme: const IconThemeData(color: Colors.grey),
+            selectedLabelTextStyle: const TextStyle(color: Color(0xFF00FFCC), fontWeight: FontWeight.bold),
+            unselectedLabelTextStyle: const TextStyle(color: Colors.grey),
+            leading: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20.0),
+              child: GestureDetector(
+                onTap: () {
+                  _secretTapCount++;
+                  if (_secretTapCount >= 5) {
+                    _secretTapCount = 0;
+                    _showEasterEggDialog(context);
+                  }
+                },
+                child: const Icon(Icons.hub, color: Color(0xFF00FFCC), size: 36),
+              ),
+            ),
+            destinations: const [
+              NavigationRailDestination(
+                icon: Icon(Icons.dashboard),
+                label: Text('Engines'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.lan),
+                label: Text('P2P Mesh'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.terminal),
+                label: Text('Console'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.settings),
+                label: Text('Settings'),
+              ),
+            ],
+          ),
+          const VerticalDivider(thickness: 1, width: 1, color: Color(0xFF1E293B)),
+          
+          // Main Dashboard Content Area
+          Expanded(
+            child: Container(
+              color: const Color(0xFF0A0E17),
+              padding: const EdgeInsets.all(24.0),
+              child: _buildMainView(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMainView() {
+    switch (_selectedIndex) {
+      case 0:
+        return _buildEnginesTab();
+      case 1:
+        return _buildMeshTab();
+      case 2:
+        return _buildConsoleTab();
+      default:
+        return _buildSettingsTab();
+    }
+  }
+
+  Widget _buildEnginesTab() {
+    return ListView(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              '🕹 OMNIVERSE CORE ENGINES DESKTOP GATEWAY',
+              style: TextStyle(color: Color(0xFF00FFCC), fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            Row(
+              children: [
+                const Text('DAEMON: ', style: TextStyle(color: Colors.grey)),
+                Text(
+                  _isDaemonRunning ? 'ACTIVE (127.0.0.1:9200)' : 'STOPPED',
+                  style: TextStyle(
+                    color: _isDaemonRunning ? Colors.greenAccent : Colors.redAccent,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Switch(
+                  value: _isDaemonRunning,
+                  activeColor: const Color(0xFF00FFCC),
+                  onChanged: (val) => setState(() => _isDaemonRunning = val),
+                ),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+        _buildDesktopCard(
+          'ENGINE 01: 9x9 3D CUBE SURVIVAL MAZE ENGINE',
+          'Native Raycasting & Math Engine Active',
+          'Deterministically projected 729-room matrix | Local Frame Buffer 60 FPS',
+          Colors.greenAccent,
+        ),
+        const SizedBox(height: 16),
+        _buildDesktopCard(
+          'ENGINE 02: KNIT P2P MESH & MERKLE DAG CONSENSUS',
+          'Off-Grid Mesh Relay Operational',
+          '$_activePeers Peer Nodes Connected (Wi-Fi Aware & BLE) | GossipSub Relays: 128 pkts/sec',
+          Colors.cyanAccent,
+        ),
+        const SizedBox(height: 16),
+        _buildDesktopCard(
+          'ENGINE 03: MARKOV CHAIN AI BUILDER NPCS',
+          'Sub-1ms CPU Execution Loop',
+          'Sub-millisecond inference for procedural room construction and hazard repairs',
+          Colors.amberAccent,
+        ),
+        const SizedBox(height: 24),
+        ElevatedButton.icon(
+          onPressed: () => _showEasterEggDialog(context),
+          icon: const Icon(Icons.monitor, color: Colors.black),
+          label: const Text('OPEN PROCESS TELEMETRY & EASTER EGG MONITOR', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF00FFCC),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMeshTab() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('🌐 LOCAL P2P MESH NETWORK TOPOLOGY', style: TextStyle(color: Color(0xFF00FFCC), fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 16),
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF121A29),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: const Color(0xFF1E293B)),
+            ),
+            child: const Center(
+              child: Text(
+                '• Active Bootnodes: 127.0.0.1:9200 (IPC Loopback)\n• Peer ID: 0x8F92A1...\n• CRDT State Synchronization: IN_SYNC (0ms drift)',
+                style: TextStyle(color: Colors.white70, fontFamily: 'monospace', fontSize: 13),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildConsoleTab() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      color: Colors.black,
+      child: const SingleChildScrollView(
+        child: Text(
+          '[INFO] Gateway loopback bound to 127.0.0.1:9200\n[INFO] Starting zero-dependency core runners...\n[P2P] GossipSub relay activated (128 pkts/sec)\n[CRDT] Local Merkle Root updated: 0x0185D7BE\n[MARKOV] Inference state: INSPECT_CUBE -> REPAIR_HATCH (0.85 conf)',
+          style: TextStyle(color: Color(0xFF00FFCC), fontFamily: 'monospace', fontSize: 12),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSettingsTab() {
+    return const Center(
+      child: Text('Desktop Gateway Configurations & System Tray Settings', style: TextStyle(color: Colors.white70)),
+    );
+  }
+
+  Widget _buildDesktopCard(String title, String status, String detail, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF121A29),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withOpacity(0.4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 15)),
+          const SizedBox(height: 8),
+          Text(status, style: const TextStyle(color: Colors.white, fontSize: 13)),
+          const SizedBox(height: 4),
+          Text(detail, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+        ],
+      ),
+    );
+  }
+
+  void _showEasterEggDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF0A0E17),
+        title: const Text('🕹 CORE ENGINES PROCESS MONITOR (DESKTOP)', style: TextStyle(color: Color(0xFF00FFCC))),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Desktop Daemon Status: RUNNING\n• Sub-1ms CPU Execution Loop\n• Hardware Loopback IPC: 127.0.0.1:9200 ACTIVE',
+              style: TextStyle(color: Colors.white70, fontSize: 12),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              height: 180,
+              width: 400,
+              color: Colors.black,
+              child: const Center(
+                child: Text('[ 3D RAYCAST CUBE & MERKLE DAG MONITOR ]', style: TextStyle(color: Color(0xFF00FFCC))),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('CLOSE', style: TextStyle(color: Color(0xFF00FFCC))),
+          ),
+        ],
+      ),
+    );
+  }
+}

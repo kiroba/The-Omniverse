@@ -106,7 +106,7 @@ class _CoreEnginesDashboardState extends State<CoreEnginesDashboard> {
       decoration: BoxDecoration(
         color: const Color(0xFF162235),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF00FFCC).withOpacity(0.4)),
+        border: Border.all(color: const Color(0xFF00FFCC).withValues(alpha: 0.4)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -123,7 +123,7 @@ class _CoreEnginesDashboardState extends State<CoreEnginesDashboard> {
           ),
           Switch(
             value: _isDaemonActive,
-            activeColor: const Color(0xFF00FFCC),
+            activeThumbColor: const Color(0xFF00FFCC),
             onChanged: (val) => setState(() => _isDaemonActive = val),
           ),
         ],
@@ -138,7 +138,7 @@ class _CoreEnginesDashboardState extends State<CoreEnginesDashboard> {
       decoration: BoxDecoration(
         color: const Color(0xFF121A29),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

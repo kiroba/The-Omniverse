@@ -135,7 +135,7 @@ class _DesktopGatewayShellState extends State<DesktopGatewayShell> {
                 const SizedBox(width: 12),
                 Switch(
                   value: _isDaemonRunning,
-                  activeColor: const Color(0xFF00FFCC),
+                  activeThumbColor: const Color(0xFF00FFCC),
                   onChanged: (val) => setState(() => _isDaemonRunning = val),
                 ),
               ],
@@ -228,7 +228,7 @@ class _DesktopGatewayShellState extends State<DesktopGatewayShell> {
       decoration: BoxDecoration(
         color: const Color(0xFF121A29),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.4)),
+        border: Border.all(color: color.withValues(alpha: 0.4)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

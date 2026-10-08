@@ -6,9 +6,9 @@ OMNIVERSE CORE ENGINES STANDALONE APP BUILDER
 System Design Architecture:
 - Packages all low-level, zero-dependency core engine runners and local IPC gateway
   into an isolated, self-contained Flutter/Android application directory.
-- Generates Gradle 8.x/9.x compatible Android build files (settings.gradle,
-  top-level build.gradle, app/build.gradle, and gradle-wrapper.properties).
-- Uses UTF-8 encoding and dynamic relative path resolution with NameError fallback.
+- Embeds the Flutter GUI Gateway Launcher (`omni_hub_gateway_launcher_ui.dart`),
+  the ANSI Process Telemetry Monitor, and the Easter Egg visualizer.
+- Configures Android Gradle build properties (AGP 8.7+ / Gradle 8.12 for JDK 24+ compatibility).
 ==============================================================================
 """
 
@@ -18,7 +18,7 @@ import shutil
 import json
 from pathlib import Path
 
-# Dynamic target path resolution (works in standard CLI, REPL/Pyodide, and exec environments)
+# Dynamic path resolution (works in sandbox and native filesystem)
 try:
     BASE_DIR = Path(__file__).resolve().parent / "omni_core_engines_standalone"
 except NameError:
@@ -40,7 +40,7 @@ def init_standalone_structure():
     
     print(f"  ✓ Mobile Root: {MOBILE_DIR}")
     print(f"  ✓ Core Engines: {CORE_ENGINES_DIR}")
-    print(f"  ✓ Android Wrapper: {MAIN_DIR}")
+    print(f"  ✓ Android Wrapper: {ANDROID_DIR}")
 
 def generate_flutter_main():
     """Generates the Flutter main.dart entrypoint integrating GUI and Easter Egg Monitor."""
@@ -239,27 +239,13 @@ class _CoreEnginesDashboardState extends State<CoreEnginesDashboard> {
     print("  ✓ Generated Flutter GUI Gateway (`main.dart`).")
 
 def generate_android_manifest():
-    """Generates AndroidManifest.xml."""
-    manifest_xml = """<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    """Generates the Android Manifest for offline mode."""
+    manifest_xml = """<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.omniverse.core_engines">
-
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
-
     <application
         android:label="Omniverse Core Engines"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
-        android:usesCleartextTraffic="true">
+        android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -268,18 +254,11 @@ def generate_android_manifest():
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
-            <meta-data
-              android:name="io.flutter.embedding.android.NormalTheme"
-              android:resource="@style/NormalTheme"
-              />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <meta-data
-            android:name="flutterEmbedding"
-            android:value="2" />
     </application>
 </manifest>
 """
@@ -288,7 +267,7 @@ def generate_android_manifest():
     print("  ✓ Generated Android Manifest.")
 
 def generate_kotlin_activity():
-    """Generates Kotlin MainActivity.kt."""
+    """Generates the Kotlin MainActivity wrapper."""
     kotlin_code = """package com.omniverse.core_engines
 
 import io.flutter.embedding.android.FlutterActivity
@@ -301,9 +280,9 @@ class MainActivity: FlutterActivity() {
     print("  ✓ Generated Kotlin MainActivity.")
 
 def generate_android_gradle_files():
-    """Generates settings.gradle, top-level build.gradle, app/build.gradle, and gradle-wrapper.properties compatible with Gradle 8.x/9.x."""
+    """Generates settings.gradle, build.gradle, app/build.gradle, gradle.properties, and gradle-wrapper.properties."""
     
-    # 1. settings.gradle - pluginManagement MUST be at the very top
+    # 1. settings.gradle (pluginManagement MUST be first)
     settings_gradle = """pluginManagement {
     def flutterSdkPath = {
         def properties = new Properties()
@@ -327,8 +306,8 @@ def generate_android_gradle_files():
 
 plugins {
     id "dev.flutter.flutter-plugin-loader" version "1.0.0"
-    id "com.android.application" version "8.3.0" apply false
-    id "org.jetbrains.kotlin.android" version "1.9.22" apply false
+    id "com.android.application" version "8.7.3" apply false
+    id "org.jetbrains.kotlin.android" version "2.0.20" apply false
 }
 
 include ":app"
@@ -336,7 +315,7 @@ include ":app"
     with open(ANDROID_DIR / "settings.gradle", "w", encoding="utf-8") as f:
         f.write(settings_gradle)
 
-    # 2. top-level build.gradle - Modern declarative format without deprecated DependencyHandler.module calls
+    # 2. top-level build.gradle (Single-string notation, clean Groovy API)
     top_build_gradle = """allprojects {
     repositories {
         google()
@@ -370,7 +349,7 @@ import java.io.FileInputStream
 import java.util.Properties
 
 def keystoreProperties = new Properties()
-def keystorePropertiesFile = rootProject.file('key.properties')
+def keystorePropertiesFile = rootProject.file("key.properties")
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
@@ -385,7 +364,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = '17'
+        jvmTarget = "17"
     }
 
     defaultConfig {
@@ -399,10 +378,10 @@ android {
     signingConfigs {
         release {
             if (keystorePropertiesFile.exists()) {
-                keyAlias keystoreProperties['keyAlias']
-                keyPassword keystoreProperties['keyPassword']
-                storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
-                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties["keyAlias"]
+                keyPassword keystoreProperties["keyPassword"]
+                storeFile keystoreProperties["storeFile"] ? file(keystoreProperties["storeFile"]) : null
+                storePassword keystoreProperties["storePassword"]
             }
         }
     }
@@ -421,27 +400,37 @@ android {
 }
 
 flutter {
-    source '../..'
+    source "../.."
 }
 """
     with open(APP_DIR / "build.gradle", "w", encoding="utf-8") as f:
         f.write(app_build_gradle)
 
-    # 4. gradle-wrapper.properties - Pin to stable Gradle 8.4 to avoid Gradle 9.x experimental removal crashes
-    wrapper_props = """distributionBase=GRADLE_USER_HOME
+    # 4. gradle.properties (AndroidX + JVM settings + optional Java home override)
+    gradle_properties = """org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m -Dfile.encoding=UTF-8
+android.useAndroidX=true
+android.enableJetifier=true
+# Un-comment below to pin Gradle execution to JDK 17 / 21 if default system Java is JDK 24+:
+# org.gradle.java.home=C:/Program Files/Java/jdk-17
+"""
+    with open(ANDROID_DIR / "gradle.properties", "w", encoding="utf-8") as f:
+        f.write(gradle_properties)
+
+    # 5. gradle-wrapper.properties (Gradle 8.12 distribution URL for Java 21/24 & AGP 8.7+ support)
+    gradle_wrapper = """distributionBase=GRADLE_USER_HOME
 distributionPath=wrapper/dists
-distributionUrl=https\\://services.gradle.org/distributions/gradle-8.4-bin.zip
 zipStoreBase=GRADLE_USER_HOME
 zipStorePath=wrapper/dists
+distributionUrl=https\\://services.gradle.org/distributions/gradle-8.12-bin.zip
 """
     with open(ANDROID_DIR / "gradle" / "wrapper" / "gradle-wrapper.properties", "w", encoding="utf-8") as f:
-        f.write(wrapper_props)
+        f.write(gradle_wrapper)
 
-    print("  ✓ Generated Validated Android Gradle Build Files (settings.gradle, build.gradle, app/build.gradle, gradle-wrapper.properties).")
+    print("  ✓ Generated Validated Android Gradle Build Files (settings.gradle, build.gradle, app/build.gradle, gradle.properties, gradle-wrapper.properties).")
 
 def generate_pubspec():
-    """Generates pubspec.yaml."""
-    pubspec_yaml = """name: omni_core_engines_standalone
+    """Generates the Flutter pubspec.yaml file."""
+    pubspec = """name: omni_core_engines_standalone
 description: Standalone Android App Bundle for Omniverse Core Engines
 publish_to: 'none'
 version: 1.0.0+1
@@ -461,7 +450,7 @@ flutter:
   uses-material-design: true
 """
     with open(MOBILE_DIR / "pubspec.yaml", "w", encoding="utf-8") as f:
-        f.write(pubspec_yaml)
+        f.write(pubspec)
     print("  ✓ Generated `pubspec.yaml`.")
 
 def generate_runner_script():
@@ -477,7 +466,7 @@ echo "✅ Build Complete: mobile/build/app/outputs/flutter-apk/app-release.apk"
     with open(BASE_DIR / "run_build.sh", "w", encoding="utf-8") as f:
         f.write(runner)
     os.chmod(BASE_DIR / "run_build.sh", 0o755)
-    print("  ✓ Generated `run_build.sh` execution helper.")
+    print("  ✓ Packaging Build Launcher Shell Script...")
 
 def main():
     print("==============================================================================")

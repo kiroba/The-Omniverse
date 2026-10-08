@@ -7,7 +7,7 @@
 
 set -e
 
-echo "🚀 Bootstrapping The KickBack repository tree..."
+echo " Bootstrapping The KickBack repository tree..."
 
 # Create directory structures
 mkdir -p .github/workflows
@@ -219,7 +219,7 @@ cat << 'EOF' > mobile/android/app/src/main/AndroidManifest.xml
 </manifest>
 EOF
 
-echo "✅ Bootstrap complete! All build files created with clean YAML formatting and Android v2 embedding."
+echo " Bootstrap complete! All build files created with clean YAML formatting and Android v2 embedding."
 #!/bin/bash
 set -e
 

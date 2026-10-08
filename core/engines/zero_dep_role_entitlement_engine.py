@@ -112,7 +112,7 @@ def run_zero_dep_entitlement_test():
     assert "MODULE_KICKBACK_CORE" in bob_mods
     assert "MODULE_LPE_3D_PLAZA" in bob_mods
     assert "MODULE_NEIGHBORHOOD_EATERY" not in bob_mods
-    print("    ✅ SUCCESS: Day 1 Baseline modules active; advanced modules locked.\n")
+    print("    SUCCESS: Day 1 Baseline modules active; advanced modules locked.\n")
 
     # Test Case 2: Store Owner Role Purchase Prior to Milestone
     print("[-] [TEST 2] Alice Purchases 'ROLE_STORE_OWNER' (500 Peers < 25,000 Milestone):")
@@ -122,7 +122,7 @@ def run_zero_dep_entitlement_test():
         print(f"    • {mod_id:28s} -> Unlocked via {reasons}")
     assert "MODULE_NEIGHBORHOOD_EATERY" in alice_mods
     assert "MODULE_STOREFRONT_MINI_APP" in alice_mods
-    print("    ✅ SUCCESS: Role injection instantly bypassed milestone restrictions!\n")
+    print("    SUCCESS: Role injection instantly bypassed milestone restrictions!\n")
 
     # Test Case 3: Global Swarm Milestone Unlocks for All
     print("[-] [TEST 3] Global Swarm Reaches 30,000 Active Peers:")
@@ -130,7 +130,7 @@ def run_zero_dep_entitlement_test():
     for mod_id, reasons in bob_mods_30k.items():
         print(f"    • {mod_id:28s} -> Unlocked via {reasons}")
     assert "MODULE_NEIGHBORHOOD_EATERY" in bob_mods_30k
-    print("    ✅ SUCCESS: 30k Swarm milestone unlocked Neighborhood module for standard users!\n")
+    print("    SUCCESS: 30k Swarm milestone unlocked Neighborhood module for standard users!\n")
 
     print("="*75)
     print("  HYBRID ENTITLEMENT ENGINE TEST: ALL ASSERTIONS PASSED [100%]")

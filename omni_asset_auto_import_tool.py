@@ -71,7 +71,7 @@ PLANET_CONFIGS = {
 
 def init_directory_structure():
     """Builds the modular directory tree across all planets and drop-zones."""
-    print("📁 Initializing Universal Asset Directory Hierarchy...")
+    print("Initializing Universal Asset Directory Hierarchy...")
     os.makedirs(RAW_IMPORTS_DIR, exist_ok=True)
     
     for planet_key, config in PLANET_CONFIGS.items():
@@ -126,11 +126,11 @@ def classify_file(filename):
 
 def process_raw_imports():
     """Scans raw_imports/, moves files to designated planet folders, and generates asset manifests."""
-    print("\n🔄 Scanning Drop-Zone ('raw_imports/')...")
+    print("\n Scanning Drop-Zone ('raw_imports/')...")
     raw_files = [f for f in os.listdir(RAW_IMPORTS_DIR) if os.path.isfile(RAW_IMPORTS_DIR / f)]
     
     if not raw_files:
-        print("  ℹ No new files in drop-zone. Placing sample placeholder assets for verification...")
+        print("  No new files in drop-zone. Placing sample placeholder assets for verification...")
         sample_files = {
             "9x9_door_hatch.glb": b"GLTF_BINARY_HEADER_SAMPLE_3D_MODEL",
             "spades_card_ace.png": b"PNG_HEADER_SAMPLE_2D_CARD_TEXTURE",
@@ -166,7 +166,7 @@ def process_raw_imports():
         print(f"  ✓ Imported: '{fname}' ──> [{planet_key}/{subdir}]")
 
     # Generate asset manifest per planet
-    print("\n📑 Updating Planet Asset Manifests (JSON)...")
+    print("\n Updating Planet Asset Manifests (JSON)...")
     for planet_key in PLANET_CONFIGS.keys():
         planet_root = ASSETS_DIR / planet_key
         manifest_path = planet_root / "asset_manifest.json"
@@ -199,7 +199,7 @@ def generate_pubspec_assets_snippet():
 
 def main():
     print("=============================================================================")
-    print("🚀 OMNIVERSE UNIVERSAL ASSET AUTO-IMPORT & MANAGEMENT TOOL")
+    print("OMNIVERSE UNIVERSAL ASSET AUTO-IMPORT & MANAGEMENT TOOL")
     print("=============================================================================")
     init_directory_structure()
     count, log = process_raw_imports()
@@ -217,7 +217,7 @@ def main():
     }
     print("\n" + json.dumps(summary, indent=2))
     print("=============================================================================")
-    print("✅ ASSET AUTO-IMPORT COMPLETE! ALL PLANETS INDEXED.")
+    print("ASSET AUTO-IMPORT COMPLETE! ALL PLANETS INDEXED.")
     print("=============================================================================")
 
 if __name__ == "__main__":

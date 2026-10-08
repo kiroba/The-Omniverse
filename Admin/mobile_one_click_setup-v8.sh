@@ -9,7 +9,7 @@ TARGET_DIR="/storage/emulated/0/Documents/The-Omniverse"
 ALT_DIR="$HOME/storage/shared/Documents/The-Omniverse"
 
 echo "=============================================================================="
-echo "🚀 THE OMNIVERSE PUBLIC TESTER & NODE LAUNCHER (v8.0 CLEAN RUNTIME)"
+echo "THE OMNIVERSE PUBLIC TESTER & NODE LAUNCHER (v8.0 CLEAN RUNTIME)"
 echo "Target Directory: $TARGET_DIR"
 echo "Policy: Public Tester Build (In-House Creator Dashboards Excluded)"
 echo "=============================================================================="
@@ -46,9 +46,9 @@ rm -f sample_seeded_*.db mock_telemetry_*.json 2>/dev/null || true
 rm -f core/engines/sample_seeded_*.db core/engines/mock_telemetry_*.json 2>/dev/null || true
 
 # 4. Verify Local Python Standard Library Runtime
-python3 -c "import sqlite3, hashlib, json, hmac, socket; print('✅ Local P2P Node Runtime & Merkle Engine Ready!')"
+python3 -c "import sqlite3, hashlib, json, hmac, socket; print('Local P2P Node Runtime & Merkle Engine Ready!')"
 
 echo "=============================================================================="
-echo "🎉 PUBLIC TESTER NODE ENVIRONMENT IS READY!"
+echo "PUBLIC TESTER NODE ENVIRONMENT IS READY!"
 echo "   In-house diagnostics and creator dashboards have been completely removed."
 echo "=============================================================================="

@@ -32,7 +32,7 @@ MAIN_DIR = APP_DIR / "src" / "main"
 
 def init_standalone_structure():
     """Builds the standalone application directory layout."""
-    print("📁 Creating Standalone App Directory Hierarchy...")
+    print("Creating Standalone App Directory Hierarchy...")
     os.makedirs(MOBILE_DIR / "lib", exist_ok=True)
     os.makedirs(CORE_ENGINES_DIR, exist_ok=True)
     os.makedirs(MAIN_DIR / "kotlin" / "com" / "omniverse" / "core_engines", exist_ok=True)
@@ -456,12 +456,12 @@ flutter:
 def generate_runner_script():
     """Generates the standalone build script."""
     runner = """#!/usr/bin/env bash
-echo "🚀 Building Standalone Core Engines App APK..."
+echo "Building Standalone Core Engines App APK..."
 cd mobile
 flutter clean
 flutter pub get
 flutter build apk --release
-echo "✅ Build Complete: mobile/build/app/outputs/flutter-apk/app-release.apk"
+echo "Build Complete: mobile/build/app/outputs/flutter-apk/app-release.apk"
 """
     with open(BASE_DIR / "run_build.sh", "w", encoding="utf-8") as f:
         f.write(runner)
@@ -470,7 +470,7 @@ echo "✅ Build Complete: mobile/build/app/outputs/flutter-apk/app-release.apk"
 
 def main():
     print("==============================================================================")
-    print("🚀 OMNIVERSE CORE ENGINES STANDALONE BUILD GENERATOR")
+    print("OMNIVERSE CORE ENGINES STANDALONE BUILD GENERATOR")
     print("==============================================================================")
     init_standalone_structure()
     generate_flutter_main()
@@ -480,7 +480,7 @@ def main():
     generate_pubspec()
     generate_runner_script()
     print("==============================================================================")
-    print("🎉 STANDALONE APP BUNDLE GENERATED SUCCESSFULLY!")
+    print("STANDALONE APP BUNDLE GENERATED SUCCESSFULLY!")
     print("==============================================================================")
 
 if __name__ == "__main__":

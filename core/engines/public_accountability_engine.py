@@ -60,7 +60,7 @@ class PublicAccountabilityEngine:
             sanitized_alert["actorHandle"] = account_handle
             sanitized_alert["peerId"] = f"{peer_id[:8]}...{peer_id[-4:]}" if len(peer_id) > 12 else peer_id
             sanitized_alert["formattedMessage"] = (
-                f"🛡️ NETWORK SECURITY ALERT: Account '{account_handle}' "
+                f"NETWORK SECURITY ALERT: Account '{account_handle}' "
                 f"(Peer: {sanitized_alert['peerId']}) was BANNED. "
                 f"Reason: {reason}. Slashing Delta: {score_delta} points."
             )
@@ -73,7 +73,7 @@ class PublicAccountabilityEngine:
             sanitized_alert["adultHandle"] = adult_handle
             sanitized_alert["protectedTargetCohort"] = "COHORT_MINOR_13_17 (Identity Shielded)"
             sanitized_alert["formattedMessage"] = (
-                f"⚠️ PROTECTION ALERT: Direct {attempted_action} attempt by Adult Account '{adult_handle}' "
+                f"PROTECTION ALERT: Direct {attempted_action} attempt by Adult Account '{adult_handle}' "
                 f"toward a protected Minor Account was BLOCKED at the P2P gateway. "
                 f"Account '{adult_handle}' flagged & queued for enforcement review."
             )
@@ -85,12 +85,12 @@ class PublicAccountabilityEngine:
             sanitized_alert["actorHandle"] = target_handle
             sanitized_alert["patternId"] = pattern_id
             sanitized_alert["formattedMessage"] = (
-                f"🤖 OMNIMIND PATTERN MATCH: Post by '{target_handle}' matched human-trained "
+                f"OMNIMIND PATTERN MATCH: Post by '{target_handle}' matched human-trained "
                 f"bad behavior vector ({pattern_id[:12]}). Content shadow-isolated."
             )
 
         else:
-            sanitized_alert["formattedMessage"] = f"📢 SYSTEM ALERT: {raw_event.get('details', 'General Network Event')}"
+            sanitized_alert["formattedMessage"] = f"SYSTEM ALERT: {raw_event.get('details', 'General Network Event')}"
 
         # Append to circular memory buffer
         self._append_to_ticker(sanitized_alert)
@@ -129,7 +129,7 @@ def run_accountability_engine_test_suite():
         "timestamp": int(time.time())
     }
     alert_1 = engine.process_security_event(event_1)
-    print(f"✅ TEST 1 (Node Ban Processing): PASS")
+    print(f"TEST 1 (Node Ban Processing): PASS")
     print(f"   Ticker Output: {alert_1['formattedMessage']}\n")
     
     # Test 2: Cross-Cohort Violation with Redaction
@@ -143,7 +143,7 @@ def run_accountability_engine_test_suite():
     }
     alert_2 = engine.process_security_event(event_2)
     assert "@SecretTeen15" not in json.dumps(alert_2), "CRITICAL PRIVACY LEAK: Minor handle exposed in public alert!"
-    print(f"✅ TEST 2 (Cross-Cohort Minor Privacy Redaction): PASS")
+    print(f"TEST 2 (Cross-Cohort Minor Privacy Redaction): PASS")
     print(f"   Ticker Output: {alert_2['formattedMessage']}\n")
     
     # Test 3: Circular Buffer Cap Verification
@@ -157,7 +157,7 @@ def run_accountability_engine_test_suite():
     
     ticker_feed = engine.get_public_ticker_feed(limit=10)
     assert len(ticker_feed) == 5, f"Expected 5 items in circular buffer, got {len(ticker_feed)}"
-    print(f"✅ TEST 3 (Zero-Storage Circular Buffer Cap): PASS [Buffer capped at {len(ticker_feed)} items]\n")
+    print(f"TEST 3 (Zero-Storage Circular Buffer Cap): PASS [Buffer capped at {len(ticker_feed)} items]\n")
     
     print("=================================================================")
     print("FINAL PUBLIC ACCOUNTABILITY ENGINE VERIFICATION STATUS: PASS")

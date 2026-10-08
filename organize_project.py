@@ -137,7 +137,7 @@ def classify_repository_file(file_path):
 def organize_repository(target_dir=".", dry_run=False):
     """Scans and organizes all uncollected root files into their appropriate modular folders."""
     target_path = Path(target_dir).resolve()
-    print(f"🚀 [OMNIVERSE REPOSITORY ORGANIZER] Scanning target: {target_path}")
+    print(f"[OMNIVERSE REPOSITORY ORGANIZER] Scanning target: {target_path}")
     
     # Collect files in root of target_path (ignoring subdirectories)
     root_files = [
@@ -146,7 +146,7 @@ def organize_repository(target_dir=".", dry_run=False):
     ]
 
     if not root_files:
-        print("  ℹ No unorganized files found in project root.")
+        print("  No unorganized files found in project root.")
         return 0, []
 
     moved_records = []
@@ -189,7 +189,7 @@ def main():
     dry_run = "--dry-run" in sys.argv
     count, records = organize_repository(target_dir=target, dry_run=dry_run)
     print("\n==============================================================================")
-    print(f"🎉 ORGANIZER COMPLETE: Processed {count} files dynamically without hardcoded lists!")
+    print(f"ORGANIZER COMPLETE: Processed {count} files dynamically without hardcoded lists!")
     print("==============================================================================")
 
 if __name__ == "__main__":

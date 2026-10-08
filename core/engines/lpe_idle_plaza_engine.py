@@ -39,7 +39,7 @@ class LpeIdlePlazaEngine:
             "isMainUser": True,
             "isFriend": True,
             "equippedCosmetics": ["head_socket_crown", "chest_socket_cyber_jacket"],
-            "ambientActivity": "Training in Plaza Center ⚔️",
+            "ambientActivity": "Training in Plaza Center ",
             "lastTickTimestamp": time.time(),
             "accumulatedXP": 0,
             "accumulatedCredits": 0,
@@ -150,7 +150,7 @@ if __name__ == "__main__":
         handle="@bob_builder",
         is_friend=True,
         cosmetics=["head_socket_goggles", "chest_socket_vest"],
-        ambient_activity="Meditating by Fountain 🧘‍♂️"
+        ambient_activity="Meditating by Fountain "
     )
 
     nearby_peer = engine.congregate_peer_avatar(
@@ -158,10 +158,10 @@ if __name__ == "__main__":
         handle="@charlie_wanderer",
         is_friend=False,
         cosmetics=["head_socket_halo"],
-        ambient_activity="Playing Guitar 🎸"
+        ambient_activity="Playing Guitar "
     )
 
-    print(f"✅ STEP 1 (Plaza Avatar Congregation):")
+    print(f"STEP 1 (Plaza Avatar Congregation):")
     print(f"   Total Avatars in Plaza: {len(engine.plaza_avatars)}")
     print(f"   • Main User: @main_user ({engine.plaza_avatars['ed25519_pk_main_user']['ambientActivity']})")
     print(f"   • Friend: {friend_1['handle']} ({friend_1['ambientActivity']})")
@@ -169,7 +169,7 @@ if __name__ == "__main__":
 
     # Step 2: Simulate 30 Minutes of Idle Time
     ok, stats = engine.simulate_idle_progression("ed25519_pk_main_user", elapsed_seconds=1800.0)
-    print(f"\n✅ STEP 2 (30-Minute Idle Progression Simulated):")
+    print(f"\n STEP 2 (30-Minute Idle Progression Simulated):")
     print(f"   Handle: {stats['handle']} | Elapsed: {stats['elapsedMinutes']} mins")
     print(f"   XP Accrued: +{stats['xpGained']} (Total: {stats['totalXP']})")
     print(f"   Credits Accrued: +{stats['creditsGained']} (Total: {stats['totalCredits']})")
@@ -179,7 +179,7 @@ if __name__ == "__main__":
         sender_pubkey="ed25519_pk_bob_friend",
         target_pubkey="ed25519_pk_main_user"
     )
-    print(f"\n✅ STEP 3 (Friend Vibe Boost / Like Interaction):")
+    print(f"\n STEP 3 (Friend Vibe Boost / Like Interaction):")
     print(f"   Message: {msg_vibe}")
     print(f"   Stargate Signature: {event['stargateSignature']} [VERIFIED]")
     print(f"   Updated Main User Vibe Count: {engine.plaza_avatars['ed25519_pk_main_user']['vibeCount']}")

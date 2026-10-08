@@ -8,7 +8,7 @@ TARGET_DIR="/storage/emulated/0/Documents/The-Omniverse"
 ALT_DIR="$HOME/storage/shared/Documents/The-Omniverse"
 
 echo "=============================================================================="
-echo "🔒 IN-HOUSE CREATOR CONTROL & DIAGNOSTICS LAUNCHER (INTERNAL ONLY)"
+echo "IN-HOUSE CREATOR CONTROL & DIAGNOSTICS LAUNCHER (INTERNAL ONLY)"
 echo "Target Directory: $TARGET_DIR"
 echo "=============================================================================="
 
@@ -26,11 +26,11 @@ elif [ -f "kickback_creator_control_dashboard.py" ]; then
 fi
 
 if [ -n "$DASHBOARD" ]; then
-    echo "🌐 LAUNCHING IN-HOUSE CREATOR CONTROL & DIAGNOSTIC DASHBOARD..."
+    echo "LAUNCHING IN-HOUSE CREATOR CONTROL & DIAGNOSTIC DASHBOARD..."
     echo "   URL: http://localhost:9200"
     echo "   Strictly for core team debugging, bug hash triaging, and WAL maintenance."
     echo "------------------------------------------------------------------------------"
     python3 "$DASHBOARD"
 else
-    echo "❌ Creator control dashboard script not found!"
+    echo "Creator control dashboard script not found!"
 fi

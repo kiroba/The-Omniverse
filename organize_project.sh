@@ -11,13 +11,13 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Check if python3 is available to run the intelligent dynamic organizer
 if command -v python3 &>/dev/null && [ -f "$SCRIPT_DIR/organize_project.py" ]; then
-    echo "🚀 Launching Python Dynamic Universal Organizer..."
+    echo "Launching Python Dynamic Universal Organizer..."
     python3 "$SCRIPT_DIR/organize_project.py" "$TARGET_DIR"
     exit $?
 fi
 
 # Fallback Pure Bash Dynamic Pattern Matcher (No hardcoded filenames!)
-echo "🚀 [Fallback] Executing Pure Bash Dynamic Pattern Matcher on: $TARGET_DIR"
+echo "[Fallback] Executing Pure Bash Dynamic Pattern Matcher on: $TARGET_DIR"
 
 mkdir -p "$TARGET_DIR/core/engines"
 mkdir -p "$TARGET_DIR/mobile/lib"
@@ -57,5 +57,5 @@ find "$TARGET_DIR" -maxdepth 1 \( -name "*dashboard*" -o -name "*triage*" -o -na
 find "$TARGET_DIR" -maxdepth 1 -name "*.py" ! -name "organize_project.py" -exec mv {} "$TARGET_DIR/core/engines/" \; 2>/dev/null
 
 echo "=============================================================================="
-echo "🎉 REPOSITORY STRUCTURE SUCCESSFULLY ORGANIZED DYNAMICALLY!"
+echo "REPOSITORY STRUCTURE SUCCESSFULLY ORGANIZED DYNAMICALLY!"
 echo "=============================================================================="

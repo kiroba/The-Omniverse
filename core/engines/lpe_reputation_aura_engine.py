@@ -44,7 +44,7 @@ class LPEReputationAuraEngine:
         """
         if eigentrust_score >= 800:
             return self.TIER_PARAGON, {
-                "badge": "👑 PARAGON",
+                "badge": "PARAGON",
                 "auraColorHex": "#00FFCC",      # Celestial Cyan Glow
                 "secondaryGlowHex": "#FFD700",   # Gold Pulse
                 "particleEffect": "GOLDEN_CELESTIAL_SPARKS",
@@ -54,7 +54,7 @@ class LPEReputationAuraEngine:
             }
         elif eigentrust_score >= 200:
             return self.TIER_CITIZEN, {
-                "badge": "🛡️ VERIFIED CITIZEN",
+                "badge": "VERIFIED CITIZEN",
                 "auraColorHex": "#3A86EF",      # Electric Blue
                 "secondaryGlowHex": "#4CC9F0",   # Soft Cyan
                 "particleEffect": "SILVER_PULSE_RINGS",
@@ -64,7 +64,7 @@ class LPEReputationAuraEngine:
             }
         elif eigentrust_score >= 0:
             return self.TIER_DISTRUSTED, {
-                "badge": "⚠️ LOW-TRUST / FLAGGED",
+                "badge": "LOW-TRUST / FLAGGED",
                 "auraColorHex": "#FFB703",      # Warning Amber
                 "secondaryGlowHex": "#FF0055",   # Crimson Smoke
                 "particleEffect": "STATIC_DISTORTION_FLICKER",
@@ -74,7 +74,7 @@ class LPEReputationAuraEngine:
             }
         else:
             return self.TIER_SLASHED, {
-                "badge": "🚫 SLASHED / QUARANTINED",
+                "badge": "SLASHED / QUARANTINED",
                 "auraColorHex": "#FF0000",      # Dark Red
                 "secondaryGlowHex": "#000000",   # Shadow Cage
                 "particleEffect": "PIXELATED_QUARANTINE_CAGE",
@@ -134,7 +134,7 @@ class LPEReputationAuraEngine:
                 "interactionType": "DEFENSIVE_BARRIER",
                 "activeEffect": "DEFENSIVE_GLITCH_SHIELD",
                 "bonusMultiplier": 0.0,
-                "alertMessage": f"⚠️ {defending_peer}'s avatar raised a P2P defense shield near flagged node {flagged_peer}."
+                "alertMessage": f"{defending_peer}'s avatar raised a P2P defense shield near flagged node {flagged_peer}."
             }
 
         # Case 2: High-Trust Resonance Beam Triggered
@@ -143,7 +143,7 @@ class LPEReputationAuraEngine:
                 "interactionType": "GOLDEN_TRUST_BEAM",
                 "activeEffect": "CELESTIAL_HARMONY_RESONANCE",
                 "bonusMultiplier": 0.10,          # +10% Bonus XP / Vibe Boost
-                "alertMessage": f"✨ High-Trust Resonance activated between {prof_a['handle']} and {prof_b['handle']}! (+10% XP Multiplier)"
+                "alertMessage": f"High-Trust Resonance activated between {prof_a['handle']} and {prof_b['handle']}! (+10% XP Multiplier)"
             }
 
         # Case 3: Standard Friendly Interaction
@@ -151,7 +151,7 @@ class LPEReputationAuraEngine:
             "interactionType": "STANDARD_AURA_PULSE",
             "activeEffect": "SILVER_LIGHT_PULSE",
             "bonusMultiplier": 0.05,             # +5% Friendly Proximity Multiplier
-            "alertMessage": f"🤝 Friendly P2P handshake connected between {prof_a['handle']} and {prof_b['handle']}."
+            "alertMessage": f"Friendly P2P handshake connected between {prof_a['handle']} and {prof_b['handle']}."
         }
 
 
@@ -182,16 +182,16 @@ if __name__ == "__main__":
     prof_charlie = engine.compute_lpe_avatar_profile(peer_distrusted, "@charlie_distrusted")
     prof_dave = engine.compute_lpe_avatar_profile(peer_slashed, "@dave_slashed")
 
-    print(f"✅ STEP 1 (Paragon Profile Generated): Tier = {prof_alice['reputationTier']} | Aura = {prof_alice['visualParameters']['auraColorHex']} | Socket = {prof_alice['equippedSockets']['head_socket']}")
-    print(f"✅ STEP 2 (Distrusted Profile Generated): Tier = {prof_charlie['reputationTier']} | Glitch Severity = {prof_charlie['visualParameters']['glitchSeverity']*100}% | Animation = {prof_charlie['visualParameters']['idleAnimation']}")
+    print(f"STEP 1 (Paragon Profile Generated): Tier = {prof_alice['reputationTier']} | Aura = {prof_alice['visualParameters']['auraColorHex']} | Socket = {prof_alice['equippedSockets']['head_socket']}")
+    print(f"STEP 2 (Distrusted Profile Generated): Tier = {prof_charlie['reputationTier']} | Glitch Severity = {prof_charlie['visualParameters']['glitchSeverity']*100}% | Animation = {prof_charlie['visualParameters']['idleAnimation']}")
 
     # Step 3: Test Proximity Resonance between two Paragons/Citizens
     ok1, type1, res1 = engine.calculate_peer_proximity_resonance(peer_paragon, peer_citizen)
-    print(f"\n✅ STEP 3 (Proximity Harmony Test): {res1['alertMessage']}")
+    print(f"\n STEP 3 (Proximity Harmony Test): {res1['alertMessage']}")
 
     # Step 4: Test Proximity Defense near a Distrusted Node
     ok2, type2, res2 = engine.calculate_peer_proximity_resonance(peer_paragon, peer_distrusted)
-    print(f"✅ STEP 4 (Defensive Barrier Test): {res2['alertMessage']}")
+    print(f"STEP 4 (Defensive Barrier Test): {res2['alertMessage']}")
 
     print("=================================================================")
     print("FINAL LPE REPUTATION AURA INTEGRATION STATUS: PASS [100%]")

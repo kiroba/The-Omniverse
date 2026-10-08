@@ -32,7 +32,7 @@ def run_master_suite():
         run_zero_dep_cutover()
         results["1. Mainnet Genesis Cutover"] = True
     except Exception as e:
-        print(f"❌ Test 1 Failed: {e}")
+        print(f"Test 1 Failed: {e}")
         results["1. Mainnet Genesis Cutover"] = False
 
     # Test 2: Role Entitlement Engine
@@ -42,7 +42,7 @@ def run_master_suite():
         run_zero_dep_entitlement_test()
         results["2. Hybrid Role Entitlements"] = True
     except Exception as e:
-        print(f"❌ Test 2 Failed: {e}")
+        print(f"Test 2 Failed: {e}")
         results["2. Hybrid Role Entitlements"] = False
 
     # Test 3: P2P Milestone Consensus Engine
@@ -52,7 +52,7 @@ def run_master_suite():
         test_milestone_consensus()
         results["3. P2P Milestone Consensus"] = True
     except Exception as e:
-        print(f"❌ Test 3 Failed: {e}")
+        print(f"Test 3 Failed: {e}")
         results["3. P2P Milestone Consensus"] = False
 
     # Test 4: WebSocket Pub/Sub Stream Bridge
@@ -62,7 +62,7 @@ def run_master_suite():
         res = run_milestone4_pubsub_tests()
         results["4. WebSocket Pub/Sub Bridge"] = res
     except Exception as e:
-        print(f"❌ Test 4 Failed: {e}")
+        print(f"Test 4 Failed: {e}")
         results["4. WebSocket Pub/Sub Bridge"] = False
 
     # Test 5: P2P Bootnode & CGNAT Traversal Cluster
@@ -72,7 +72,7 @@ def run_master_suite():
         res = run_milestone5_bootnode_tests()
         results["5. P2P Bootnode CGNAT Cluster"] = res
     except Exception as e:
-        print(f"❌ Test 5 Failed: {e}")
+        print(f"Test 5 Failed: {e}")
         results["5. P2P Bootnode CGNAT Cluster"] = False
 
     # Test 6: Continuity Social Import Engine
@@ -86,7 +86,7 @@ def run_master_suite():
         results["6. Continuity Social Import"] = True
         print(f"✓ Event Signed: {event['current_hash'][:16]}...")
     except Exception as e:
-        print(f"❌ Test 6 Failed: {e}")
+        print(f"Test 6 Failed: {e}")
         results["6. Continuity Social Import"] = False
 
     elapsed = round(time.time() - start_time, 3)
@@ -96,14 +96,14 @@ def run_master_suite():
     print("===========================================================================")
     all_passed = True
     for test_name, status in results.items():
-        flag = "✅ PASS" if status else "❌ FAIL"
+        flag = "PASS" if status else "FAIL"
         print(f"  {flag}  |  {test_name}")
         if not status:
             all_passed = False
 
     print("---------------------------------------------------------------------------")
     print(f"  Total Execution Time: {elapsed} seconds")
-    print(f"  Overall System Status: {'🎉 100% OPERATIONAL & VERIFIED' if all_passed else '⚠️ ISSUES DETECTED'}")
+    print(f"  Overall System Status: {'100% OPERATIONAL & VERIFIED' if all_passed else 'ISSUES DETECTED'}")
     print("===========================================================================\n")
     return all_passed
 

@@ -1,11 +1,11 @@
-# 📱 Mobile Assembly & Self-Build Guide (v2.0 — Zero-Dependency Spec)
+# Mobile Assembly & Self-Build Guide (v2.0 — Zero-Dependency Spec)
 ## The Omniverse & The KickBack — Mobile Development & File Placement Master Manual
 
 This guide details how to assemble, test, and build **The Omniverse SuperApp**, **The KickBack**, and all standalone edge modules directly on an Android phone using standard-library, zero-dependency Python tools and cloud compilation workflows.
 
 ---
 
-## 🛠️ Choose Your Mobile Workflow
+## Choose Your Mobile Workflow
 
 | Requirement | **Method 1: Termux + Acode** (100% On-Device) | **Method 2: GitHub Codespaces** (Cloud Mobile IDE) |
 | :--- | :--- | :--- |
@@ -17,7 +17,7 @@ This guide details how to assemble, test, and build **The Omniverse SuperApp**, 
 
 ---
 
-# 📲 METHOD 1: 100% On-Device Mobile Build (Termux + Acode)
+# METHOD 1: 100% On-Device Mobile Build (Termux + Acode)
 
 Use this method to run local P2P nodes, test cryptographic Merkle DAGs, execute the milestone consensus engine, and edit code locally on your phone without pip or Rust compiler issues.
 
@@ -34,7 +34,7 @@ termux-setup-storage && pkg update -y && pkg install -y git python sqlite micro
 
 *(When prompted for storage permissions, tap **Allow**).*
 
-> 💡 **Why No `pip install`?** The core system engines have been refactored to use Python's built-in standard libraries (`dataclasses`, `hashlib`, `hmac`, `sqlite3`, `json`, `secrets`). This bypasses Termux Python 3.14 wheel errors, Rust compilation (`maturin`) failures, and disk space limits.
+> **Why No `pip install`?** The core system engines have been refactored to use Python's built-in standard libraries (`dataclasses`, `hashlib`, `hmac`, `sqlite3`, `json`, `secrets`). This bypasses Termux Python 3.14 wheel errors, Rust compilation (`maturin`) failures, and disk space limits.
 
 ### **Step 3: Connect Acode Editor to Your Project Folder**
 1. Open **Acode** on your phone.
@@ -64,7 +64,7 @@ python3 zero_dep_continuity_social_import_engine.py # Blind SHA-256 Friend Match
 
 ---
 
-# ☁️ METHOD 2: GitHub Codespaces (Fastest Mobile APK Compilation)
+# METHOD 2: GitHub Codespaces (Fastest Mobile APK Compilation)
 
 Use this method to compile Flutter `.apk` installer files or web PWA bundles without straining your phone's CPU, RAM, or battery.
 
@@ -93,7 +93,7 @@ Once compilation completes, right-click (or long-press) `build/app/outputs/flutt
 
 ---
 
-# 📂 Repository File Hierarchy Tree
+# Repository File Hierarchy Tree
 
 Below is the complete file directory layout showing where every zero-dependency engine script, Flutter UI component, configuration file, and document belongs in your project root:
 
@@ -146,7 +146,7 @@ The-Omniverse/
 
 ---
 
-# 🧩 Assembly & Deployment Checklist
+# Assembly & Deployment Checklist
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────┐
@@ -161,7 +161,7 @@ The-Omniverse/
 
 ---
 
-## ⚡ Troubleshooting Quick Reference
+## Troubleshooting Quick Reference
 
 * **`No space left on device` or `maturin` errors:** Do not run `pip install`. Use the `zero_dep_*.py` scripts which run on Python's built-in standard library without compiling Rust/C extensions.
 * **Storage Permission Error in Termux:** Run `termux-setup-storage` and tap **Allow** on the Android system prompt.

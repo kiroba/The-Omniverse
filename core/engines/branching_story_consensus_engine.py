@@ -107,8 +107,8 @@ class BranchingStoryConsensusEngine:
 if __name__ == "__main__":
     engine = BranchingStoryConsensusEngine()
     opts = [
-        {"id": "opt_portal", "title": "Enter the Quantum Portal 🌀"},
-        {"id": "opt_dragon", "title": "Befriend the Cyber Dragon 🐉"}
+        {"id": "opt_portal", "title": "Enter the Quantum Portal "},
+        {"id": "opt_dragon", "title": "Befriend the Cyber Dragon "}
     ]
     st = engine.create_branching_story("pk_alice", "The Cyber Odyssey", "Which path should the team take?", opts, 30.0)
     print(f"Created Branching Story: {st['storyId']} | Options: {len(st['options'])}")

@@ -29,7 +29,7 @@ SCRIPTS_DIR = BASE_DIR / "scripts"
 
 def init_desktop_structure():
     """Builds the standalone desktop application directory tree."""
-    print("📁 Creating Desktop Standalone Directory Hierarchy...")
+    print("Creating Desktop Standalone Directory Hierarchy...")
     os.makedirs(DESKTOP_DIR / "lib", exist_ok=True)
     os.makedirs(CORE_ENGINES_DIR, exist_ok=True)
     os.makedirs(SCRIPTS_DIR, exist_ok=True)
@@ -353,20 +353,20 @@ def generate_desktop_launchers():
     """Generates cross-platform shell and batch scripts to build and run the desktop app."""
     # Linux / macOS Build Script
     build_sh = """#!/usr/bin/env bash
-echo "🚀 Building Omniverse Core Engines Desktop App..."
+echo "Building Omniverse Core Engines Desktop App..."
 cd desktop
 
 flutter pub get
 
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    echo "🐧 Building Linux Desktop App..."
+    echo "Building Linux Desktop App..."
     flutter build linux --release
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-    echo "🍏 Building macOS Desktop App..."
+    echo "Building macOS Desktop App..."
     flutter build macos --release
 fi
 
-echo "✅ Desktop Build Complete!"
+echo "Desktop Build Complete!"
 """
     with open(SCRIPTS_DIR / "build_desktop.sh", "w", encoding="utf-8") as f:
         f.write(build_sh)
@@ -374,11 +374,11 @@ echo "✅ Desktop Build Complete!"
 
     # Windows Batch Build Script
     build_bat = """@echo off
-echo 🚀 Building Omniverse Core Engines Desktop App for Windows...
+echo Building Omniverse Core Engines Desktop App for Windows...
 cd desktop
 call flutter pub get
 call flutter build windows --release
-echo ✅ Windows Desktop Build Complete!
+echo Windows Desktop Build Complete!
 """
     with open(SCRIPTS_DIR / "build_desktop.bat", "w", encoding="utf-8") as f:
         f.write(build_bat)
@@ -389,7 +389,7 @@ import subprocess
 import sys
 import os
 
-print("🕹 Starting Omniverse Core Services Desktop Daemon...")
+print("Starting Omniverse Core Services Desktop Daemon...")
 print("• Loopback Server: http://127.0.0.1:9200")
 print("• Core Engines: P2P Mesh, CRDT Merkle Log, Markov AI")
 
@@ -397,7 +397,7 @@ print("• Core Engines: P2P Mesh, CRDT Merkle Log, Markov AI")
 try:
     subprocess.run([sys.executable, "-c", "import time; print('Daemon Loop Running...'); time.sleep(3600)"])
 except KeyboardInterrupt:
-    print("\\n🛑 Core Services Daemon Stopped.")
+    print("\\n Core Services Daemon Stopped.")
 """
     with open(BASE_DIR / "run_desktop_daemon.py", "w", encoding="utf-8") as f:
         f.write(py_runner)
@@ -436,41 +436,41 @@ jobs:
             output_path: omni_core_engines_desktop/desktop/build/macos/Build/Products/Release
 
     steps:
-      - name: 📥 Checkout Repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: ☕ Set up Java JDK 17
+      - name: Set up Java JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: 🦋 Set up Flutter SDK
+      - name: Set up Flutter SDK
         uses: actions/setup-flutter@v3
         with:
           channel: 'stable'
 
-      - name: 🐧 Install Linux Build Dependencies
+      - name: Install Linux Build Dependencies
         if: matrix.target == 'linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
 
-      - name: ⚙️ Generate Desktop App Structure
+      - name: Generate Desktop App Structure
         run: |
           python3 build_core_engines_desktop_app.py
 
-      - name: 📦 Install Flutter Dependencies
+      - name: Install Flutter Dependencies
         run: |
           cd omni_core_engines_desktop/desktop
           flutter pub get
 
-      - name: 🔨 Build Desktop Release
+      - name: Build Desktop Release
         run: |
           cd omni_core_engines_desktop/desktop
           flutter build ${{ matrix.target }} --release
 
-      - name: 📤 Upload Desktop Build Artifact
+      - name: Upload Desktop Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
@@ -482,7 +482,7 @@ jobs:
 
 def main():
     print("==============================================================================")
-    print("🚀 OMNIVERSE CORE ENGINES DESKTOP BUILD GENERATOR")
+    print("OMNIVERSE CORE ENGINES DESKTOP BUILD GENERATOR")
     print("==============================================================================")
     init_desktop_structure()
     generate_desktop_flutter_main()
@@ -490,7 +490,7 @@ def main():
     generate_desktop_launchers()
     generate_github_desktop_workflow()
     print("==============================================================================")
-    print("🎉 DESKTOP APP BUNDLE GENERATED SUCCESSFULLY!")
+    print("DESKTOP APP BUNDLE GENERATED SUCCESSFULLY!")
     print("==============================================================================")
 
 if __name__ == "__main__":

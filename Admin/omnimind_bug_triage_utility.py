@@ -107,11 +107,11 @@ if __name__ == "__main__":
     
     if len(sys.argv) > 1:
         target_hash = sys.argv[1]
-        print(f"\n🔍 Triaging Event Hash: {target_hash}...")
+        print(f"\n Triaging Event Hash: {target_hash}...")
         res = triage_bug_hash(target_hash)
         print(json.dumps(res, indent=2))
     else:
-        print("\n📋 Recent Local Bug Reports:")
+        print("\n Recent Local Bug Reports:")
         bugs = list_recent_bugs()
         if not bugs:
             print("   (No bug reports logged in local event store yet)")

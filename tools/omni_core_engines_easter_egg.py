@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 =============================================================================
-🕹 THE OMNIVERSE CORE ENGINES EASTER EGG :: TERMINAL ANSI ANIMATOR
+ THE OMNIVERSE CORE ENGINES EASTER EGG :: TERMINAL ANSI ANIMATOR
 =============================================================================
 A secret, lightweight Easter egg runner that renders a real-time ASCII/ANSI
 visualizer of all core engines doing their processes natively on edge devices.
@@ -83,7 +83,7 @@ def run_easter_egg_loop(max_frames=60):
             output = []
             output.append(f"{CLEAR_SCREEN}")
             output.append(f"{BOLD}{CYAN}╔═══════════════════════════════════════════════════════════════════════════╗{RESET}")
-            output.append(f"{BOLD}{CYAN}║  🕹 THE OMNIVERSE :: CORE ENGINES EASTER EGG PROCESS MONITOR              ║{RESET}")
+            output.append(f"{BOLD}{CYAN}║  THE OMNIVERSE :: CORE ENGINES EASTER EGG PROCESS MONITOR              ║{RESET}")
             output.append(f"{BOLD}{CYAN}╠═══════════════════════════════════════════════════════════════════════════╣{RESET}")
             
             # Line-by-line assembly (Left: 9x9 Raycast 3D Cube | Right: Knit P2P & Merkle)

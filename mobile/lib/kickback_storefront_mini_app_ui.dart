@@ -12,7 +12,7 @@ class OmniMarketStorefrontMiniApp extends StatefulWidget {
   const OmniMarketStorefrontMiniApp({super.key});
 
   @override
-  _OmniMarketStorefrontMiniAppState createState() =>
+  State<OmniMarketStorefrontMiniApp> createState() =>
       _OmniMarketStorefrontMiniAppState();
 }
 
@@ -198,6 +198,8 @@ class _OmniMarketStorefrontMiniAppState
       'payload_json': payloadJson,
     });
 
+    if (!mounted) return;
+
     setState(() {
       _userCreditBalance = newBalance;
       item["equipped"] = true;
@@ -260,6 +262,8 @@ class _OmniMarketStorefrontMiniAppState
       where: 'pubkey = ?',
       whereArgs: [_userPubkey],
     );
+
+    if (!mounted) return;
 
     setState(() {
       _isLicensedMerchant = true;

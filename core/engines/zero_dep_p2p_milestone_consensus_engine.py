@@ -112,7 +112,7 @@ class P2PMilestoneConsensusEngine:
     def receive_peer_attestation(self, attestation: P2PMilestoneAttestation) -> bool:
         peer_key = self.node_keys.get(attestation.node_pubkey)
         if not peer_key or not attestation.verify(peer_key):
-            print(f"[⚠️ REJECTED] Invalid signature from node {attestation.node_pubkey[:16]}...")
+            print(f"[ REJECTED] Invalid signature from node {attestation.node_pubkey[:16]}...")
             return False
 
         self.attestations[attestation.node_pubkey] = attestation
@@ -131,7 +131,7 @@ class P2PMilestoneConsensusEngine:
         for module_key, config in MilestoneThresholdConfig.MILESTONES.items():
             if median_count >= config["required_peers"] and not self.unlocked_modules[module_key]:
                 self.unlocked_modules[module_key] = True
-                print(f"🎉 [MILESTONE UNLOCKED] {module_key}: {config['description']} (Threshold: {config['required_peers']} peers reached!)")
+                print(f"[MILESTONE UNLOCKED] {module_key}: {config['description']} (Threshold: {config['required_peers']} peers reached!)")
 
     def get_superapp_feature_flags(self) -> Dict[str, Any]:
         counts = sorted([att.active_peer_count for att in self.attestations.values()]) if self.attestations else [0]
@@ -186,7 +186,7 @@ def test_milestone_consensus():
     print(f"    ↳ SuperApp Flags Stage 3: {flags3['feature_flags']}\n")
 
     print("=========================================================================")
-    print("🎉 ZERO-DEPENDENCY P2P MILESTONE CONSENSUS ENGINE: 100% TESTED & VERIFIED")
+    print("ZERO-DEPENDENCY P2P MILESTONE CONSENSUS ENGINE: 100% TESTED & VERIFIED")
     print("=========================================================================\n")
 
 

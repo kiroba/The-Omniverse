@@ -1,11 +1,11 @@
-# 📱 Mobile Assembly & Self-Build Guide
+# Mobile Assembly & Self-Build Guide
 ## The Omniverse & The KickBack — Step-by-Step Mobile Development Master Manual
 
 This guide makes assembling, testing, and building **The Omniverse SuperApp**, **The KickBack**, and all standalone edge modules as simple as possible directly from an Android phone.
 
 ---
 
-## 🛠️ Choose Your Mobile Workflow
+## Choose Your Mobile Workflow
 
 | Requirement | **Method 1: Termux + Acode** (100% On-Device) | **Method 2: GitHub Codespaces** (Cloud Mobile IDE) |
 | :--- | :--- | :--- |
@@ -16,7 +16,7 @@ This guide makes assembling, testing, and building **The Omniverse SuperApp**, *
 
 ---
 
-# 📲 METHOD 1: 100% On-Device Mobile Build (Termux + Acode)
+# METHOD 1: 100% On-Device Mobile Build (Termux + Acode)
 
 Use this method to run local P2P nodes, test cryptographic Merkle DAGs, execute the milestone consensus engine, and edit code locally on your phone.
 
@@ -59,7 +59,7 @@ python3 lpe_idle_plaza_engine.py
 
 ---
 
-# ☁️ METHOD 2: GitHub Codespaces (Fastest Mobile APK & PWA Compilation)
+# METHOD 2: GitHub Codespaces (Fastest Mobile APK & PWA Compilation)
 
 Use this method if you want to compile Flutter `.apk` installer files or web PWA bundles without straining your phone's CPU, RAM, or battery.
 
@@ -88,7 +88,7 @@ Once compilation completes, right-click (or long-press) `build/app/outputs/flutt
 
 ---
 
-# 🧩 Modular Assembly & Deployment Checklist
+# Modular Assembly & Deployment Checklist
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────┐
@@ -105,7 +105,7 @@ Once compilation completes, right-click (or long-press) `build/app/outputs/flutt
 
 ---
 
-## ⚡ Troubleshooting Quick Reference
+## Troubleshooting Quick Reference
 
 * **Storage Permission Error in Termux:** Run `termux-setup-storage` and tap **Allow** in the popup.
 * **Missing Python Module:** Run `pip install <module_name>` inside Termux.

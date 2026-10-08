@@ -9,7 +9,7 @@ TARGET_DIR="/storage/emulated/0/Documents/The-Omniverse"
 ALT_DIR="$HOME/storage/shared/Documents/The-Omniverse"
 
 echo "=============================================================================="
-echo "🚀 THE OMNIVERSE MOBILE SETUP & GATEWAY LAUNCHER (v6.0 DIRECT ENGINE RUNNER)"
+echo "THE OMNIVERSE MOBILE SETUP & GATEWAY LAUNCHER (v6.0 DIRECT ENGINE RUNNER)"
 echo "Target Directory: $TARGET_DIR"
 echo "Execution Mode: Direct Engine Execution (Verification Suites Omitted)"
 echo "=============================================================================="
@@ -17,7 +17,7 @@ echo "==========================================================================
 # ------------------------------------------------------------------------------
 # STEP 1: Storage Permission & Target Directory Navigation
 # ------------------------------------------------------------------------------
-echo "📁 [1/5] Navigating to target directory & setting permissions..."
+echo "[1/5] Navigating to target directory & setting permissions..."
 
 if command -v termux-setup-storage >/dev/null 2>&1; then
     termux-setup-storage
@@ -40,7 +40,7 @@ echo "    ✓ Directory permissions unlocked (chmod -R +rwx)"
 # ------------------------------------------------------------------------------
 # STEP 2: Embedded Repository Organization (FIRST EXECUTION STEP)
 # ------------------------------------------------------------------------------
-echo "📂 [2/5] Executing Repository Organization FIRST..."
+echo "[2/5] Executing Repository Organization FIRST..."
 
 # Create directory structure
 mkdir -p core/engines mobile/lib web config docs 2>/dev/null
@@ -70,7 +70,7 @@ echo "    ✓ Repository files successfully organized into core/, mobile/, web/,
 # ------------------------------------------------------------------------------
 # STEP 3: Configure Termux Default Startup Directory (~/.bashrc)
 # ------------------------------------------------------------------------------
-echo "⚓ [3/5] Configuring Termux default startup directory..."
+echo "[3/5] Configuring Termux default startup directory..."
 
 BASHRC="$HOME/.bashrc"
 AUTO_CD_CMD="cd /storage/emulated/0/Documents/The-Omniverse 2>/dev/null || cd ~/storage/shared/Documents/The-Omniverse 2>/dev/null"
@@ -93,7 +93,7 @@ fi
 # ------------------------------------------------------------------------------
 # STEP 4: Enforce Zero-Seeded Data & Clean Runtime
 # ------------------------------------------------------------------------------
-echo "🧹 [4/5] Enforcing zero-seeded data policy..."
+echo "[4/5] Enforcing zero-seeded data policy..."
 rm -f sample_seeded_*.db mock_telemetry_*.json 2>/dev/null || true
 rm -f core/engines/sample_seeded_*.db core/engines/mock_telemetry_*.json 2>/dev/null || true
 echo "    ✓ Purged all legacy test seeds and mock data files"
@@ -101,7 +101,7 @@ echo "    ✓ Purged all legacy test seeds and mock data files"
 # ------------------------------------------------------------------------------
 # STEP 5: Direct Core Engine Execution & Web Admin Dashboard Launch
 # ------------------------------------------------------------------------------
-echo "⚙️ [5/5] Launching Core Systems directly (Verification Suite Skipped)..."
+echo "[5/5] Launching Core Systems directly (Verification Suite Skipped)..."
 
 DASHBOARD=""
 if [ -f "core/engines/external_admin_monitoring_dashboard.py" ]; then
@@ -111,15 +111,15 @@ elif [ -f "external_admin_monitoring_dashboard.py" ]; then
 fi
 
 echo "=============================================================================="
-echo "🎉 SETUP & DIRECT ENGINE LAUNCH COMPLETE (v6.0)"
+echo "SETUP & DIRECT ENGINE LAUNCH COMPLETE (v6.0)"
 echo "=============================================================================="
 
 if [ -n "$DASHBOARD" ]; then
-    echo "🌐 LAUNCHING CORE TELEMETRY ENGINE & ADMIN DASHBOARD..."
+    echo "LAUNCHING CORE TELEMETRY ENGINE & ADMIN DASHBOARD..."
     echo "   URL: http://localhost:9100  (or http://127.0.0.1:9100)"
     echo "   Open Google Chrome or phone browser for live engine monitoring!"
     echo "------------------------------------------------------------------------------"
     python3 "$DASHBOARD"
 else
-    echo "⚠️ Dashboard engine script not found. Run: python3 core/engines/external_admin_monitoring_dashboard.py"
+    echo "Dashboard engine script not found. Run: python3 core/engines/external_admin_monitoring_dashboard.py"
 fi

@@ -1,4 +1,4 @@
-# 📝 Dev Blog & Architecture Changelog (v29.0)
+# Dev Blog & Architecture Changelog (v29.0)
 
 **Date:** September 25, 2026  
 **Scope:** Architectural Clarification & Formal Legacy Deprecation Standard  
@@ -6,7 +6,7 @@
 
 ---
 
-## 🚨 Architectural Clarification: Legacy Concept Deprecation & Successor Standard
+## Architectural Clarification: Legacy Concept Deprecation & Successor Standard
 
 ### 1. Absolute Deprecation of LiVid & ViVid
 * **Historical Context Only:** `LiVid` and `ViVid` are strictly recognized as retired, legacy proof-of-concept prototypes from early R&D.
@@ -22,7 +22,7 @@
 
 ---
 
-## 🛠️ Updated Release Pipeline
+## Updated Release Pipeline
 * **Target Package:** `com.kickback`
 * **Target UI File:** `mobile/lib/omni_hub_gateway_launcher_ui.dart`
 * **Release Artifact:** `app-release.apk` (The KickBack Closed Alpha)

@@ -154,7 +154,7 @@ if __name__ == "__main__":
     p2 = engine.register_or_update_peer("peer_bob_spammer", "@bob_spammer", 120.0, "pubkey_bob")
     p3 = engine.register_or_update_peer("peer_charlie_hacker", "@charlie_malicious", -50.0, "pubkey_charlie")
 
-    print(f"✅ STEP 1 (Peer Topic Assignments):")
+    print(f"STEP 1 (Peer Topic Assignments):")
     print(f"   • {p1['handle']}: Topic = {p1['assignedP2PTopic']} | Environment = {p1['jailEnvironment']}")
     print(f"   • {p2['handle']}: Topic = {p2['assignedP2PTopic']} | Environment = {p2['jailEnvironment']}")
     print(f"   • {p3['handle']}: Topic = {p3['assignedP2PTopic']} | Environment = {p3['jailEnvironment']}")
@@ -163,12 +163,12 @@ if __name__ == "__main__":
     ok1, msg1, env1 = engine.route_p2p_envelope("peer_alice", "Hello sovereign network!")
     ok2, msg2, env2 = engine.route_p2p_envelope("peer_bob_spammer", "Buy cheap tokens now!")
 
-    print(f"\n✅ STEP 2 (P2P Enclave Routing):")
+    print(f"\n STEP 2 (P2P Enclave Routing):")
     print(f"   • Alice: {msg1}")
     print(f"   • Bob (Spammer): {msg2}")
 
     # Step 3: Rehabilitation Protocol Test
-    print(f"\n✅ STEP 3 (Bob Rehabilitation Progress):")
+    print(f"\n STEP 3 (Bob Rehabilitation Progress):")
     ok_reh1, msg_reh1, state_reh1 = engine.process_rehabilitation_tick("peer_bob_spammer", clean_relays_count=10) # +50 -> 170
     print(f"   Cycle 1: {msg_reh1}")
 

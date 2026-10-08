@@ -169,11 +169,11 @@ def run_zero_dep_cutover():
 
     print("\n" + "="*75)
     if is_valid and event_count == 1:
-        print("🎉 100% OPERATIONAL READINESS CERTIFIED (ZERO-DEPENDENCY MODE)")
+        print("100% OPERATIONAL READINESS CERTIFIED (ZERO-DEPENDENCY MODE)")
         print("   The local engine is running completely on standard Python libraries.")
         print("="*75)
     else:
-        print("❌ CUTOVER VERIFICATION FAILED")
+        print("CUTOVER VERIFICATION FAILED")
         print("="*75)
 
 if __name__ == "__main__":

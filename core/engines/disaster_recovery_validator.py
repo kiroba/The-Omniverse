@@ -26,7 +26,7 @@ class OmniversalBackupManager:
             "message": f"[OMNIVERSAL BACKUP] {message}"
         }
         self.notifications.append(notification)
-        print(f"🔔 NOTIFICATION [{timestamp}] [{event_type}]: [OMNIVERSAL BACKUP] {message}")
+        print(f"NOTIFICATION [{timestamp}] [{event_type}]: [OMNIVERSAL BACKUP] {message}")
 
     def generate_merkle_root(self, records):
         """Calculates a deterministic Merkle root hash from state records."""
@@ -41,7 +41,7 @@ class OmniversalBackupManager:
 
     def trigger_omniversal_backup(self, profile_data, event_logs, agent_state):
         """Executes a full Omniversal Backup for the Creator Account."""
-        self.notify_creator("🌌 Omniversal Backup process initiated for Creator Profile...", "START")
+        self.notify_creator("Omniversal Backup process initiated for Creator Profile...", "START")
         
         # Step 1: Merkle Root Calculation
         all_records = profile_data + event_logs + agent_state
@@ -90,7 +90,7 @@ class OmniversalBackupManager:
             self.last_backup_timestamp = time.time()
 
             self.notify_creator(
-                f"✅ Omniversal Backup successfully created ({backup_size_kb:.2f} KB). Merkle State Anchor synced to local device DB & P2P bootnodes.",
+                f"Omniversal Backup successfully created ({backup_size_kb:.2f} KB). Merkle State Anchor synced to local device DB & P2P bootnodes.",
                 "SUCCESS"
             )
 

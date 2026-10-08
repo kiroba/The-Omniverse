@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-echo "🚀 Building Omniverse Core Engines Desktop App..."
+echo " Building Omniverse Core Engines Desktop App..."
 cd desktop
 
 flutter pub get
 
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    echo "🐧 Building Linux Desktop App..."
+    echo " Building Linux Desktop App..."
     flutter build linux --release
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-    echo "🍏 Building macOS Desktop App..."
+    echo " Building macOS Desktop App..."
     flutter build macos --release
 fi
 
-echo "✅ Desktop Build Complete!"
+echo " Desktop Build Complete!"

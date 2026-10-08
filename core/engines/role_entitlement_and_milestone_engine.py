@@ -150,7 +150,7 @@ def run_hybrid_entitlement_test():
 
     assert "MODULE_NEIGHBORHOOD_EATERY" in res_purchased['active_modules']
     assert "MODULE_STOREFRONT_MINI_APP" in res_purchased['active_modules']
-    print("    ✅ SUCCESS: Role-based injection unlocked Neighborhood & Storefront features prior to global milestone!")
+    print("    SUCCESS: Role-based injection unlocked Neighborhood & Storefront features prior to global milestone!")
 
     # 3. Global Swarm Hits 30,000 Peers (Unlocks Neighborhood globally for all users)
     print("\n[-] [TEST 3] Global Swarm Crosses 30,000 Active Peers:")
@@ -163,7 +163,7 @@ def run_hybrid_entitlement_test():
         print(f"      • {mod:<30}: Unlocked via {sources}")
 
     assert "MODULE_NEIGHBORHOOD_EATERY" in res_bob['active_modules']
-    print("    ✅ SUCCESS: Global milestone unlocked Neighborhood feature for Common User Bob!")
+    print("    SUCCESS: Global milestone unlocked Neighborhood feature for Common User Bob!")
 
     print("\n=========================================================================")
     print("  HYBRID ENTITLEMENT ENGINE TEST: ALL ASSERTIONS PASSED [100%]")

@@ -1,4 +1,7 @@
 {
     "dart.showTodos": false,
+    "dart.analysisExcludedFolders": [
+        "mobile/flutter"
+    ],
     "cmake.sourceDirectory": "C:/Users/kiidh/Documents/repos/The-Omniverse/mobile/windows"
 }

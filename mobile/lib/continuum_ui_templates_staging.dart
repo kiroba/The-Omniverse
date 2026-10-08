@@ -186,7 +186,8 @@ class ContinuumMeshFusionTemplate extends StatefulWidget {
   });
 
   @override
-  _ContinuumMeshFusionTemplateState createState() => _ContinuumMeshFusionTemplateState();
+  State<ContinuumMeshFusionTemplate> createState() =>
+      _ContinuumMeshFusionTemplateState();
 }
 
 class _ContinuumMeshFusionTemplateState extends State<ContinuumMeshFusionTemplate> {

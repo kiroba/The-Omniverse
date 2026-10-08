@@ -202,7 +202,8 @@ class ContinuumMeshFusionTemplate extends StatefulWidget {
   });
 
   @override
-  _ContinuumMeshFusionTemplateState createState() => _ContinuumMeshFusionTemplateState();
+  State<ContinuumMeshFusionTemplate> createState() =>
+      _ContinuumMeshFusionTemplateState();
 }
 
 class _ContinuumMeshFusionTemplateState extends State<ContinuumMeshFusionTemplate> {
@@ -604,7 +605,8 @@ class ContinuumFeedStagingPage extends StatefulWidget {
   const ContinuumFeedStagingPage({super.key});
 
   @override
-  _ContinuumFeedStagingPageState createState() => _ContinuumFeedStagingPageState();
+  State<ContinuumFeedStagingPage> createState() =>
+      _ContinuumFeedStagingPageState();
 }
 
 class _ContinuumFeedStagingPageState extends State<ContinuumFeedStagingPage> {

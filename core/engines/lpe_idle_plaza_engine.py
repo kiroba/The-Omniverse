@@ -39,7 +39,7 @@ class LpeIdlePlazaEngine:
             "isMainUser": True,
             "isFriend": True,
             "equippedCosmetics": ["head_socket_crown", "chest_socket_cyber_jacket"],
-            "ambientActivity": "Training in Plaza Center ",
+            "ambientActivity": "Training in Plaza Center ⚔️",
             "lastTickTimestamp": time.time(),
             "accumulatedXP": 0,
             "accumulatedCredits": 0,
@@ -150,7 +150,7 @@ if __name__ == "__main__":
         handle="@bob_builder",
         is_friend=True,
         cosmetics=["head_socket_goggles", "chest_socket_vest"],
-        ambient_activity="Meditating by Fountain "
+        ambient_activity="Meditating by Fountain 🧘‍♂️"
     )
 
     nearby_peer = engine.congregate_peer_avatar(
@@ -158,7 +158,7 @@ if __name__ == "__main__":
         handle="@charlie_wanderer",
         is_friend=False,
         cosmetics=["head_socket_halo"],
-        ambient_activity="Playing Guitar "
+        ambient_activity="Playing Guitar 🎸"
     )
 
     print(f"STEP 1 (Plaza Avatar Congregation):")

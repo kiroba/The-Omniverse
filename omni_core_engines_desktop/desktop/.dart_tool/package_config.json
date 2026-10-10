@@ -81,7 +81,7 @@
     },
     {
       "name": "meta",
-      "rootUri": "file:///C:/Users/kiidh/AppData/Local/Pub/Cache/hosted/pub.dev/meta-1.19.0",
+      "rootUri": "file:///C:/Users/kiidh/AppData/Local/Pub/Cache/hosted/pub.dev/meta-1.18.3",
       "packageUri": "lib/",
       "languageVersion": "3.5"
     },
@@ -135,7 +135,7 @@
     },
     {
       "name": "vector_math",
-      "rootUri": "file:///C:/Users/kiidh/AppData/Local/Pub/Cache/hosted/pub.dev/vector_math-2.4.3",
+      "rootUri": "file:///C:/Users/kiidh/AppData/Local/Pub/Cache/hosted/pub.dev/vector_math-2.4.0",
       "packageUri": "lib/",
       "languageVersion": "3.10"
     },
@@ -153,8 +153,8 @@
     }
   ],
   "generator": "pub",
-  "generatorVersion": "3.13.4",
+  "generatorVersion": "3.13.5",
   "flutterRoot": "file:///C:/Users/kiidh/Documents/FlutterSDK/flutter",
-  "flutterVersion": "3.47.5",
+  "flutterVersion": "3.47.6",
   "pubCache": "file:///C:/Users/kiidh/AppData/Local/Pub/Cache"
 }

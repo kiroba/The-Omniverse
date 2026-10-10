@@ -3,5 +3,6 @@
     "dart.analysisExcludedFolders": [
         "mobile/flutter"
     ],
+    "gradle.autoDetect": "off",
     "cmake.sourceDirectory": "C:/Users/kiidh/Documents/repos/The-Omniverse/mobile/windows"
 }

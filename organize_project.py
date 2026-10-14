@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
 ===============================================================================
-THE OMNIVERSE & THE KICKBACK - DYNAMIC UNIVERSAL REPOSITORY ORGANIZER (v5)
+THE OMNIVERSE & THE KICKBACK - DYNAMIC UNIVERSAL REPOSITORY ORGANIZER
 ===============================================================================
 Future-Proof Rule-Based Architecture:
 - Scans target directory dynamically without hardcoded file lists.
-- Protects build scripts, workflows, and root configuration files.
+- Analyzes file extensions, filenames, keywords, and content signatures.
 - Automatically creates required directory hierarchy.
 - Syncs GitHub Pages website resources and GitHub Actions deployment workflows.
+- Ignores root system/config files (like pubspec.yaml, .gitignore, README.md).
 ===============================================================================
 """
 
@@ -17,7 +18,6 @@ import shutil
 import re
 from pathlib import Path
 
-# Files to ALWAYS protect in the project root folder (NEVER move or delete)
 ROOT_PROTECTED_FILES = {
     "pubspec.yaml",
     "pubspec.lock",
@@ -28,24 +28,11 @@ ROOT_PROTECTED_FILES = {
     "organize_project.sh",
     "setup_github_pages.sh",
     "Dockerfile",
-    "Makefile",
-    # Essential Root Build Scripts (Needed by GitHub Actions)
-    "build_mobile_mesh_monitor_app.py",
-    "build_core_engines_standalone_app.py",
-    "build_core_engines_standalone_app-v4.py",
-    "build_core_engines_desktop_app.py",
-    "build_alpha_apk.sh",
-    # Essential Root GitHub Pages & Config Files
-    "index.md",
-    "github_pages_config.yml",
-    "github_pages_config.yaml",
-    "deploy-pages.yml",
-    "build_apk.yml",
-    "build_monitor_apk.yml"
+    "Makefile"
 }
 
 def sync_website_and_actions(target_path):
-    """Ensures website assets and workflows are safely staged into docs/ and .github/workflows/."""
+    """Ensures website assets are safely staged into docs/ and .github/workflows/."""
     docs_dir = target_path / "docs"
     downloads_dir = docs_dir / "downloads"
     workflows_dir = target_path / ".github" / "workflows"
@@ -57,21 +44,18 @@ def sync_website_and_actions(target_path):
 
     # Helper function to find and copy file safely
     def copy_file_safely(filename, dest_path):
-        src = target_path / filename
-        if src.exists():
-            shutil.copy2(src, dest_path)
+        if (target_path / filename).exists():
+            shutil.copy2(target_path / filename, dest_path)
         elif not dest_path.exists():
             # Search subfolders for the file
             for found in target_path.rglob(filename):
-                if "docs" not in found.parts and ".git" not in found.parts and ".dart_tool" not in found.parts:
+                if "docs" not in found.parts and ".git" not in found.parts:
                     shutil.copy2(found, dest_path)
                     break
 
     copy_file_safely("index.md", docs_dir / "index.md")
     copy_file_safely("github_pages_config.yml", docs_dir / "_config.yml")
     copy_file_safely("deploy-pages.yml", workflows_dir / "deploy-pages.yml")
-    copy_file_safely("build_apk.yml", workflows_dir / "build_apk.yml")
-    copy_file_safely("build_monitor_apk.yml", workflows_dir / "build_monitor_apk.yml")
 
     for deliverable in [
         "omniverse_interactive_gui_builder.py",
@@ -136,7 +120,7 @@ def classify_repository_file(file_path):
 
 def organize_repository(target_dir=".", dry_run=False):
     target_path = Path(target_dir).resolve()
-    print(f"🚀 [OMNIVERSE REPOSITORY ORGANIZER v5] Scanning target: {target_path}")
+    print(f"🚀 [OMNIVERSE REPOSITORY ORGANIZER] Scanning target: {target_path}")
 
     sync_website_and_actions(target_path)
 
@@ -178,7 +162,7 @@ def main():
     dry_run = "--dry-run" in sys.argv
     count, records = organize_repository(target_dir=target, dry_run=dry_run)
     print("\n==============================================================================")
-    print(f"🎉 ORGANIZER COMPLETE: Processed {count} files & protected build scripts!")
+    print(f"🎉 ORGANIZER COMPLETE: Processed {count} files & synced GitHub Pages Actions!")
     print("==============================================================================")
 
 if __name__ == "__main__":

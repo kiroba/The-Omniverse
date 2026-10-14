@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """
-==============================================================================
-THE OMNIVERSE & THE KICKBACK - DYNAMIC UNIVERSAL REPOSITORY ORGANIZER (v8)
-==============================================================================
+===============================================================================
+THE OMNIVERSE & THE KICKBACK - DYNAMIC UNIVERSAL REPOSITORY ORGANIZER (V9)
+===============================================================================
 Future-Proof Rule-Based Architecture:
 - Scans target directory dynamically without hardcoded file lists.
-- Protects critical build scripts at root so GitHub Actions runs reliably.
-- Recursively purges heavy build clutter (>50MB) and temporary SDK caches.
-- Cleans duplicate files and versioned draft suffixes.
-==============================================================================
+- Analyzes file extensions, filenames, keywords, and content signatures.
+- Automatically creates required directory hierarchy.
+- Syncs GitHub Pages website resources and GitHub Actions deployment workflows.
+- Ignores root system/config/builder files (pubspec.yaml, .gitignore, build scripts).
+- Recursively purges >50MB non-source build clutter and legacy duplicate files.
+===============================================================================
 """
 
 import os
@@ -30,57 +32,62 @@ ROOT_PROTECTED_FILES = {
     "Makefile",
     "build_mobile_mesh_monitor_app.py",
     "build_core_engines_standalone_app.py",
+    "build_core_engines_standalone_app-v4.py",
     "build_core_engines_desktop_app.py"
 }
 
-def clean_large_build_artifacts(target_path):
-    """Recursively scans for heavy build clutter, SDK caches, and binaries (>50MB)."""
-    print("🧹 [LARGE BUILD ARTIFACT PURGER] Recursively scanning for heavy non-source build clutter (>50MB / build outputs)...")
+def clean_large_build_artifacts(target_path: Path):
+    """Recursively purges heavy non-source build output directories and >50MB files."""
     purged_count = 0
-    bytes_freed = 0
+    purged_bytes = 0
 
-    heavy_dirs = [
+    build_dirs_to_purge = [
         "mobile/build",
         "desktop/build",
-        "omni_core_engines_desktop/desktop/build",
-        "mobile/flutter/bin/cache",
+        "mobile/flutter",
         ".dart_tool",
-        ".pub-cache"
+        ".pub-cache",
+        ".gradle",
+        "mobile/android/app/build",
+        "mobile/android/.gradle"
     ]
 
-    for rel_dir in heavy_dirs:
-        dir_path = target_path / rel_dir
-        if dir_path.exists():
+    for rel_bdir in build_dirs_to_purge:
+        bpath = target_path / rel_bdir
+        if bpath.exists() and bpath.is_dir():
             try:
-                for root, dirs, files in os.walk(dir_path):
+                for root, dirs, files in os.walk(bpath):
                     for f in files:
                         fp = os.path.join(root, f)
                         try:
-                            bytes_freed += os.path.getsize(fp)
+                            purged_bytes += os.path.getsize(fp)
                         except Exception:
                             pass
-                shutil.rmtree(dir_path, ignore_errors=True)
+                shutil.rmtree(bpath)
                 purged_count += 1
-                print(f"  ✓ Purged build directory: {rel_dir}")
+                print(f"  ✓ Purged build output directory: {rel_bdir}/")
             except Exception as e:
-                print(f"  ! Warning: Failed to purge {rel_dir}: {e}")
+                print(f"  [!] Notice: Could not purge {rel_bdir}: {e}")
 
-    for fpath in target_path.rglob("*"):
-        if fpath.is_file() and ".git" not in fpath.parts:
-            ext = fpath.suffix.lower()
-            if ext in [".apk", ".jar", ".so", ".dll", ".exe", ".aab"]:
+    heavy_exts = {".apk", ".aab", ".jar", ".so", ".dll", ".exe", ".iso", ".bin"}
+    for root, dirs, files in os.walk(target_path):
+        if ".git" in root:
+            continue
+        for f in files:
+            fpath = Path(root) / f
+            if fpath.suffix.lower() in heavy_exts and fpath.name not in ROOT_PROTECTED_FILES:
                 try:
-                    size = fpath.stat().st_size
-                    if size > 50 * 1024 * 1024:
-                        bytes_freed += size
-                        fpath.unlink()
+                    fsize = fpath.stat().st_size
+                    if fsize > 50 * 1024 * 1024:  # > 50MB
+                        os.remove(fpath)
                         purged_count += 1
+                        purged_bytes += fsize
                         print(f"  ✓ Purged heavy binary (>50MB): {fpath.relative_to(target_path)}")
                 except Exception:
                     pass
 
-    mb_freed = bytes_freed / (1024 * 1024)
-    print(f"  ✓ Purged {purged_count} heavy items total ({mb_freed:.1f} MB freed).\n")
+    mb_freed = round(purged_bytes / (1024 * 1024), 2)
+    print(f"  ✓ Purged {purged_count} heavy items total ({mb_freed} MB freed).")
 
 def sync_website_and_actions(target_path):
     """Ensures website assets are safely staged into docs/ and .github/workflows/."""
@@ -110,8 +117,7 @@ def sync_website_and_actions(target_path):
         "omniverse_interactive_gui_builder.py",
         "vscode_copilot_omniverse_master_instructions.md",
         "omni_source_directory.md",
-        "kickback_complete_architecture_and_feature_spec.md",
-        "app-release.apk"
+        "kickback_complete_architecture_and_feature_spec.md"
     ]:
         copy_file_safely(deliverable, downloads_dir / deliverable)
 
@@ -165,10 +171,11 @@ def classify_repository_file(file_path):
 
 def organize_repository(target_dir=".", dry_run=False):
     target_path = Path(target_dir).resolve()
-    print(f"🚀 [OMNIVERSE REPOSITORY ORGANIZER V8] Scanning target: {target_path}\n")
+    print(f"🚀 [OMNIVERSE REPOSITORY ORGANIZER V9] Scanning target: {target_path}\n")
 
-    if not dry_run:
-        clean_large_build_artifacts(target_path)
+    print("🧹 [LARGE BUILD ARTIFACT PURGER] Recursively scanning for heavy non-source build clutter (>50MB / build outputs)...")
+    clean_large_build_artifacts(target_path)
+    print()
 
     sync_website_and_actions(target_path)
 
@@ -210,7 +217,7 @@ def main():
     dry_run = "--dry-run" in sys.argv
     count, records = organize_repository(target_dir=target, dry_run=dry_run)
     print("\n==============================================================================")
-    print(f"🎉 ORGANIZER V8 COMPLETE: Reorganized root files & protected build scripts!")
+    print(f"🎉 ORGANIZER V9 COMPLETE: Reorganized root files & protected build scripts!")
     print("==============================================================================")
 
 if __name__ == "__main__":

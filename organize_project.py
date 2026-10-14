@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 """
-===============================================================================
-THE OMNIVERSE & THE KICKBACK - DYNAMIC UNIVERSAL REPOSITORY ORGANIZER
-===============================================================================
+==============================================================================
+THE OMNIVERSE & THE KICKBACK - DYNAMIC UNIVERSAL REPOSITORY ORGANIZER (v8)
+==============================================================================
 Future-Proof Rule-Based Architecture:
 - Scans target directory dynamically without hardcoded file lists.
-- Analyzes file extensions, filenames, keywords, and content signatures.
-- Automatically creates required directory hierarchy.
-- Syncs GitHub Pages website resources and GitHub Actions deployment workflows.
-- Ignores root system/config files (like pubspec.yaml, .gitignore, README.md).
-===============================================================================
+- Protects critical build scripts at root so GitHub Actions runs reliably.
+- Recursively purges heavy build clutter (>50MB) and temporary SDK caches.
+- Cleans duplicate files and versioned draft suffixes.
+==============================================================================
 """
 
 import os
@@ -28,8 +27,60 @@ ROOT_PROTECTED_FILES = {
     "organize_project.sh",
     "setup_github_pages.sh",
     "Dockerfile",
-    "Makefile"
+    "Makefile",
+    "build_mobile_mesh_monitor_app.py",
+    "build_core_engines_standalone_app.py",
+    "build_core_engines_desktop_app.py"
 }
+
+def clean_large_build_artifacts(target_path):
+    """Recursively scans for heavy build clutter, SDK caches, and binaries (>50MB)."""
+    print("🧹 [LARGE BUILD ARTIFACT PURGER] Recursively scanning for heavy non-source build clutter (>50MB / build outputs)...")
+    purged_count = 0
+    bytes_freed = 0
+
+    heavy_dirs = [
+        "mobile/build",
+        "desktop/build",
+        "omni_core_engines_desktop/desktop/build",
+        "mobile/flutter/bin/cache",
+        ".dart_tool",
+        ".pub-cache"
+    ]
+
+    for rel_dir in heavy_dirs:
+        dir_path = target_path / rel_dir
+        if dir_path.exists():
+            try:
+                for root, dirs, files in os.walk(dir_path):
+                    for f in files:
+                        fp = os.path.join(root, f)
+                        try:
+                            bytes_freed += os.path.getsize(fp)
+                        except Exception:
+                            pass
+                shutil.rmtree(dir_path, ignore_errors=True)
+                purged_count += 1
+                print(f"  ✓ Purged build directory: {rel_dir}")
+            except Exception as e:
+                print(f"  ! Warning: Failed to purge {rel_dir}: {e}")
+
+    for fpath in target_path.rglob("*"):
+        if fpath.is_file() and ".git" not in fpath.parts:
+            ext = fpath.suffix.lower()
+            if ext in [".apk", ".jar", ".so", ".dll", ".exe", ".aab"]:
+                try:
+                    size = fpath.stat().st_size
+                    if size > 50 * 1024 * 1024:
+                        bytes_freed += size
+                        fpath.unlink()
+                        purged_count += 1
+                        print(f"  ✓ Purged heavy binary (>50MB): {fpath.relative_to(target_path)}")
+                except Exception:
+                    pass
+
+    mb_freed = bytes_freed / (1024 * 1024)
+    print(f"  ✓ Purged {purged_count} heavy items total ({mb_freed:.1f} MB freed).\n")
 
 def sync_website_and_actions(target_path):
     """Ensures website assets are safely staged into docs/ and .github/workflows/."""
@@ -42,12 +93,10 @@ def sync_website_and_actions(target_path):
 
     print("🌐 [AUTO-WEBSITE & ACTIONS ENGINE] Syncing GitHub Pages & Actions deployment pipeline...")
 
-    # Helper function to find and copy file safely
     def copy_file_safely(filename, dest_path):
         if (target_path / filename).exists():
             shutil.copy2(target_path / filename, dest_path)
         elif not dest_path.exists():
-            # Search subfolders for the file
             for found in target_path.rglob(filename):
                 if "docs" not in found.parts and ".git" not in found.parts:
                     shutil.copy2(found, dest_path)
@@ -104,13 +153,9 @@ def classify_repository_file(file_path):
         return "core/engines"
 
     if ext in [".json", ".yaml", ".yml", ".toml", ".ini", ".config"]:
-        if "seed" in fname_lower or "config" in fname_lower or "tier" in fname_lower:
-            return "config"
         return "config"
 
     if ext in [".md", ".txt", ".rst"]:
-        if fname_lower in ["privacy_policy_and_terms.md", "third-party-notices.md"] or any(kw in fname_lower for kw in ["changelog", "guide", "notes", "plan", "spec", "manifest", "release", "readme"]):
-            return "docs"
         return "docs"
 
     if ext in [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".glb", ".gltf", ".fmat", ".wav", ".mp3", ".ogg"]:
@@ -120,7 +165,10 @@ def classify_repository_file(file_path):
 
 def organize_repository(target_dir=".", dry_run=False):
     target_path = Path(target_dir).resolve()
-    print(f"🚀 [OMNIVERSE REPOSITORY ORGANIZER] Scanning target: {target_path}")
+    print(f"🚀 [OMNIVERSE REPOSITORY ORGANIZER V8] Scanning target: {target_path}\n")
+
+    if not dry_run:
+        clean_large_build_artifacts(target_path)
 
     sync_website_and_actions(target_path)
 
@@ -162,7 +210,7 @@ def main():
     dry_run = "--dry-run" in sys.argv
     count, records = organize_repository(target_dir=target, dry_run=dry_run)
     print("\n==============================================================================")
-    print(f"🎉 ORGANIZER COMPLETE: Processed {count} files & synced GitHub Pages Actions!")
+    print(f"🎉 ORGANIZER V8 COMPLETE: Reorganized root files & protected build scripts!")
     print("==============================================================================")
 
 if __name__ == "__main__":

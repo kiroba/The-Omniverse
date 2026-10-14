@@ -31,7 +31,7 @@ jobs:
           distribution: 'temurin'
 
       - name: 🦋 Set up Flutter SDK
-        uses: actions/setup-flutter@v3
+        uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
 

@@ -23,7 +23,7 @@ jobs:
       - name: ⚙️ Organize Repository & Generate Standalone App
         run: |
           python3 organize_project.py || true
-          python3 build_core_engines_standalone_app-v4.py || python3 build_core_engines_standalone_app.py || python3 scripts/build_core_engines_standalone_app-v4.py || python3 core/engines/build_core_engines_standalone_app-v4.py
+          python3 build_core_engines_standalone_app-v4.py || python3 build_core_engines_standalone_app.py || python3 tools/build_core_engines_standalone_app-v4.py || python3 scripts/build_core_engines_standalone_app-v4.py || python3 core/engines/build_core_engines_standalone_app-v4.py
 
       - name: ☕ Set up Java JDK 17
         uses: actions/setup-java@v4
@@ -35,6 +35,11 @@ jobs:
         uses: actions/setup-flutter@v3
         with:
           channel: 'stable'
+
+      - name: 🧹 Clean Flutter Build Cache
+        run: |
+          cd omni_core_engines_standalone/mobile
+          flutter clean
 
       - name: 📦 Install Flutter Dependencies
         run: |

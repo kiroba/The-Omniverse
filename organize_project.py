@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
 ==============================================================================
-OMNIVERSE PROJECT ORGANIZER & WORKFLOW CONSOLIDATOR (V11)
+OMNIVERSE PROJECT ORGANIZER & WORKFLOW CONSOLIDATOR (V12)
 ==============================================================================
-- Scans and organizes Flutter UIs, Python daemons, assets, and documentation.
-- Consolidates GitHub Actions workflows into `.github/workflows/` using
-  `subosito/flutter-action@v2` and `flutter clean`.
-- Automatically removes stray or duplicate `.yml`/`.yaml` files from subdirectories
-  to prevent GitHub Actions workflow resolution issues.
+System Architecture:
+- Protects critical build entrypoints at repository root.
+- Enforces canonical workflows in `.github/workflows/` (`build_apk.yml` & `build_monitor_apk.yml`).
+- Automatically purges stray `.yml`/`.yaml` files in subdirectories.
+- Standardizes Flutter UIs, Python backend services, and visual assets into mobile/, backend/, scripts/, docs/.
 ==============================================================================
 """
 
@@ -16,14 +16,34 @@ import sys
 import shutil
 from pathlib import Path
 
-BUILD_APK_YML = """name: Build Omniverse Standalone APK
+ROOT_PROTECTED_FILES = {
+    "pubspec.yaml",
+    "pubspec.lock",
+    "README.md",
+    "LICENSE",
+    ".gitignore",
+    "organize_project.py",
+    "organize_project.sh",
+    "setup_github_pages.sh",
+    "Dockerfile",
+    "Makefile",
+    "build_apk.yml",
+    "build_monitor_apk.yml",
+    "build_core_engines_standalone_app-v4.py",
+    "build_core_engines_standalone_app.py",
+    "build_mobile_mesh_monitor_app.py",
+    "build_mobile_mesh_monitor_app-v2.py",
+    "build_termux.sh"
+}
+
+WORKFLOW_BUILD_APK = """name: Build Omniverse Standalone APK
 
 on:
   push:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  workflow_dispatch: # Allows manual trigger from GitHub UI
+  workflow_dispatch:
 
 jobs:
   build:
@@ -77,7 +97,7 @@ jobs:
           if-no-files-found: error
 """
 
-BUILD_MONITOR_APK_YML = """name: Build Omni Mobile Mesh Monitor APK
+WORKFLOW_BUILD_MONITOR = """name: Build Omni Mobile Mesh Monitor APK
 
 on:
   push:
@@ -139,59 +159,34 @@ jobs:
 
 def organize_and_cleanup_project(base_dir: Path):
     print("==================================================================")
-    print("OMNIVERSE PROJECT ORGANIZER & WORKFLOW CONSOLIDATOR (V11)")
+    print("OMNIVERSE PROJECT ORGANIZER & WORKFLOW CONSOLIDATOR (V12)")
     print("==================================================================")
-
-    # 1. Ensure canonical workflow directory
+    
+    # 1. Enforce canonical workflows at .github/workflows/
     workflows_dir = base_dir / ".github" / "workflows"
     workflows_dir.mkdir(parents=True, exist_ok=True)
-
+    
     with open(workflows_dir / "build_apk.yml", "w", encoding="utf-8") as f:
-        f.write(BUILD_APK_YML)
+        f.write(WORKFLOW_BUILD_APK)
     print("[✓] Finalized canonical workflow: .github/workflows/build_apk.yml")
-
+    
     with open(workflows_dir / "build_monitor_apk.yml", "w", encoding="utf-8") as f:
-        f.write(BUILD_MONITOR_APK_YML)
+        f.write(WORKFLOW_BUILD_MONITOR)
     print("[✓] Finalized canonical workflow: .github/workflows/build_monitor_apk.yml")
-
-    # 2. Cleanup stray workflow YAMLs in subdirectories to avoid GitHub confusion
-    subdirs_to_check = [
-        base_dir / "mobile",
-        base_dir / "backend",
-        base_dir / "scripts",
-        base_dir / "docs",
-        base_dir / "tools"
-    ]
-
-    for sdir in subdirs_to_check:
-        if sdir.exists():
-            for stray in sdir.rglob("*.yml"):
-                if stray.name in ["build_apk.yml", "build_monitor_apk.yml", "codemagic.yaml"]:
-                    try:
-                        stray.unlink()
-                        print(f"[✓] Purged stray workflow from subdirectory: {stray}")
-                    except Exception:
-                        pass
-            for stray in sdir.rglob("*.yaml"):
-                if stray.name in ["build_yaml.yaml", "build_apk.yaml", "build_monitor_apk.yaml"]:
-                    try:
-                        stray.unlink()
-                        print(f"[✓] Purged stray workflow from subdirectory: {stray}")
-                    except Exception:
-                        pass
-
-    # 3. Standardized mappings
+    
+    # 2. Setup standard directory structure
     mobile_lib = base_dir / "mobile" / "lib"
     mobile_assets_img = base_dir / "mobile" / "assets" / "images"
     mobile_assets_mods = base_dir / "mobile" / "assets" / "mods"
     backend_dir = base_dir / "backend"
     scripts_dir = base_dir / "scripts"
     docs_dir = base_dir / "docs"
-
+    
     for d in [mobile_lib, mobile_assets_img, mobile_assets_mods, backend_dir, scripts_dir, docs_dir]:
         d.mkdir(parents=True, exist_ok=True)
-
-    mappings = [
+        
+    # 3. File mappings & organization
+    file_mappings = [
         ("kickback_main_app_ui-v4.dart", mobile_lib / "kickback_main_app_ui.dart"),
         ("halo_plaza_experience_ui-v4.dart", mobile_lib / "halo_plaza_experience_ui.dart"),
         ("omni_phaser_studio_ui.dart", mobile_lib / "omni_phaser_studio_ui.dart"),
@@ -206,6 +201,8 @@ def organize_and_cleanup_project(base_dir: Path):
         ("omni_flet_desktop_control_panel.py", backend_dir / "omni_flet_desktop_control_panel.py"),
         ("build_termux.sh", scripts_dir / "build_termux.sh"),
         ("build_core_engines_standalone_app-v4.py", scripts_dir / "build_core_engines_standalone_app-v4.py"),
+        ("build_core_engines_standalone_app.py", scripts_dir / "build_core_engines_standalone_app.py"),
+        ("build_mobile_mesh_monitor_app.py", scripts_dir / "build_mobile_mesh_monitor_app.py"),
         ("build_mobile_mesh_monitor_app-v2.py", scripts_dir / "build_mobile_mesh_monitor_app-v2.py"),
         ("SECURITY.md", docs_dir / "SECURITY.md"),
         ("termux_and_desktop_cheatsheet.md", docs_dir / "termux_and_desktop_cheatsheet.md"),
@@ -213,20 +210,36 @@ def organize_and_cleanup_project(base_dir: Path):
         ("alpha_tester_quickstart_guide.md", docs_dir / "alpha_tester_quickstart_guide.md"),
         ("index.md", docs_dir / "index.md"),
     ]
-
-    for src_name, dest_file in mappings:
-        for search_root in [base_dir, Path("/workspace/artifacts"), Path("/workspace/scratch")]:
-            src_path = search_root / src_name
-            if src_path.exists():
-                shutil.copy(src_path, dest_file)
-                print(f"[✓] File mapped & synced: {src_name} -> {dest_file.relative_to(base_dir) if dest_file.is_relative_to(base_dir) else dest_file}")
-                break
-
+    
+    for src_name, dest_path in file_mappings:
+        src_path = base_dir / src_name
+        if src_path.exists() and src_name not in ROOT_PROTECTED_FILES:
+            shutil.copy(src_path, dest_path)
+            print(f"[✓] File mapped & synced: {src_name} -> {dest_path.relative_to(base_dir)}")
+            
+    # 4. Purge stray .yml/.yaml files in subdirectories
+    subdirs_to_check = [base_dir / "mobile", backend_dir, scripts_dir, docs_dir, base_dir / "tools", base_dir / "core"]
+    for sdir in subdirs_to_check:
+        if sdir.exists():
+            for yml_file in sdir.rglob("*.yml"):
+                try:
+                    yml_file.unlink()
+                    print(f"[✓] Purged stray workflow: {yml_file.relative_to(base_dir)}")
+                except Exception:
+                    pass
+            for yaml_file in sdir.rglob("*.yaml"):
+                if yaml_file.name != "pubspec.yaml":
+                    try:
+                        yaml_file.unlink()
+                        print(f"[✓] Purged stray yaml: {yaml_file.relative_to(base_dir)}")
+                    except Exception:
+                        pass
+                        
     print("==================================================================")
-    print("OMNIVERSE V11 PROJECT ORGANIZATION & CLEANUP COMPLETE!")
+    print("OMNIVERSE V12 PROJECT ORGANIZATION & CLEANUP COMPLETE!")
     print("==================================================================")
     return True
 
 if __name__ == "__main__":
-    target = Path(".").resolve()
+    target = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path.cwd().resolve()
     organize_and_cleanup_project(target)

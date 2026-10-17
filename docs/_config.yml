@@ -1,9 +1,0 @@
-title: The Omniverse & The KickBack
-tagline: Sovereign Serverless Ecosystem & P2P Social Network
-description: Official GitHub Pages portal for downloading The Omniverse APK and Desktop Builder.
-theme: jekyll-theme-midnight
-
-markdown: kramdown
-kramdown:
-  input: GFM
-  hard_wrap: false

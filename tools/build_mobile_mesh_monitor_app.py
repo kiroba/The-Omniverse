@@ -500,6 +500,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  cryptography: ^2.7.0
+  crypto: ^3.0.3
+  sqflite: ^2.3.0
+  path: ^1.9.0
+  cupertino_icons: ^1.0.6
+  flutter_inappwebview: ^6.0.0
 
 dev_dependencies:
   flutter_test:

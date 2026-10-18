@@ -2,7 +2,7 @@ name: Build All Omniverse Standalone APKs
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, desktop ]
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
@@ -42,17 +42,13 @@ jobs:
 
       - name: ⚙️ Generate Multi-App Standalone Suite
         run: |
-          if [ -f "build_multi_app_suite-v5.py" ]; then
-            python3 build_multi_app_suite-v5.py
-          elif [ -f "scripts/build_multi_app_suite-v5.py" ]; then
-            python3 scripts/build_multi_app_suite-v5.py
-          elif [ -f "build_multi_app_suite-v4.py" ]; then
-            python3 build_multi_app_suite-v4.py
-          elif [ -f "scripts/build_multi_app_suite-v4.py" ]; then
-            python3 scripts/build_multi_app_suite-v4.py
+          if [ -f "build_multi_app_suite.py" ]; then
+            python3 build_multi_app_suite.py
+          elif [ -f "scripts/build_multi_app_suite.py" ]; then
+            python3 scripts/build_multi_app_suite.py
           else
-            SCRIPT=$(find . -maxdepth 3 -name "build_multi_app_suite*.py" | head -n 1)
-            python3 "$SCRIPT"
+            echo "[!] Error: build_multi_app_suite.py not found in root or scripts/"
+            exit 1
           fi
 
       - name: ☕ Set up Java JDK 17

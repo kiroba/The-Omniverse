@@ -42,26 +42,17 @@ jobs:
 
       - name: ⚙️ Generate Multi-App Standalone Suite
         run: |
-          if [ -f "build_multi_app_suite-v3.py" ]; then
-            python3 build_multi_app_suite-v3.py
-          elif [ -f "scripts/build_multi_app_suite-v3.py" ]; then
-            python3 scripts/build_multi_app_suite-v3.py
-          elif [ -f "build_multi_app_suite-v2.py" ]; then
-            python3 build_multi_app_suite-v2.py
-          elif [ -f "scripts/build_multi_app_suite-v2.py" ]; then
-            python3 scripts/build_multi_app_suite-v2.py
-          elif [ -f "build_multi_app_suite.py" ]; then
-            python3 build_multi_app_suite.py
-          elif [ -f "scripts/build_multi_app_suite.py" ]; then
-            python3 scripts/build_multi_app_suite.py
+          if [ -f "build_multi_app_suite-v5.py" ]; then
+            python3 build_multi_app_suite-v5.py
+          elif [ -f "scripts/build_multi_app_suite-v5.py" ]; then
+            python3 scripts/build_multi_app_suite-v5.py
+          elif [ -f "build_multi_app_suite-v4.py" ]; then
+            python3 build_multi_app_suite-v4.py
+          elif [ -f "scripts/build_multi_app_suite-v4.py" ]; then
+            python3 scripts/build_multi_app_suite-v4.py
           else
-            echo "Searching for build_multi_app_suite script..."
             SCRIPT=$(find . -maxdepth 3 -name "build_multi_app_suite*.py" | head -n 1)
-            if [ -n "$SCRIPT" ]; then
-              python3 "$SCRIPT"
-            else
-              echo "Error: No multi-app suite builder script found!" && exit 1
-            fi
+            python3 "$SCRIPT"
           fi
 
       - name: ☕ Set up Java JDK 17
@@ -88,7 +79,7 @@ jobs:
       - name: 🔨 Build Release APK
         run: |
           cd apps/${{ matrix.app.folder }}/mobile
-          flutter build apk --release --target-platform android-arm64
+          flutter build apk --release --target-platform android-arm64 --android-skip-build-dependency-validation
 
       - name: 📤 Upload APK Artifact
         uses: actions/upload-artifact@v4

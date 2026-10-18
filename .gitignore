@@ -1,0 +1,94 @@
+# ==============================================================================
+# THE OMNIVERSE & THE KICKBACK - CANONICAL MASTER .gitignore
+# ==============================================================================
+# Comprehensive rule-based isolation matrix shielding Git from tracking
+# heavy binaries (>50MB), local SDK caches, legacy versioned draft files,
+# OS copy duplicates, and local build outputs.
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. FLUTTER, DART & NATIVE MOBILE BUILD OUTPUTS
+# ------------------------------------------------------------------------------
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+**/build/
+mobile/build/
+mobile/flutter/
+ios/Pods/
+ios/.symlinks/
+android/.gradle/
+.gradle/
+*.apk
+*.aab
+*.aar
+
+# ------------------------------------------------------------------------------
+# 2. HEAVY BINARIES & COMPILED NATIVE CLUTTER (>50MB SHARED LIBS)
+# ------------------------------------------------------------------------------
+*.jar
+*.so
+*.dll
+*.dylib
+*.exe
+*.bin
+*.iso
+
+# ------------------------------------------------------------------------------
+# 3. LEGACY DRAFT VERSIONED FILES & CHANGELOG DUMPS
+# ------------------------------------------------------------------------------
+# Shield Git from temporary -v2, -v3, -v4, -v26, -v30 draft iterations
+*-v[0-9]*.dart
+*-v[0-9]*.py
+*-v[0-9]*.yaml
+*-v[0-9]*.yml
+*-v[0-9]*.sh
+*-v[0-9]*.md
+dev_blog_changelog-v*.md
+mobile_one_click_setup-v*.sh
+continuum_ui_templates_staging-v*.dart
+omniverse_commercial_business_plan-v*.md
+launch_release_notes-v*.md
+mobile_assembly_and_build_guide-v*.md
+
+# ------------------------------------------------------------------------------
+# 4. OS DUPLICATES & COPY APPENDAGES
+# ------------------------------------------------------------------------------
+* (1).*
+* (2).*
+* copy.*
+* - Copy.*
+*.tmp
+
+# ------------------------------------------------------------------------------
+# 5. PYTHON & ENVIRONMENT DAEMON CACHES
+# ------------------------------------------------------------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.env
+venv/
+env/
+
+# ------------------------------------------------------------------------------
+# 6. IDE & SYSTEM SETTINGS
+# ------------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+ehthumbs.db
+.idea/
+*.suo
+*.user
+*.userosscache
+
+# ------------------------------------------------------------------------------
+# 7. GENERATED STANDALONE SUB-APPS & SCRATCH STAGING
+# ------------------------------------------------------------------------------
+omni_core_engines_standalone/
+omni_mobile_mesh_monitor_app/
+scratch/
+out/

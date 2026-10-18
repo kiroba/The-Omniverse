@@ -1,0 +1,89 @@
+name: Build All Omniverse Standalone APKs
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-standalone-apks:
+    name: Build ${{ matrix.app.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app:
+          - folder: "idle_plaza_standalone"
+            name: "Idle Plaza & Combat Brawler"
+            artifact: "idle-plaza-brawler-release-apk"
+          - folder: "phaser_studio_standalone"
+            name: "OmniPhaser 2D Studio"
+            artifact: "phaser-2d-studio-release-apk"
+          - folder: "kickback_main_standalone"
+            name: "The KickBack Social Network"
+            artifact: "kickback-social-main-release-apk"
+          - folder: "mesh_monitor_standalone"
+            name: "Mobile Mesh Monitor"
+            artifact: "mobile-mesh-monitor-release-apk"
+          - folder: "omniverse_superapp_master"
+            name: "Omniverse Master Superapp"
+            artifact: "omniverse-master-superapp-release-apk"
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: ⚙️ Generate Multi-App Standalone Suite
+        run: |
+          if [ -f "build_multi_app_suite-v4.py" ]; then
+            python3 build_multi_app_suite-v4.py
+          elif [ -f "scripts/build_multi_app_suite-v4.py" ]; then
+            python3 scripts/build_multi_app_suite-v4.py
+          elif [ -f "build_multi_app_suite-v3.py" ]; then
+            python3 build_multi_app_suite-v3.py
+          elif [ -f "scripts/build_multi_app_suite-v3.py" ]; then
+            python3 scripts/build_multi_app_suite-v3.py
+          else
+            SCRIPT=$(find . -maxdepth 3 -name "build_multi_app_suite*.py" | head -n 1)
+            python3 "$SCRIPT"
+          fi
+
+      - name: ☕ Set up Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: 🦋 Set up Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: 🧹 Clean Flutter Build Cache
+        run: |
+          cd apps/${{ matrix.app.folder }}/mobile
+          flutter clean
+
+      - name: 📦 Install Flutter Dependencies
+        run: |
+          cd apps/${{ matrix.app.folder }}/mobile
+          flutter pub get
+
+      - name: 🔨 Build Release APK
+        run: |
+          cd apps/${{ matrix.app.folder }}/mobile
+          flutter build apk --release --target-platform android-arm64
+
+      - name: 📤 Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.app.artifact }}
+          path: apps/${{ matrix.app.folder }}/mobile/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error

@@ -1,0 +1,51 @@
+{
+  "networkId": "omni-hub-mainnet-v1",
+  "protocolVersion": "/omni/p2p/1.0.0",
+  "discovery": {
+    "mdns": {
+      "enabled": true,
+      "serviceName": "_omnihub._tcp.local",
+      "intervalSeconds": 10
+    },
+    "pex": {
+      "enabled": true,
+      "maxPeersPerExchange": 50,
+      "exchangeIntervalSeconds": 30
+    },
+    "dht": {
+      "enabled": true,
+      "mode": "auto",
+      "kValue": 20
+    }
+  },
+  "communitySeedNodes": [
+    {
+      "nodeId": "12D3KooW_community_seed_01",
+      "multiaddr": "/ip4/100.64.0.1/tcp/4001/p2p/12D3KooW_community_seed_01",
+      "region": "global-p2p-mesh",
+      "trustScore": 100
+    },
+    {
+      "nodeId": "12D3KooW_community_seed_02",
+      "multiaddr": "/dns4/seed.omni.network/tcp/4001/p2p/12D3KooW_community_seed_02",
+      "region": "global-p2p-mesh",
+      "trustScore": 100
+    }
+  ],
+  "optionalTaggingSpec": {
+    "enabled": true,
+    "allowCustomTags": true,
+    "maxTagsPerEnvelope": 10,
+    "tagLengthLimit": 32,
+    "defaultQoLTags": [
+      "#qol",
+      "#update",
+      "#feature",
+      "#announcement",
+      "#community",
+      "#bugfix",
+      "#feedback"
+    ],
+    "clientSideIndexStrategy": "LOCAL_SQLITE_HASH_INDEX"
+  }
+}

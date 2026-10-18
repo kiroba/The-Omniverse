@@ -1,0 +1,88 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "mobile",
+            "cwd": "mobile",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "mobile (profile mode)",
+            "cwd": "mobile",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "mobile (release mode)",
+            "cwd": "mobile",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "desktop",
+            "cwd": "omni_core_engines_desktop\\desktop",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "desktop (profile mode)",
+            "cwd": "omni_core_engines_desktop\\desktop",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "desktop (release mode)",
+            "cwd": "omni_core_engines_desktop\\desktop",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "mobile",
+            "cwd": "omni_core_engines_standalone\\mobile",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "mobile (profile mode)",
+            "cwd": "omni_core_engines_standalone\\mobile",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "mobile (release mode)",
+            "cwd": "omni_core_engines_standalone\\mobile",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "mobile",
+            "cwd": "scripts\\mobile",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "mobile (profile mode)",
+            "cwd": "scripts\\mobile",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "mobile (release mode)",
+            "cwd": "scripts\\mobile",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}

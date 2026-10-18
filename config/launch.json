@@ -1,0 +1,31 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter: Main App (Virtual Device)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [
+        "-d",
+        "emulator-5554"
+      ]
+    },
+    {
+      "name": "VS Code Test: Automated E2E Integration Suite",
+      "request": "launch",
+      "type": "dart",
+      "program": "integration_test/app_test.dart",
+      "args": [
+        "-d",
+        "emulator-5554"
+      ]
+    },
+    {
+      "name": "Flutter: Physical Device (USB / Wi-Fi)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart"
+    }
+  ]
+}

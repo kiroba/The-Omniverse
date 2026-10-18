@@ -1,0 +1,281 @@
+{
+  "ARCADE_GAME": {
+    "template_id": "tpl_arcade_cyber_runner_2d",
+    "title": "Cyber Runner 2D: Arcade Starter Template",
+    "industry": "Gaming & Esports",
+    "description": "Fluid 2D platformer template with collision maps, sprite animations, and P2P score leaderboard broadcasting.",
+    "manifest": {
+      "schema_version": "1.0.0",
+      "mod_id": "omnimod.templates.cyber_runner_2d",
+      "version": "1.0.0",
+      "title": "Cyber Runner 2D",
+      "description": "2D neon platformer with local P2P score synchronization.",
+      "category": "arcade_game",
+      "author": {
+        "handle": "@omniverse.official",
+        "pubkey_ed25519": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "attestation_badge": "ENTERPRISE_STUDIO"
+      },
+      "engine_target": {
+        "framework": "phaser_3_canvas",
+        "min_framework_version": "3.80.0",
+        "entrypoint": "src/game_logic.js",
+        "sandbox_permissions": [
+          "CANVAS_RENDER_2D",
+          "AUDIO_PLAYBACK",
+          "LOCAL_KEYBOARD_TOUCH_INPUT",
+          "OMNI_P2P_SCORE_BROADCAST"
+        ]
+      },
+      "assets": {
+        "spritesheets": [
+          {
+            "key": "player_run",
+            "file_path": "assets/sprites/runner.png",
+            "frame_width": 64,
+            "frame_height": 64
+          }
+        ],
+        "tilemaps": [
+          {
+            "key": "stage_01",
+            "file_path": "assets/maps/level1.json",
+            "format": "TILED_JSON"
+          }
+        ],
+        "audio_banks": [
+          {
+            "key": "sfx_jump",
+            "file_path": "assets/audio/jump.ogg"
+          }
+        ]
+      },
+      "kickback_integration": {
+        "max_players": 4,
+        "omnicredits_reward_rate": 1.5,
+        "telemetry_events": [
+          "LEVEL_COMPLETE",
+          "HIGH_SCORE"
+        ]
+      }
+    },
+    "phaser_code_snippet": "\n// Cyber Runner 2D - Boilerplate Scene\nclass CyberRunnerScene extends Phaser.Scene {\n    constructor() { super({ key: 'CyberRunnerScene' }); }\n    preload() {\n        this.load.spritesheet('player_run', 'assets/sprites/runner.png', { frameWidth: 64, frameHeight: 64 });\n        this.load.tilemapTiledJSON('stage_01', 'assets/maps/level1.json');\n        this.load.audio('sfx_jump', 'assets/audio/jump.ogg');\n    }\n    create() {\n        const map = this.make.tilemap({ key: 'stage_01' });\n        const tileset = map.addTilesetImage('neon_tiles', 'tileset_img');\n        const layer = map.createLayer('World', tileset, 0, 0);\n        layer.setCollisionByProperty({ collides: true });\n        \n        this.player = this.physics.add.sprite(100, 450, 'player_run');\n        this.physics.add.collider(this.player, layer);\n        this.cursors = this.input.keyboard.createCursorKeys();\n    }\n    update() {\n        if (this.cursors.left.isDown) { this.player.setVelocityX(-200); }\n        else if (this.cursors.right.isDown) { this.player.setVelocityX(200); }\n        else { this.player.setVelocityX(0); }\n        if (this.cursors.up.isDown && this.player.body.blocked.down) {\n            this.player.setVelocityY(-400);\n        }\n    }\n}\n"
+  },
+  "EDUCATOR_PASS": {
+    "template_id": "tpl_educator_quantum_pass",
+    "title": "Quantum Computing Educator Pass & Quiz Vault",
+    "industry": "EdTech & Professional Certification",
+    "description": "Interactive learning pass with embedded quiz modules, completion credentials, and OmniCredit rewards.",
+    "manifest": {
+      "schema_version": "1.0.0",
+      "mod_id": "omnimod.templates.quantum_educator_pass",
+      "version": "1.0.0",
+      "title": "Quantum Physics Educator Pass",
+      "description": "Interactive lesson modules and verifiable local completion certificates.",
+      "category": "puzzle",
+      "author": {
+        "handle": "@quantum.academy",
+        "pubkey_ed25519": "0x0000000000000000000000000000000000000000000000000000000000000002",
+        "attestation_badge": "ENTERPRISE_STUDIO"
+      },
+      "engine_target": {
+        "framework": "phaser_3_canvas",
+        "min_framework_version": "3.80.0",
+        "entrypoint": "src/educator_logic.js",
+        "sandbox_permissions": [
+          "CANVAS_RENDER_2D",
+          "LOCAL_KEYBOARD_TOUCH_INPUT",
+          "OMNI_P2P_SCORE_BROADCAST"
+        ]
+      },
+      "assets": {
+        "spritesheets": [
+          {
+            "key": "quiz_cards",
+            "file_path": "assets/ui/cards.png",
+            "frame_width": 200,
+            "frame_height": 300
+          }
+        ],
+        "tilemaps": [],
+        "audio_banks": [
+          {
+            "key": "sfx_correct",
+            "file_path": "assets/audio/correct.ogg"
+          }
+        ]
+      },
+      "kickback_integration": {
+        "max_players": 1,
+        "omnicredits_reward_rate": 5.0,
+        "telemetry_events": [
+          "QUIZ_PASSED",
+          "PASS_ISSUED"
+        ]
+      }
+    },
+    "phaser_code_snippet": "\n// Educator Pass - Interactive Card Quiz\nclass EducatorQuizScene extends Phaser.Scene {\n    constructor() { super({ key: 'EducatorQuizScene' }); }\n    create() {\n        this.add.text(100, 50, 'Quantum Computing Module 1: Qubits', { fontSize: '24px', fill: '#00FFCC' });\n        this.card = this.add.image(400, 300, 'quiz_cards', 0).setInteractive();\n        this.card.on('pointerdown', () => {\n            this.sound.play('sfx_correct');\n            window.OmniIPC.sendEvent('QUIZ_PASSED', { score: 100, mod_id: 'quantum_pass' });\n        });\n    }\n}\n"
+  },
+  "LPE_COSMETIC_PACK": {
+    "template_id": "tpl_lpe_neon_aura_pack",
+    "title": "LPE Cyberpunk Neon Aura 2D Layer Pack",
+    "industry": "Digital Fashion & Avatar Cosmetics",
+    "description": "Modular 2D avatar clothing layers and sprite attachments for the Live Persona Engine.",
+    "manifest": {
+      "schema_version": "1.0.0",
+      "mod_id": "omnimod.templates.neon_aura_lpe_pack",
+      "version": "1.0.0",
+      "title": "Neon Aura LPE Cosmetic Pack",
+      "description": "Modular 2D sprite clothing layers for Live Persona Engine avatars.",
+      "category": "cosmetic_skin",
+      "author": {
+        "handle": "@cyber.style",
+        "pubkey_ed25519": "0x0000000000000000000000000000000000000000000000000000000000000003",
+        "attestation_badge": "HUMAN_VERIFIED_CREATOR"
+      },
+      "engine_target": {
+        "framework": "phaser_3_canvas",
+        "min_framework_version": "3.80.0",
+        "entrypoint": "src/cosmetic_viewer.js",
+        "sandbox_permissions": [
+          "CANVAS_RENDER_2D"
+        ]
+      },
+      "assets": {
+        "spritesheets": [
+          {
+            "key": "aura_layer",
+            "file_path": "assets/cosmetics/aura.png",
+            "frame_width": 128,
+            "frame_height": 128
+          }
+        ],
+        "tilemaps": [],
+        "audio_banks": []
+      },
+      "kickback_integration": {
+        "max_players": 1,
+        "omnicredits_reward_rate": 0.0,
+        "telemetry_events": [
+          "COSMETIC_EQUIPPED"
+        ]
+      }
+    },
+    "phaser_code_snippet": "\n// LPE Cosmetic Layer Attachment Preview\nclass CosmeticPreviewScene extends Phaser.Scene {\n    create() {\n        const aura = this.add.sprite(400, 300, 'aura_layer');\n        this.tweens.add({\n            targets: aura,\n            alpha: { from: 0.4, to: 1.0 },\n            duration: 800,\n            yoyo: true,\n            repeat: -1\n        });\n    }\n}\n"
+  },
+  "PUZZLE_VAULT": {
+    "template_id": "tpl_puzzle_9x9_cube_escape",
+    "title": "9x9 Procedural Cube Escape Tilemap",
+    "industry": "Procedural Gaming & Logic Puzzles",
+    "description": "Procedurally generated 2D maze-escape puzzle grid with trap rooms and keycard scavenging.",
+    "manifest": {
+      "schema_version": "1.0.0",
+      "mod_id": "omnimod.templates.cube_escape_9x9",
+      "version": "1.0.0",
+      "title": "9x9 Procedural Cube Escape",
+      "description": "Procedural maze-escape tilemap with local P2P room sync.",
+      "category": "puzzle",
+      "author": {
+        "handle": "@hactik.games",
+        "pubkey_ed25519": "0x0000000000000000000000000000000000000000000000000000000000000004",
+        "attestation_badge": "ENTERPRISE_STUDIO"
+      },
+      "engine_target": {
+        "framework": "phaser_3_canvas",
+        "min_framework_version": "3.80.0",
+        "entrypoint": "src/cube_logic.js",
+        "sandbox_permissions": [
+          "CANVAS_RENDER_2D",
+          "AUDIO_PLAYBACK",
+          "LOCAL_KEYBOARD_TOUCH_INPUT",
+          "OMNI_P2P_SCORE_BROADCAST"
+        ]
+      },
+      "assets": {
+        "spritesheets": [
+          {
+            "key": "cube_tiles",
+            "file_path": "assets/tiles/cube_rooms.png",
+            "frame_width": 64,
+            "frame_height": 64
+          }
+        ],
+        "tilemaps": [
+          {
+            "key": "maze_9x9",
+            "file_path": "assets/maps/maze9x9.json",
+            "format": "TILED_JSON"
+          }
+        ],
+        "audio_banks": []
+      },
+      "kickback_integration": {
+        "max_players": 4,
+        "omnicredits_reward_rate": 2.5,
+        "telemetry_events": [
+          "ROOM_ESCAPED",
+          "KEYCARD_FOUND"
+        ]
+      }
+    },
+    "phaser_code_snippet": "\n// 9x9 Cube Escape Logic\nclass CubeEscapeScene extends Phaser.Scene {\n    create() {\n        this.add.text(50, 30, '9x9 Cube Room [3, 7]', { fill: '#7209B7', fontSize: '20px' });\n        // Render 2D grid matrix\n    }\n}\n"
+  },
+  "SOCIAL_AUDIO": {
+    "template_id": "tpl_social_radio_soundboard",
+    "title": "Live Broadcast Soundboard & Podcast Feed",
+    "industry": "Media, Music & B2B Broadcasting",
+    "description": "Interactive audio soundboard and podcast playback console integrated with Socioboard syndication.",
+    "manifest": {
+      "schema_version": "1.0.0",
+      "mod_id": "omnimod.templates.social_radio_soundboard",
+      "version": "1.0.0",
+      "title": "Social Radio Soundboard",
+      "description": "Broadcast soundboard and live commentary triggers.",
+      "category": "audio_pack",
+      "author": {
+        "handle": "@kickback.radio",
+        "pubkey_ed25519": "0x0000000000000000000000000000000000000000000000000000000000000005",
+        "attestation_badge": "HUMAN_VERIFIED_CREATOR"
+      },
+      "engine_target": {
+        "framework": "phaser_3_canvas",
+        "min_framework_version": "3.80.0",
+        "entrypoint": "src/radio_logic.js",
+        "sandbox_permissions": [
+          "CANVAS_RENDER_2D",
+          "AUDIO_PLAYBACK"
+        ]
+      },
+      "assets": {
+        "spritesheets": [
+          {
+            "key": "sound_buttons",
+            "file_path": "assets/ui/buttons.png",
+            "frame_width": 100,
+            "frame_height": 100
+          }
+        ],
+        "tilemaps": [],
+        "audio_banks": [
+          {
+            "key": "horn_sfx",
+            "file_path": "assets/audio/airhorn.ogg"
+          },
+          {
+            "key": "cheer_sfx",
+            "file_path": "assets/audio/crowd_cheer.ogg"
+          }
+        ]
+      },
+      "kickback_integration": {
+        "max_players": 1,
+        "omnicredits_reward_rate": 0.5,
+        "telemetry_events": [
+          "SOUND_TRIGGERED",
+          "BROADCAST_STARTED"
+        ]
+      }
+    },
+    "phaser_code_snippet": "\n// Social Radio Soundboard Logic\nclass SoundboardScene extends Phaser.Scene {\n    create() {\n        const btn = this.add.image(200, 200, 'sound_buttons', 0).setInteractive();\n        btn.on('pointerdown', () => {\n            this.sound.play('horn_sfx');\n        });\n    }\n}\n"
+  }
+}

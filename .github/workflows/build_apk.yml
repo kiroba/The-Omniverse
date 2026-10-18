@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main, master, desktop ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master, desktop ]
   workflow_dispatch:
 
 jobs:
@@ -47,7 +47,7 @@ jobs:
           elif [ -f "scripts/build_multi_app_suite.py" ]; then
             python3 scripts/build_multi_app_suite.py
           else
-            echo "[!] Error: build_multi_app_suite.py not found in root or scripts/"
+            echo "::error::Canonical build_multi_app_suite.py not found!"
             exit 1
           fi
 

@@ -3,8 +3,8 @@
 ==============================================================================
 OMNIVERSE PROJECT ORGANIZER & AUTOMATED PRUNING ENGINE
 ==============================================================================
-Module Version : 19.0.0 (Canonical In-File Versioning)
-System Domain  : Repository Layout Canonicalization, Workflow Sync & Pruning
+Module Version : 19.1.0 (Canonical Master Sync & Versioned Draft Pruning)
+System Domain  : Project Directory Mapping, Workflow Enforcement & Pruning
 ==============================================================================
 """
 
@@ -12,11 +12,10 @@ import os
 import sys
 import shutil
 import re
-import argparse
 from pathlib import Path
 
-__version__ = "19.0.0"
-BUILD_REVISION = "2026-10-18.v19-canonical"
+__version__ = "19.1.0"
+BUILD_REVISION = "2026-10-18.v19.1-canonical"
 
 ROOT_PROTECTED_FILES = {
     "pubspec.yaml",
@@ -39,19 +38,19 @@ ROOT_PROTECTED_FILES = {
     "kickback_seamless_stripe_checkout.dart",
     "omni_crypto_payment_gateway.py",
     "build_termux.sh",
-    "gitsync_repair_and_push.sh",
     "run_desktop.py",
     "run_desktop.bat",
-    "run_desktop.sh"
+    "run_desktop.sh",
+    "gitsync_repair_and_push.sh"
 }
 
-WORKFLOW_PARALLEL_MATRIX_BUILD = """name: Build All Omniverse Standalone APKs
+WORKFLOW_CANONICAL_MATRIX_BUILD = """name: Build All Omniverse Standalone APKs
 
 on:
   push:
     branches: [ main, master, desktop ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master, desktop ]
   workflow_dispatch:
 
 jobs:
@@ -94,7 +93,7 @@ jobs:
           elif [ -f "scripts/build_multi_app_suite.py" ]; then
             python3 scripts/build_multi_app_suite.py
           else
-            echo "[!] Error: build_multi_app_suite.py not found in root or scripts/"
+            echo "::error::Canonical build_multi_app_suite.py not found!"
             exit 1
           fi
 
@@ -137,19 +136,18 @@ DEPRECATED_FILE_PATTERNS = [
     r"build_mobile_mesh_monitor_app[-_]v[0-9]+\.py$",
     r"build_multi_app_suite-v[0-9]+\.py$",
     r"organize_project-v[0-9]+\.py$",
-    r"run_desktop-v[0-9]+\.(py|bat|sh)$",
     r"mobile_one_click_setup-v[0-9]+\.sh$",
     r"kickback_main_app_ui-v[0-9]+\.dart$",
     r"halo_plaza_experience_ui-v[0-9]+\.dart$",
     r"dev_blog_changelog-v[0-9]+\.md$",
-    r"omniverse_commercial_business_plan-v[0-9]+\.md$"
+    r"run_desktop-v[0-9]+\.(py|bat|sh)$"
 ]
 
-CANONICAL_GITIGNORE_CONTENT = """# ==============================================================================
+CANONICAL_GITIGNORE = """# ==============================================================================
 # THE OMNIVERSE & THE KICKBACK - CANONICAL MASTER .gitignore
 # ==============================================================================
 
-# Flutter, Dart & Native Build Outputs
+# 1. FLUTTER & NATIVE BUILD OUTPUTS
 .dart_tool/
 .packages
 .pub-cache/
@@ -157,42 +155,48 @@ CANONICAL_GITIGNORE_CONTENT = """# =============================================
 build/
 **/build/
 mobile/build/
-ios/Pods/
 android/.gradle/
 .gradle/
 *.apk
 *.aab
+*.aar
 
-# Binary Executables & Heavy Cache
+# 2. HEAVY BINARIES (>50MB SHARED LIBS)
 *.jar
 *.so
 *.dll
 *.dylib
 *.exe
-*.bin
-*.iso
 
-# Python & Daemon Caches
+# 3. LEGACY DRAFT VERSIONED SUFFIX FILES (EXCLUDES CANONICAL SCRIPTS)
+*-v[0-9]*.dart
+*-v[0-9]*.py
+*-v[0-9]*.yaml
+*-v[0-9]*.yml
+*-v[0-9]*.sh
+*-v[0-9]*.md
+
+# 4. OS DUPLICATES
+* (1).*
+* (2).*
+*.tmp
+.DS_Store
+Thumbs.db
+
+# 5. PYTHON CACHES
 __pycache__/
 *.pyc
 *.pyo
-*.pyd
-.pytest_cache/
-.env
 venv/
 env/
 
-# IDE & OS Settings
-.DS_Store
-Thumbs.db
+# 6. IDE & LOCAL STAGING
 .idea/
-
-# Intermediate Scratch & Out Directories
 scratch/
 out/
 """
 
-def prune_obsolete_versioned_files(base_dir: Path):
+def prune_obsolete_files(base_dir: Path):
     print("------------------------------------------------------------------")
     print("🧹 RUNNING AUTOMATED PRUNING OF DEPRECATED VERSION-SUFFIXED FILES...")
     print("------------------------------------------------------------------")
@@ -211,20 +215,18 @@ def prune_obsolete_versioned_files(base_dir: Path):
                         try:
                             item.unlink()
                             pruned_count += 1
-                            print(f"[✓] Pruned obsolete versioned file: {item.name}")
+                            print(f"[✓] Pruned deprecated file: {item.name}")
                             break
                         except Exception as e:
                             print(f"[!] Warning: Could not prune {item.name}: {e}")
                             
     return pruned_count
 
-def update_gitignore_file(base_dir: Path):
-    gitignore_path = base_dir / ".gitignore"
-    with open(gitignore_path, "w", encoding="utf-8") as f:
-        f.write(CANONICAL_GITIGNORE_CONTENT)
-    print("[✓] Updated canonical .gitignore (whitelists all canonical scripts)")
-
 def organize_and_cleanup_project(base_dir: Path):
+    if "--version" in sys.argv:
+        print(f"organize_project.py version {__version__} ({BUILD_REVISION})")
+        sys.exit(0)
+
     print("==================================================================")
     print(f"OMNIVERSE PROJECT ORGANIZER & AUTOMATED PRUNING ENGINE [v{__version__}]")
     print(f"Revision: {BUILD_REVISION}")
@@ -235,11 +237,13 @@ def organize_and_cleanup_project(base_dir: Path):
     workflows_dir.mkdir(parents=True, exist_ok=True)
     
     with open(workflows_dir / "build_apk.yml", "w", encoding="utf-8") as f:
-        f.write(WORKFLOW_PARALLEL_MATRIX_BUILD)
+        f.write(WORKFLOW_CANONICAL_MATRIX_BUILD)
     print("[✓] Finalized canonical matrix workflow: .github/workflows/build_apk.yml")
     
-    # 2. Update .gitignore
-    update_gitignore_file(base_dir)
+    # 2. Ensure canonical .gitignore
+    with open(base_dir / ".gitignore", "w", encoding="utf-8") as f:
+        f.write(CANONICAL_GITIGNORE)
+    print("[✓] Updated canonical .gitignore (whitelists all canonical scripts)")
 
     # 3. Setup standard directory structure
     mobile_lib = base_dir / "mobile" / "lib"
@@ -252,7 +256,7 @@ def organize_and_cleanup_project(base_dir: Path):
     for d in [mobile_lib, mobile_assets_img, mobile_assets_mods, backend_dir, scripts_dir, docs_dir]:
         d.mkdir(parents=True, exist_ok=True)
         
-    # 4. File mappings strictly targeting CANONICAL filenames
+    # 4. Canonical file mappings
     file_mappings = [
         ("kickback_main_app_ui.dart", mobile_lib / "kickback_main_app_ui.dart"),
         ("halo_plaza_experience_ui.dart", mobile_lib / "halo_plaza_experience_ui.dart"),
@@ -266,7 +270,6 @@ def organize_and_cleanup_project(base_dir: Path):
         ("localsend_chunk_receiver.py", backend_dir / "localsend_chunk_receiver.py"),
         ("omni_mod_compiler.py", backend_dir / "omni_mod_compiler.py"),
         ("omni_phase1_security_suite.py", backend_dir / "omni_phase1_security_suite.py"),
-        ("socioboard_b2b_gateway_adapter.py", backend_dir / "socioboard_b2b_gateway_adapter.py"),
         ("p2p_mesh_health_monitor.py", backend_dir / "p2p_mesh_health_monitor.py"),
         ("omni_flet_desktop_control_panel.py", backend_dir / "omni_flet_desktop_control_panel.py"),
         ("omni_crypto_payment_gateway.py", backend_dir / "omni_crypto_payment_gateway.py"),
@@ -286,8 +289,8 @@ def organize_and_cleanup_project(base_dir: Path):
             shutil.copy(src_path, dest_path)
             print(f"[✓] File mapped & synced: {src_name} -> {dest_path.relative_to(base_dir)}")
             
-    # 5. Execute Automated Pruning Engine
-    prune_obsolete_versioned_files(base_dir)
+    # 5. Execute Automated Pruning
+    prune_obsolete_files(base_dir)
     
     print("==================================================================")
     print(f"OMNIVERSE PROJECT ORGANIZATION & CANONICALIZATION COMPLETE [v{__version__}]")
@@ -295,9 +298,5 @@ def organize_and_cleanup_project(base_dir: Path):
     return True
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Omniverse Project Organizer & Automated Pruning Engine")
-    parser.add_argument("--version", "-v", action="version", version=f"organize_project.py version {__version__} ({BUILD_REVISION})")
-    args = parser.parse_args()
-
-    target = Path.cwd().resolve()
+    target = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path.cwd().resolve()
     organize_and_cleanup_project(target)

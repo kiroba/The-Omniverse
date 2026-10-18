@@ -428,7 +428,7 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                       decoration: BoxDecoration(
-                        color: Colors.black80,
+                        color: Colors.black87,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(

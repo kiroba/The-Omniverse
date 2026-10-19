@@ -97,7 +97,7 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAlignment.start,
           children: const [
             Text('The KickBack', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             Text(
@@ -237,7 +237,7 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAlignment.start,
           children: [
             Row(
               children: [
@@ -249,7 +249,7 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAlignment.start,
                     children: [
                       Row(
                         children: [
@@ -315,7 +315,7 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
           padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAlignment.start,
             children: [
               const Text(
                 'Sovereign Wallet & Dual Payments',
@@ -379,7 +379,7 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
           padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAlignment.start,
             children: const [
               Text('Hardware Attestation', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
               SizedBox(height: 12),

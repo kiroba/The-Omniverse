@@ -44,7 +44,7 @@ class _MeshMonitorMainScreenState extends State<MeshMonitorMainScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAlignment.start,
           children: const [
             Text('Omniverse Mesh Monitor', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             Text('ADMINISTRATIVE TELEMETRY • 1 LOCAL NODE ONLINE', style: TextStyle(color: Color(0xFF03DAC6), fontSize: 10, letterSpacing: 0.5)),
@@ -176,7 +176,7 @@ class _MeshMonitorMainScreenState extends State<MeshMonitorMainScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAlignment.start,
               children: [
                 Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white)),
                 const SizedBox(height: 4),

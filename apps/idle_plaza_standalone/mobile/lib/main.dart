@@ -84,7 +84,7 @@ class _HaloPlazaMainScreenState extends State<HaloPlazaMainScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAlignment.start,
           children: const [
             Text('Halo Plaza Hub', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             Text('1 Sovereign Player Online • Local State', style: TextStyle(color: Color(0xFF03DAC6), fontSize: 11)),
@@ -129,7 +129,7 @@ class _HaloPlazaMainScreenState extends State<HaloPlazaMainScreen> {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAlignment.start,
         children: [
           Container(
             width: double.infinity,
@@ -144,7 +144,7 @@ class _HaloPlazaMainScreenState extends State<HaloPlazaMainScreen> {
               border: Border.all(color: const Color(0xFFBB86FC).withOpacity(0.3)),
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAlignment.start,
               children: const [
                 Text(
                   'Welcome to Halo Plaza',
@@ -190,7 +190,7 @@ class _HaloPlazaMainScreenState extends State<HaloPlazaMainScreen> {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAlignment.start,
         children: [
           const Text('Arcade Lounge Mini-Games', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
           const SizedBox(height: 6),
@@ -218,7 +218,7 @@ class _HaloPlazaMainScreenState extends State<HaloPlazaMainScreen> {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAlignment.start,
         children: [
           const Text('RPG Idle Realm - Skilling Hub', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
           const SizedBox(height: 6),
@@ -229,7 +229,7 @@ class _HaloPlazaMainScreenState extends State<HaloPlazaMainScreen> {
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAlignment.start,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

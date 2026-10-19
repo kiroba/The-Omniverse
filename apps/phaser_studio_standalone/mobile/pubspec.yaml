@@ -1,7 +1,7 @@
 name: phaser_studio_standalone
 description: "OmniPhaser 2D Studio Standalone Subsystem APK"
 publish_to: 'none'
-version: 5.2.0+520
+version: 1.0.0+1
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

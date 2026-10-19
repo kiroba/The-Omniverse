@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace "com.omniverse.kickback"
-    compileSdk 36
+    compileSdk 34
     ndkVersion "25.1.8937393"
 
     compileOptions {
@@ -21,9 +21,9 @@ android {
     defaultConfig {
         applicationId "com.omniverse.kickback"
         minSdk 24
-        targetSdk 36
-        versionCode 520
-        versionName "5.2.0"
+        targetSdk 34
+        versionCode 1
+        versionName "1.0.0"
     }
 
     buildTypes {

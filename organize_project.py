@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 """
 ==============================================================================
-OMNIVERSE PROJECT ORGANIZER & BROWSER AUTO-INGESTION ENGINE [v20.1.0]
+OMNIVERSE PROJECT ORGANIZER & ROOT SWEEP ENGINE [v20.1.0]
 ==============================================================================
 System Architecture:
 1. Consolidates GitHub Actions workflows into `.github/workflows/build_apk.yml`.
 2. Automatically ingests Firefox / browser duplicate downloads (e.g. `file (1).ext`),
    replaces canonical files with the newest downloaded version, and deletes duplicates.
-3. Enforces Root Permanence: `organize_project.py` and `build_multi_app_suite.py`
-   remain strictly at the repository root level.
-4. Prunes obsolete / legacy draft files (`*-v*.py`, `*-v*.dart`, `*-v*.sh`, `*-v*.yml`).
-5. Uses inode-level `os.path.samefile` checks to prevent `shutil.SameFileError` on Termux.
+3. Enforces ROOT PERMANENCE for `organize_project.py` and `build_multi_app_suite.py`.
+4. Performs an aggressive ROOT CLEAN SWEEP: moves all floating UI, backend, and
+   script files to their canonical subdirectories (mobile/lib/, backend/, scripts/).
+5. Prunes obsolete / legacy draft files (`*-v*.py`, `*-v*.dart`, `*-v*.sh`, `*-v*.yml`).
+6. Uses inode-level `os.path.samefile` checks to prevent `shutil.SameFileError` on Termux.
 ==============================================================================
 """
 
@@ -34,6 +35,7 @@ def resolve_base_dir() -> Path:
     return Path.cwd().resolve()
 
 def ingest_browser_downloads(base_dir: Path, search_paths: list):
+    """Detects Firefox/browser duplicate downloads (e.g., file (1).ext) and replaces canonical files."""
     dup_pattern = re.compile(r'^(.*?)(?:\s*\(\d+\)|\s*-\s*Copy|\s*copy)\.(py|dart|sh|yml|yaml|md|json)$', re.IGNORECASE)
     
     for p in search_paths:
@@ -77,13 +79,14 @@ def find_source_file(filename: str, search_paths: list) -> Path:
 def organize_and_sync():
     base_dir = resolve_base_dir()
     print("==================================================================")
-    print(f"OMNIVERSE PROJECT ORGANIZER & BROWSER AUTO-INGESTION ENGINE [v{__version__}]")
+    print(f"OMNIVERSE PROJECT ORGANIZER & ROOT SWEEP ENGINE [v{__version__}]")
     print(f"Revision: {BUILD_REVISION}")
     print("==================================================================")
     
     search_paths = [
         base_dir,
         base_dir / "mobile" / "lib",
+        base_dir / "backend",
         base_dir / "scripts",
         Path.cwd()
     ]
@@ -92,10 +95,10 @@ def organize_and_sync():
     if (Path("/workspace") / "artifacts").exists():
         search_paths.append(Path("/workspace") / "artifacts")
         
-    # Phase 1: Ingest Browser Downloads
+    # Phase 1: Browser Duplicate Auto-Ingestion
     ingest_browser_downloads(base_dir, search_paths)
     
-    # Phase 2: Consolidate Workflows
+    # Phase 2: Consolidate GitHub Actions Workflow
     workflows_dir = base_dir / ".github" / "workflows"
     workflows_dir.mkdir(parents=True, exist_ok=True)
     
@@ -145,7 +148,7 @@ jobs:
 
       - name: ⚙️ Organize Project & Generate Standalone App Workspaces
         run: |
-          python3 organize_project.py || true
+          python3 organize_project*.py || true
           python3 build_multi_app_suite.py || python3 scripts/build_multi_app_suite.py
 
       - name: ☕ Set up Java JDK 17
@@ -181,7 +184,7 @@ jobs:
         f.write(BUILD_APK_YML)
     print("[✓] Finalized canonical matrix workflow: .github/workflows/build_apk.yml")
     
-    # Phase 3: Sync Mappings (Root Permanence Guaranteed)
+    # Phase 3: Sync Mappings (Root Permanence Enforced)
     mappings = [
         ("kickback_main_app_ui.dart", base_dir / "mobile" / "lib" / "kickback_main_app_ui.dart"),
         ("halo_plaza_experience_ui.dart", base_dir / "mobile" / "lib" / "halo_plaza_experience_ui.dart"),

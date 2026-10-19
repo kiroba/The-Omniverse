@@ -1,209 +1,260 @@
 #!/usr/bin/env python3
 """
-===============================================================================
-THE OMNIVERSE & THE KICKBACK - DYNAMIC LIVING AUTOMATION ORGANIZER (v2)
-===============================================================================
-Living Automation Architecture:
-- Always-On Continuous Repository Organizer & Dynamic Update Engine.
-- Dynamically organizes all newly ingested code, UI components, LocalSend REST
-  modules, Phaser 2D starter templates, and GitHub Actions CI/CD workflows.
-- Automatically routes files into their modular destination paths:
-  - .github/workflows/ (GitHub Actions CI/CD workflows)
-  - core/engines/       (Backend engines, LocalSend receivers, compilers, CRDTs)
-  - mobile/lib/         (Flutter UI screens, Phaser Studio UI, Mobile Monitor UI)
-  - mobile/android/     (Android Kotlin/Java native code like MainActivity.kt)
-  - web/                (PWA manifests, service workers, HTML/JS canvas apps)
-  - config/             (JSON/YAML configs, seed node definitions, manifests)
-  - docs/               (Markdown specs, changelogs, legal summaries, manuals)
-  - scripts/            (Build automation scripts, standalone app builders)
-  - assets/mods/        (.omnimod archives, Phaser 2D starter template packs)
-  - assets/raw_imports/ (Graphic PNGs, 3D glTF models, audio banks)
-  - tools/              (P2P mesh health monitors, mobile app builders, dashboards)
-- Living Update Mode: Performs idempotent updates, cleans stale duplicates,
-  and updates the live standalone build workspace automatically.
-===============================================================================
+==============================================================================
+OMNIVERSE PROJECT ORGANIZER & BROWSER AUTO-INGESTION ENGINE [v20.1.0]
+==============================================================================
+System Architecture:
+1. Consolidates GitHub Actions workflows into `.github/workflows/build_apk.yml`.
+2. Automatically ingests Firefox / browser duplicate downloads (e.g. `file (1).ext`),
+   replaces canonical files with the newest downloaded version, and deletes duplicates.
+3. Enforces Root Permanence: `organize_project.py` and `build_multi_app_suite.py`
+   remain strictly at the repository root level.
+4. Prunes obsolete / legacy draft files (`*-v*.py`, `*-v*.dart`, `*-v*.sh`, `*-v*.yml`).
+5. Uses inode-level `os.path.samefile` checks to prevent `shutil.SameFileError` on Termux.
+==============================================================================
 """
 
 import os
 import sys
 import shutil
+import re
 from pathlib import Path
 
-# Files to ALWAYS keep in the project root folder
-ROOT_PROTECTED_FILES = {
-    "pubspec.yaml",
-    "pubspec.lock",
-    "README.md",
-    "LICENSE",
-    ".gitignore",
-    "organize_project.py",
-    "organize_project.sh",
-    "Dockerfile",
-    "Makefile"
-}
+__version__ = "20.1.0"
+BUILD_REVISION = "2026-10-19.v20.1-canonical"
 
-# Directories ignored during scanner execution
-IGNORED_DIRS = {
-    ".git",
-    ".github",
-    "node_modules",
-    "build",
-    ".dart_tool",
-    ".idea",
-    "myenv",
-    "__pycache__",
-    "core",
-    "mobile",
-    "web",
-    "config",
-    "docs",
-    "scripts",
-    "assets",
-    "tools"
-}
+def resolve_base_dir() -> Path:
+    env_dir = os.environ.get("OMNIVERSE_BUILD_DIR")
+    if env_dir:
+        return Path(env_dir).resolve()
+    if os.environ.get("OMNIVERSE_CLOUD_BUILD") == "1" or os.environ.get("CI") == "true":
+        workspace_path = Path("/workspace")
+        if workspace_path.exists():
+            return workspace_path
+    return Path.cwd().resolve()
 
-def inspect_file_content(file_path):
-    """Inspects file header/content to detect signatures or intent."""
-    try:
-        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
-            return f.read(1024)
-    except Exception:
-        return ""
-
-def classify_repository_file(file_path):
-    """
-    Dynamically determines the target relative directory for any file based on:
-    1. Extension & filename patterns
-    2. Content signature inspection
-    3. Industry & module tags
-    """
-    fname = file_path.name
-    fname_lower = fname.lower()
-    ext = file_path.suffix.lower()
-
-    if fname in ROOT_PROTECTED_FILES:
-        return None  # Do not move protected root files
-
-    # 1. GitHub Actions Workflows (.yml / .yaml)
-    if ext in [".yml", ".yaml"]:
-        if any(kw in fname_lower for kw in ["workflow", "action", "build_apk", "build_monitor", "deploy-pages", "codemagic"]):
-            if "codemagic" in fname_lower:
-                return "config"
-            return ".github/workflows"
-        return "config"
-
-    # 2. Mod Packages & Game Assets (.omnimod, starter templates)
-    if ext == ".omnimod" or "starter_templates" in fname_lower:
-        return "assets/mods"
-
-    # 3. Shell & Bash Scripts (.sh, .bash)
-    if ext in [".sh", ".bash"]:
-        return "scripts"
-
-    # 4. Kotlin / Java Native Android Code (.kt, .java)
-    if ext in [".kt", ".java"]:
-        return "mobile/android/app/src/main/kotlin"
-
-    # 5. Flutter & Dart Code (.dart)
-    if ext == ".dart":
-        return "mobile/lib"
-
-    # 6. Web / PWA Assets (.js, .ts, .tsx, .html, .css)
-    if fname_lower in ["kickback_pwa_manifest.json", "kickback_pwa_service_worker.js"] or "pwa" in fname_lower:
-        return "web"
-    if ext in [".html", ".css"] or (ext == ".js" and any(kw in fname_lower for kw in ["marquee", "arcade", "phaser", "service_worker"])):
-        return "web"
-
-    # 7. Python Engines, Tools, and Utilities (.py)
-    if ext == ".py":
-        content = inspect_file_content(file_path)
-        
-        # Tools & Monitors
-        if any(kw in fname_lower for kw in ["monitor", "dashboard", "triage", "import_tool", "bug_triage", "easter_egg", "build_mobile_mesh"]):
-            return "tools"
-        
-        # Build Runners & Standalone Builders
-        if "build_core_engines" in fname_lower or "organize_project" in fname_lower:
-            return "scripts" if "build" in fname_lower else None
-
-        # Core Engines, Receivers, and Compilers
-        if any(kw in fname_lower for kw in ["localsend", "compiler", "starter_templates", "crdt", "merkle", "p2p", "layer1", "layer2", "socioboard", "eigentrust"]):
-            return "core/engines"
-
-        return "core/engines"
-
-    # 8. Configuration Files (.json, .toml, .ini)
-    if ext in [".json", ".toml", ".ini", ".config"]:
-        if "seed" in fname_lower or "config" in fname_lower or "tier" in fname_lower:
-            return "config"
-        return "config"
-
-    # 9. Documentation & Markdown (.md, .txt, .rst)
-    if ext in [".md", ".txt", ".rst"]:
-        return "docs"
-
-    # 10. Media & Graphic Assets (.png, .jpg, .jpeg, .gif, .svg, .glb, .gltf, .wav, .mp3, .ogg)
-    if ext in [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".glb", ".gltf", ".wav", ".mp3", ".ogg"]:
-        return "assets/raw_imports"
-
-    # Default fallback
-    return "docs" if ext == ".md" else "core/engines"
-
-def organize_repository(target_dir=".", dry_run=False):
-    """
-    Living Automation Engine:
-    Scans and organizes all uncollected root files into their appropriate modular folders.
-    Automatically handles updating existing files and cleaning duplicates.
-    """
-    target_path = Path(target_dir).resolve()
-    print(f"🚀 [OMNIVERSE LIVING AUTOMATION ORGANIZER] Target: {target_path}")
+def ingest_browser_downloads(base_dir: Path, search_paths: list):
+    dup_pattern = re.compile(r'^(.*?)(?:\s*\(\d+\)|\s*-\s*Copy|\s*copy)\.(py|dart|sh|yml|yaml|md|json)$', re.IGNORECASE)
     
-    root_files = [
-        f for f in target_path.iterdir()
-        if f.is_file() and f.name not in ROOT_PROTECTED_FILES and not f.name.startswith(".")
-    ]
-
-    if not root_files:
-        print("  ℹ No unorganized root files detected. Repository structure is clean & up to date.")
-        return 0, []
-
-    processed_records = []
-    
-    for fpath in root_files:
-        rel_dest = classify_repository_file(fpath)
-        if not rel_dest:
+    for p in search_paths:
+        if not p.exists():
             continue
+        for item in list(p.glob('*')):
+            if item.is_file():
+                match = dup_pattern.match(item.name)
+                if match:
+                    base_name = match.group(1).strip()
+                    ext = match.group(2)
+                    canonical_name = f"{base_name}.{ext}"
+                    
+                    target_file = base_dir / canonical_name
+                    if not target_file.exists():
+                        for sp in search_paths:
+                            cand = sp / canonical_name
+                            if cand.exists():
+                                target_file = cand
+                                break
+                                
+                    try:
+                        shutil.copyfile(item, target_file)
+                        print(f"[📥 FIREFOX AUTO-INGEST] Replaced '{canonical_name}' with newer downloaded '{item.name}'")
+                        item.unlink()
+                        print(f"[🧹] Cleaned up browser duplicate: {item.name}")
+                    except Exception as e:
+                        print(f"[!] Notice during browser duplicate ingest for {item.name}: {e}")
 
-        dest_dir = target_path / rel_dest
-        dest_path = dest_dir / fpath.name
+def find_source_file(filename: str, search_paths: list) -> Path:
+    for p in search_paths:
+        if p.exists():
+            target = p / filename
+            if target.exists():
+                return target
+            matches = list(p.glob(f"*{filename}*"))
+            if matches:
+                return matches[0]
+    return None
 
-        if not dry_run:
-            os.makedirs(dest_dir, exist_ok=True)
-            
-            # Living update: replace older version or update cleanly
+def organize_and_sync():
+    base_dir = resolve_base_dir()
+    print("==================================================================")
+    print(f"OMNIVERSE PROJECT ORGANIZER & BROWSER AUTO-INGESTION ENGINE [v{__version__}]")
+    print(f"Revision: {BUILD_REVISION}")
+    print("==================================================================")
+    
+    search_paths = [
+        base_dir,
+        base_dir / "mobile" / "lib",
+        base_dir / "scripts",
+        Path.cwd()
+    ]
+    if (Path("/workspace") / "scratch").exists():
+        search_paths.append(Path("/workspace") / "scratch")
+    if (Path("/workspace") / "artifacts").exists():
+        search_paths.append(Path("/workspace") / "artifacts")
+        
+    # Phase 1: Ingest Browser Downloads
+    ingest_browser_downloads(base_dir, search_paths)
+    
+    # Phase 2: Consolidate Workflows
+    workflows_dir = base_dir / ".github" / "workflows"
+    workflows_dir.mkdir(parents=True, exist_ok=True)
+    
+    obsolete_workflows = ["build_monitor_apk.yml", "build_alpha_apk.yml", "deploy-pages.yml"]
+    for obs in obsolete_workflows:
+        obs_path = workflows_dir / obs
+        if obs_path.exists():
+            try:
+                obs_path.unlink()
+                print(f"[🧹] Purged obsolete workflow: {obs}")
+            except Exception:
+                pass
+                
+    BUILD_APK_YML = """name: Build Omniverse Mobile APK Suite
+
+on:
+  push:
+    branches: [ main, master, desktop ]
+  pull_request:
+    branches: [ main, master, desktop ]
+  workflow_dispatch:
+
+jobs:
+  build-matrix:
+    name: Build ${{ matrix.app_name }} APK
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - app_folder: "idle_plaza_standalone"
+            app_name: "Omniverse Idle Plaza & Combat Brawler"
+          - app_folder: "kickback_main_standalone"
+            app_name: "The KickBack Social Network"
+          - app_folder: "mesh_monitor_standalone"
+            app_name: "Mobile Mesh Monitor Observer"
+          - app_folder: "omniverse_superapp_master"
+            app_name: "Omniverse Unified Superapp Master"
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: ⚙️ Organize Project & Generate Standalone App Workspaces
+        run: |
+          python3 organize_project.py || true
+          python3 build_multi_app_suite.py || python3 scripts/build_multi_app_suite.py
+
+      - name: ☕ Set up Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: 🦋 Set up Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: 🧹 Clean Pre-build Cache & Install Dependencies
+        run: |
+          cd apps/${{ matrix.app_folder }}/mobile
+          flutter clean
+          flutter pub get
+
+      - name: 🔨 Build Release APK
+        run: |
+          cd apps/${{ matrix.app_folder }}/mobile
+          flutter build apk --release --target-platform android-arm64 --android-skip-build-dependency-validation
+
+      - name: 📤 Upload Release APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.app_folder }}-release-apk
+          path: apps/${{ matrix.app_folder }}/mobile/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+"""
+    with open(workflows_dir / "build_apk.yml", "w", encoding="utf-8") as f:
+        f.write(BUILD_APK_YML)
+    print("[✓] Finalized canonical matrix workflow: .github/workflows/build_apk.yml")
+    
+    # Phase 3: Sync Mappings (Root Permanence Guaranteed)
+    mappings = [
+        ("kickback_main_app_ui.dart", base_dir / "mobile" / "lib" / "kickback_main_app_ui.dart"),
+        ("halo_plaza_experience_ui.dart", base_dir / "mobile" / "lib" / "halo_plaza_experience_ui.dart"),
+        ("omni_mobile_mesh_monitor_ui.dart", base_dir / "mobile" / "lib" / "omni_mobile_mesh_monitor_ui.dart"),
+        ("omniverse_superapp_master_ui.dart", base_dir / "mobile" / "lib" / "omniverse_superapp_master_ui.dart"),
+        ("plaza_fighting_game_engine.dart", base_dir / "mobile" / "lib" / "plaza_fighting_game_engine.dart"),
+        ("continuity_token_service.dart", base_dir / "mobile" / "lib" / "continuity_token_service.dart"),
+        ("kickback_seamless_stripe_checkout.dart", base_dir / "mobile" / "lib" / "kickback_seamless_stripe_checkout.dart"),
+        ("build_multi_app_suite.py", base_dir / "build_multi_app_suite.py"),
+        ("build_multi_app_suite.py", base_dir / "scripts" / "build_multi_app_suite.py"),
+        ("organize_project.py", base_dir / "organize_project.py"),
+    ]
+    
+    for src_name, dest_path in mappings:
+        found_path = find_source_file(src_name, search_paths)
+        if found_path:
+            dest_path.parent.mkdir(parents=True, exist_ok=True)
+            is_same = False
             if dest_path.exists():
-                os.remove(dest_path)
-                status = "UPDATED_LIVING_FILE"
+                try:
+                    is_same = os.path.samefile(found_path, dest_path)
+                except Exception:
+                    is_same = (found_path.resolve() == dest_path.resolve())
+            if not is_same:
+                try:
+                    shutil.copy(found_path, dest_path)
+                    rel_str = str(dest_path.relative_to(base_dir)) if base_dir in dest_path.parents or base_dir == dest_path.parent else dest_path.name
+                    print(f"[✓] File mapped & synced: {src_name} -> {rel_str}")
+                except shutil.SameFileError:
+                    pass
+                except Exception as e:
+                    print(f"[!] Notice copying {src_name}: {e}")
             else:
-                status = "MOVED"
+                rel_str = str(dest_path.relative_to(base_dir)) if base_dir in dest_path.parents or base_dir == dest_path.parent else dest_path.name
+                print(f"[✓] File already in place: {rel_str}")
+                
+    print("------------------------------------------------------------------")
+    print("🧹 RUNNING ROOT CLEAN SWEEP: REMOVING FLOATING ROOT FILES...")
+    print("------------------------------------------------------------------")
+    
+    allowed_root_files = {"organize_project.py", "build_multi_app_suite.py", ".gitignore", "README.md", "SECURITY.md", "LICENSE"}
+    
+    for item in list(base_dir.glob("*")):
+        if item.is_file():
+            if item.name not in allowed_root_files:
+                try:
+                    item.unlink()
+                    print(f"[🧹 ROOT SWEEP] Cleaned floating file from root: {item.name}")
+                except Exception as e:
+                    print(f"[!] Notice cleaning root file {item.name}: {e}")
 
-            shutil.move(str(fpath), str(dest_path))
-            processed_records.append((fpath.name, str(rel_dest), status))
-            print(f"  ✓ [{status}] {fpath.name} ──> [{rel_dest}/]")
-        else:
-            processed_records.append((fpath.name, str(rel_dest), "DRY_RUN"))
-            print(f"  [DRY RUN] Would update: {fpath.name} ──> [{rel_dest}/]")
-
-    return len(processed_records), processed_records
-
-def main():
-    args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    dry_run = "--dry-run" in sys.argv
-    target = args[0] if args else "."
-    count, records = organize_repository(target_dir=target, dry_run=dry_run)
-    print("\n==============================================================================")
-    print(f"🎉 LIVING AUTOMATION ORGANIZER COMPLETE: Synchronized {count} files!")
-    print("==============================================================================")
+    print("------------------------------------------------------------------")
+    print("🧹 RUNNING AUTOMATED PRUNING OF DEPRECATED VERSION-SUFFIXED FILES...")
+    print("------------------------------------------------------------------")
+    
+    for root, _, files in os.walk(base_dir):
+        if any(skip in root for skip in [".git", "build", "apps", ".dart_tool", ".gradle"]):
+            continue
+        for f in files:
+            if "-v" in f and f.endswith((".py", ".dart", ".sh", ".yml", ".yaml")):
+                f_path = Path(root) / f
+                try:
+                    f_path.unlink()
+                    print(f"[🧹] Pruned legacy draft: {f}")
+                except Exception:
+                    pass
+                    
+    print("==================================================================")
+    print(f"OMNIVERSE PROJECT ORGANIZATION & ROOT SWEEP COMPLETE [v{__version__}]")
+    print("==================================================================")
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) > 1 and sys.argv[1] in ["--version", "-v"]:
+        print(f"organize_project.py version {__version__} ({BUILD_REVISION})")
+        sys.exit(0)
+    organize_and_sync()

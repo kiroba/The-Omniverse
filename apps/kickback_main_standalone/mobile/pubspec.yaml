@@ -1,7 +1,7 @@
 name: kickback_main_standalone
-description: "The KickBack Social Network Standalone Subsystem APK"
+description: The KickBack Social Network Standalone Mobile Application
 publish_to: 'none'
-version: 1.0.0+1
+version: 5.2.0+520
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -9,10 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.6
-  cryptography: ^2.7.0
-  crypto: ^3.0.3
-  sqflite: ^2.3.0
+  cupertino_icons: ^1.0.8
+  sqflite: ^2.3.3+1
   path: ^1.9.0
 
 dev_dependencies:

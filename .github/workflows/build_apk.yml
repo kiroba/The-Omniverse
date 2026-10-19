@@ -1,15 +1,27 @@
-name: Build Omniverse Standalone APK
+name: Build Omniverse Mobile APK Suite
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, desktop ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master, desktop ]
   workflow_dispatch:
 
 jobs:
-  build:
+  build-matrix:
+    name: Build ${{ matrix.app_name }} APK
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - app_folder: "idle_plaza_standalone"
+            app_name: "Omniverse Idle Plaza & Combat Brawler"
+          - app_folder: "kickback_main_standalone"
+            app_name: "The KickBack Social Network"
+          - app_folder: "mesh_monitor_standalone"
+            app_name: "Mobile Mesh Monitor Observer"
+          - app_folder: "omniverse_superapp_master"
+            app_name: "Omniverse Unified Superapp Master"
 
     steps:
       - name: 📥 Checkout Repository
@@ -20,10 +32,10 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: ⚙️ Organize Repository & Generate Standalone App
+      - name: ⚙️ Organize Project & Generate Standalone App Workspaces
         run: |
           python3 organize_project.py || true
-          python3 build_core_engines_standalone_app-v4.py || python3 build_core_engines_standalone_app.py || python3 scripts/build_core_engines_standalone_app-v4.py || python3 core/engines/build_core_engines_standalone_app-v4.py
+          python3 build_multi_app_suite.py || python3 scripts/build_multi_app_suite.py
 
       - name: ☕ Set up Java JDK 17
         uses: actions/setup-java@v4
@@ -36,24 +48,20 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: 🧹 Clean Flutter Build Cache
+      - name: 🧹 Clean Pre-build Cache & Install Dependencies
         run: |
-          cd omni_core_engines_standalone/mobile
+          cd apps/${{ matrix.app_folder }}/mobile
           flutter clean
-
-      - name: 📦 Install Flutter Dependencies
-        run: |
-          cd omni_core_engines_standalone/mobile
           flutter pub get
 
       - name: 🔨 Build Release APK
         run: |
-          cd omni_core_engines_standalone/mobile
-          flutter build apk --release --target-platform android-arm64
+          cd apps/${{ matrix.app_folder }}/mobile
+          flutter build apk --release --target-platform android-arm64 --android-skip-build-dependency-validation
 
-      - name: 📤 Upload APK Artifact
+      - name: 📤 Upload Release APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: omniverse-core-engines-release-apk
-          path: omni_core_engines_standalone/mobile/build/app/outputs/flutter-apk/app-release.apk
+          name: ${{ matrix.app_folder }}-release-apk
+          path: apps/${{ matrix.app_folder }}/mobile/build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error

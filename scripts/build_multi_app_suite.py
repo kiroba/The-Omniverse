@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 """
 ==============================================================================
-OMNIVERSE MULTI-APP WORKSPACE SUITE GENERATOR (V5.2 - KOTLIN 2.2.20 & SKIP VALIDATION)
+OMNIVERSE MULTI-APP WORKSPACE SUITE GENERATOR [v5.2.0]
 ==============================================================================
-System Design Architecture:
-Generates individual, isolated Flutter projects for each core subsystem:
-1. `apps/idle_plaza_standalone`    -> Halo Plaza & Fighting Game Brawler APK
-2. `apps/phaser_studio_standalone` -> OmniPhaser 2D Creator Studio APK (Desktop target)
-3. `apps/kickback_main_standalone`  -> KickBack Main Social Network APK
-4. `apps/mesh_monitor_standalone`  -> Mobile Mesh Monitor Utility APK
-5. `apps/omniverse_superapp_master` -> Full Unified Superapp APK
+System Architecture:
+- Generates isolated standalone Flutter projects inside `apps/`:
+  1. `apps/idle_plaza_standalone`    -> Halo Plaza & Combat Brawler APK
+  2. `apps/phaser_studio_standalone` -> OmniPhaser 2D Creator Studio Desktop/APK
+  3. `apps/kickback_main_standalone`  -> KickBack Main Social Network APK
+  4. `apps/mesh_monitor_standalone`  -> Mobile Mesh Monitor Utility APK
+  5. `apps/omniverse_superapp_master` -> Full Unified Superapp APK
+- Configures AGP 8.11.1, CompileSDK 36, Kotlin 2.2.20, Gradle 8.14.
+- Automatic Dart code sanitizer for invalid color constants and CrossAlignment typos.
+- Embedded versioning: v5.2.0 (Build 2026-10-18.v5.2-canonical).
 ==============================================================================
 """
 
@@ -17,7 +20,6 @@ import os
 import sys
 import shutil
 import stat
-import re
 from pathlib import Path
 
 __version__ = "5.2.0"
@@ -45,17 +47,14 @@ def find_file(filename: str, search_paths: list) -> Path:
     return None
 
 def safe_rmtree(path: Path):
-    """Safely removes a directory tree, handling Windows read-only locks & process holds."""
     if not path.exists():
         return
-
     def _remove_readonly(func, path_str, exc_info):
         try:
             os.chmod(path_str, stat.S_IWRITE)
             func(path_str)
         except Exception:
             pass
-
     try:
         shutil.rmtree(path, onerror=_remove_readonly)
     except Exception:
@@ -70,23 +69,39 @@ def safe_rmtree(path: Path):
                 pass
 
 def sanitize_dart_code(file_path: Path):
-    """Fixes invalid Dart constants like Colors.black80 -> Colors.black87."""
     if not file_path.exists():
         return
     try:
-        content = file_path.read_text(encoding="utf-8")
-        if "Colors.black80" in content:
-            content = content.replace("Colors.black80", "Colors.black87")
-            file_path.write_text(content, encoding="utf-8")
-            print(f"  [✓] Sanitized Dart code in {file_path.name} (Colors.black80 -> Colors.black87)")
+        with open(file_path, "r", encoding="utf-8") as f:
+            code = f.read()
+        replacements = {
+            "Colors.black80": "Colors.black87",
+            "Colors.black90": "Colors.black87",
+            "Colors.white80": "Colors.white70",
+            "CrossAlignment.start": "CrossAxisAlignment.start",
+            "CrossAlignment.center": "CrossAxisAlignment.center",
+            "CrossAlignment.end": "CrossAxisAlignment.end",
+            "CrossAlignment.baseline": "CrossAxisAlignment.baseline",
+            "CrossAlignment.stretch": "CrossAxisAlignment.stretch",
+        }
+        modified = False
+        for old, new in replacements.items():
+            if old in code:
+                code = code.replace(old, new)
+                modified = True
+        if modified:
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write(code)
+            print(f"  [✓] Sanitized Dart syntax in {file_path.name}")
     except Exception as e:
-        print(f"  [!] Notice during Dart sanitization of {file_path.name}: {e}")
+        print(f"  [!] Warning sanitizing {file_path.name}: {e}")
 
 def generate_android_scaffolding(app_dir: Path, package_name: str, app_label: str):
     android_dir = app_dir / "mobile" / "android"
     app_android_dir = android_dir / "app"
-    package_path = package_name.replace(".", "/")
-    kotlin_dir = app_android_dir / "src" / "main" / "kotlin" / Path(package_path)
+    
+    pkg_parts = package_name.split(".")
+    kotlin_dir = app_android_dir / "src" / "main" / "kotlin" / Path(*pkg_parts)
     main_res = app_android_dir / "src" / "main" / "res"
     res_val = main_res / "values"
     res_draw = main_res / "drawable"
@@ -99,7 +114,7 @@ def generate_android_scaffolding(app_dir: Path, package_name: str, app_label: st
     res_mipmap.mkdir(parents=True, exist_ok=True)
     res_mipmap_anydpi.mkdir(parents=True, exist_ok=True)
     
-    # 1. settings.gradle with AGP 8.11.1 & Kotlin 2.2.20 (satisfies Flutter SDK requirements)
+    # 1. settings.gradle
     settings_gradle = f"""pluginManagement {{
     def flutterSdkPath = {{
         def properties = new Properties()
@@ -155,7 +170,7 @@ tasks.register("clean", Delete) {
     with open(android_dir / "build.gradle", "w", encoding="utf-8") as f:
         f.write(build_gradle)
         
-    # 3. app/build.gradle with compileSdk 36
+    # 3. app/build.gradle
     app_build_gradle = f"""plugins {{
     id "com.android.application"
     id "kotlin-android"
@@ -180,8 +195,8 @@ android {{
         applicationId "{package_name}"
         minSdk 24
         targetSdk 36
-        versionCode 1
-        versionName "1.0.0"
+        versionCode 520
+        versionName "5.2.0"
     }}
 
     buildTypes {{
@@ -240,7 +255,7 @@ class MainActivity: FlutterActivity()
     with open(app_android_dir / "src" / "main" / "AndroidManifest.xml", "w", encoding="utf-8") as f:
         f.write(manifest_xml)
         
-    # 6. styles.xml, launch_background.xml & launcher icons
+    # 6. styles.xml & launch_background.xml
     styles_xml = """<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">
@@ -262,19 +277,19 @@ class MainActivity: FlutterActivity()
     with open(res_draw / "launch_background.xml", "w", encoding="utf-8") as f:
         f.write(bg_xml)
 
-    # AAPT launcher icon XML resources
-    icon_xml = """<?xml version="1.0" encoding="utf-8"?>
+    # 7. Mipmap launcher icons (AAPT resource linking support)
+    mipmap_xml = """<?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
     <background android:drawable="@android:color/black" />
     <foreground android:drawable="@drawable/launch_background" />
 </adaptive-icon>
 """
     with open(res_mipmap / "ic_launcher.xml", "w", encoding="utf-8") as f:
-        f.write(icon_xml)
+        f.write(mipmap_xml)
     with open(res_mipmap_anydpi / "ic_launcher.xml", "w", encoding="utf-8") as f:
-        f.write(icon_xml)
+        f.write(mipmap_xml)
         
-    # 7. gradle.properties (disabled newDsl validation issue)
+    # 8. gradle.properties
     gradle_props = """org.gradle.jvmargs=-Xmx4096m -XX:+UseG1GC
 android.useAndroidX=true
 android.enableJetifier=true
@@ -285,7 +300,7 @@ android.defaults.buildfeatures.buildconfig=true
     with open(android_dir / "gradle.properties", "w", encoding="utf-8") as f:
         f.write(gradle_props)
         
-    # 8. Gradle Wrapper (GRADLE 8.14)
+    # 9. Gradle Wrapper
     wrapper_dir = android_dir / "gradle" / "wrapper"
     wrapper_dir.mkdir(parents=True, exist_ok=True)
     wrapper_props = """distributionBase=GRADLE_USER_HOME
@@ -306,7 +321,6 @@ def create_standalone_project(base_dir: Path, app_folder_name: str, package_name
     mobile_lib.mkdir(parents=True, exist_ok=True)
     mobile_assets.mkdir(parents=True, exist_ok=True)
     
-    # Copy or create main.dart
     main_file = find_file(main_dart_src, search_paths)
     if main_file:
         shutil.copy(main_file, mobile_lib / "main.dart")
@@ -317,20 +331,18 @@ def create_standalone_project(base_dir: Path, app_folder_name: str, package_name
             f.write(f"import 'package:flutter/material.dart'; void main() => runApp(MaterialApp(home: Scaffold(body: Center(child: Text('{app_label} Standalone App')))));")
         print(f"  [!] Fallback main.dart created for {app_label}")
         
-    # Copy auxiliary dart files
     for aux_name in auxiliary_files:
         aux_file = find_file(aux_name, search_paths)
         if aux_file:
-            dst_aux = mobile_lib / aux_file.name
-            shutil.copy(aux_file, dst_aux)
-            sanitize_dart_code(dst_aux)
+            dest_aux = mobile_lib / aux_file.name
+            shutil.copy(aux_file, dest_aux)
+            sanitize_dart_code(dest_aux)
             print(f"  [✓] Linked dependency: {aux_file.name}")
             
-    # pubspec.yaml
     pubspec = f"""name: {app_folder_name}
 description: "{app_label} Standalone Subsystem APK"
 publish_to: 'none'
-version: 1.0.0+1
+version: 5.2.0+520
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -373,6 +385,8 @@ def build_all_apps():
         base_dir / "scripts",
         Path.cwd()
     ]
+    if (Path("/workspace") / "scratch").exists():
+        search_paths.append(Path("/workspace") / "scratch")
     if (Path("/workspace") / "artifacts").exists():
         search_paths.append(Path("/workspace") / "artifacts")
         

@@ -92,9 +92,6 @@ class _HaloPlazaMainScreenState extends State<HaloPlazaMainScreen> {
         ),
         backgroundColor: const Color(0xFF16162A),
         elevation: 2,
-        actions: [
-          IconButton(icon: const Icon(Icons.settings, color: Color(0xFF03DAC6)), tooltip: 'Settings & Accreditation', onPressed: () => _showSettingsAndAccreditationDialog(context)),
-        ],
       ),
       body: _buildCurrentZoneView(),
       bottomNavigationBar: BottomNavigationBar(
@@ -320,47 +317,6 @@ class _HaloPlazaMainScreenState extends State<HaloPlazaMainScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-
-  void _showSettingsAndAccreditationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF16162A),
-        title: Row(
-          children: const [
-            Icon(Icons.stars, color: Color(0xFF03DAC6)),
-            SizedBox(width: 8),
-            Text('Settings & Accreditation', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: const [
-              Text('APP & BUILD SPECIFICATIONS', style: TextStyle(color: Color(0xFFBB86FC), fontWeight: FontWeight.bold, fontSize: 11)),
-              SizedBox(height: 4),
-              Text('• Application: Omniverse Halo Plaza & Arcade Hub'),
-              Text('• Build Version: v5.2.0 (Build 2026-10-18.v5.2-canonical)'),
-              Text('• Subsystems: 2D Spatial Plaza, Mini-Game Arcade & Offline RPG Idle Realm'),
-              SizedBox(height: 12),
-              Text('TECHNOLOGY ACCREDITATION & CREDITS', style: TextStyle(color: Color(0xFF03DAC6), fontWeight: FontWeight.bold, fontSize: 11)),
-              SizedBox(height: 4),
-              Text('• Flutter 2D Canvas & Flame Engine: 60 FPS 2D spatial rendering & sprite sheet animation.'),
-              Text('• 2D Combat Brawler Engine: Real-time physics, hitboxes & sprite state machines.'),
-              Text('• Janken Markov Chain AI: Adaptive AI probability matrix for RPSLS puzzle game.'),
-              Text('• LPE Idle Skilling Engine: Background tick calculator for 23 skilling trees.'),
-              Text('• SQLite WAL & Merkle DAG: Persistent local inventory, XP & equipment state.'),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
-        ],
       ),
     );
   }

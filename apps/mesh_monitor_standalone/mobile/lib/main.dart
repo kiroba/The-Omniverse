@@ -52,9 +52,6 @@ class _MeshMonitorMainScreenState extends State<MeshMonitorMainScreen> {
         ),
         backgroundColor: const Color(0xFF161B22),
         elevation: 2,
-        actions: [
-          IconButton(icon: const Icon(Icons.settings, color: Color(0xFF03DAC6)), tooltip: 'Settings & Accreditation', onPressed: () => _showSettingsAndAccreditationDialog(context)),
-        ],
       ),
       body: IndexedStack(
         index: _selectedTab,
@@ -206,47 +203,6 @@ class _MeshMonitorMainScreenState extends State<MeshMonitorMainScreen> {
             Text(value, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: valueColor)),
           ],
         ),
-      ),
-    );
-  }
-
-
-  void _showSettingsAndAccreditationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF161B22),
-        title: Row(
-          children: const [
-            Icon(Icons.stars, color: Color(0xFF03DAC6)),
-            SizedBox(width: 8),
-            Text('Settings & Accreditation', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: const [
-              Text('APP & BUILD SPECIFICATIONS', style: TextStyle(color: Color(0xFFBB86FC), fontWeight: FontWeight.bold, fontSize: 11)),
-              SizedBox(height: 4),
-              Text('• Application: Omniverse Mobile Mesh Monitor'),
-              Text('• Build Version: v5.2.0 (Build 2026-10-18.v5.2-canonical)'),
-              Text('• Observer Scope: Infrastructure-Less P2P Ad-Hoc Protocol Testbed'),
-              SizedBox(height: 12),
-              Text('TECHNOLOGY ACCREDITATION & CREDITS', style: TextStyle(color: Color(0xFF03DAC6), fontWeight: FontWeight.bold, fontSize: 11)),
-              SizedBox(height: 4),
-              Text('• Flutter Reactive Telemetry Engine: Low-latency 10Hz telemetry dashboard.'),
-              Text('• libp2p, GossipSub & mDNS/BLE Stack: Ad-hoc physical link packet inspector.'),
-              Text('• LocalSend REST Chunk Receiver: Byte offset stream monitoring & chunk buffer stats.'),
-              Text('• Continuity-Engine WAL Inspector: Commit rate, Merkle root verification & DB disk metrics.'),
-              Text('• OmniMind Triage Engine: Autonomous AutoGPT agent audit trails & self-patch logs.'),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
-        ],
       ),
     );
   }

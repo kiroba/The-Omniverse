@@ -127,7 +127,6 @@ class _SuperappMasterScreenState extends State<SuperappMasterScreen> {
         backgroundColor: const Color(0xFF1F1F1F),
         elevation: 2,
         actions: [
-          IconButton(icon: const Icon(Icons.settings, color: Color(0xFF03DAC6)), tooltip: 'Settings & Accreditation', onPressed: () => _showSettingsAndAccreditationDialog(context)),
           IconButton(
             icon: const Icon(Icons.account_balance_wallet, color: Color(0xFFBB86FC)),
             tooltip: 'Sovereign Wallet',
@@ -396,50 +395,6 @@ class _SuperappMasterScreenState extends State<SuperappMasterScreen> {
         backgroundColor: const Color(0xFF1E1E1E),
         title: const Text('Sovereign Wallet'),
         content: const Text('Shadow balance: 0.00 OMNI\nLocal node signature verified.'),
-        actions: [
-          IconButton(icon: const Icon(Icons.settings, color: Color(0xFF03DAC6)), tooltip: 'Settings & Accreditation', onPressed: () => _showSettingsAndAccreditationDialog(context)),
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
-        ],
-      ),
-    );
-  }
-
-
-  void _showSettingsAndAccreditationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E1E),
-        title: Row(
-          children: const [
-            Icon(Icons.stars, color: Color(0xFF03DAC6)),
-            SizedBox(width: 8),
-            Text('Settings & Accreditation', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: const [
-              Text('APP & BUILD SPECIFICATIONS', style: TextStyle(color: Color(0xFFBB86FC), fontWeight: FontWeight.bold, fontSize: 11)),
-              SizedBox(height: 4),
-              Text('• Application: The Omniverse Superapp Master'),
-              Text('• Build Version: v5.2.0 (Build 2026-10-18.v5.2-canonical)'),
-              Text('• Target Platform: Android ARM64 (AGP 8.11.1, CompileSDK 36, Kotlin 2.2.20, Gradle 8.14)'),
-              Text('• Topology: Sovereign Localhost Node (1 Active Node)'),
-              SizedBox(height: 12),
-              Text('TECHNOLOGY ACCREDITATION & OPEN SOURCE CREDITS', style: TextStyle(color: Color(0xFF03DAC6), fontWeight: FontWeight.bold, fontSize: 11)),
-              SizedBox(height: 4),
-              Text('• Flutter & Dart SDK: Reactive cross-platform mobile UI framework & AOT compilation.'),
-              Text('• SQLite WAL & Continuity-Engine: Local-first ACID Write-Ahead Log event store & Merkle DAG state synchronization.'),
-              Text('• libp2p & GossipSub Mesh: Zero-WAN ad-hoc peer-to-peer transport & pub/sub topic routing.'),
-              Text('• LocalSend Protocol: Zero-configuration mDNS/UDP discovery & REST chunk streaming API.'),
-              Text('• Noise Protocol & Ed25519 Enclave: Stargate zero-trust hardware mutual authentication & key exchange.'),
-              Text('• Stripe & Polygon Shadow Ledger: Web2 1-tap fiat checkout & Web3 off-chain gasless Merkle claims.'),
-            ],
-          ),
-        ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
         ],

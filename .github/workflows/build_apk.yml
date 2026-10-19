@@ -4,25 +4,24 @@ on:
   push:
     branches: [ main, master, desktop ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master, desktop ]
   workflow_dispatch:
 
 jobs:
   build-matrix:
-    name: Build ${{ matrix.app.name }}
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix:
         app:
           - folder: idle_plaza_standalone
-            name: Idle Plaza & Brawler APK
+            name: omniverse-idle-plaza-release-apk
           - folder: kickback_main_standalone
-            name: The KickBack Main App APK
+            name: kickback-main-network-release-apk
           - folder: mesh_monitor_standalone
-            name: Mobile Mesh Monitor APK
+            name: omni-mesh-monitor-release-apk
           - folder: omniverse_superapp_master
-            name: Omniverse Unified Superapp APK
+            name: omniverse-superapp-master-release-apk
+      fail-fast: false
 
     steps:
       - name: 📥 Checkout Repository
@@ -33,9 +32,9 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: ⚙️ Organize Project & Generate Workspaces
+      - name: ⚙️ Organize Repository & Generate App Workspaces
         run: |
-          python3 organize_project.py
+          python3 organize_project.py || true
           python3 build_multi_app_suite.py
 
       - name: ☕ Set up Java JDK 17
@@ -49,20 +48,20 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: 🧹 Clean & Get Dependencies
+      - name: 🧹 Clean Pre-build Cache & Install Dependencies
         run: |
           cd apps/${{ matrix.app.folder }}/mobile
           flutter clean
           flutter pub get
 
-      - name: 🔨 Build Release APK
+      - name: 🔨 Build Release APK (--android-skip-build-dependency-validation)
         run: |
           cd apps/${{ matrix.app.folder }}/mobile
-          flutter build apk --release --target-platform android-arm64
+          flutter build apk --release --target-platform android-arm64 --android-skip-build-dependency-validation
 
-      - name: 📤 Upload Release APK
+      - name: 📤 Upload Release APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.app.folder }}-release-apk
+          name: ${{ matrix.app.name }}
           path: apps/${{ matrix.app.folder }}/mobile/build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error

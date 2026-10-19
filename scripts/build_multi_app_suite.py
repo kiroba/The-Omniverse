@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 """
 ==============================================================================
-OMNIVERSE MULTI-APP WORKSPACE SUITE GENERATOR
+OMNIVERSE MULTI-APP WORKSPACE SUITE GENERATOR [v5.1.0]
 ==============================================================================
 Module Version : 5.1.0 (AGP 8.11.1, CompileSDK 36, Gradle 8.14)
 System Domain  : Standalone Mobile Workspace Generator & Scaffolder
 ==============================================================================
-Fixes:
-1. Upgrades compileSdk to 36 (satisfies sqflite_android SDK 36 requirement).
-2. Auto-repairs `Colors.black80` -> `Colors.black87` in Dart UI files.
-3. Generates valid `@mipmap/ic_launcher` vector & adaptive resources for AAPT.
+Generates individual, isolated Flutter projects for each core subsystem:
+1. `apps/idle_plaza_standalone`    -> Halo Plaza & Fighting Game Brawler APK
+2. `apps/phaser_studio_standalone` -> OmniPhaser 2D Creator Studio Desktop/Web
+3. `apps/kickback_main_standalone`  -> KickBack Main Social Network APK
+4. `apps/mesh_monitor_standalone`  -> Mobile Mesh Monitor Utility APK
+5. `apps/omniverse_superapp_master` -> Full Unified Superapp APK
 ==============================================================================
 """
 
@@ -17,6 +19,7 @@ import os
 import sys
 import shutil
 import stat
+import re
 from pathlib import Path
 
 __version__ = "5.1.0"
@@ -26,12 +29,10 @@ def resolve_base_dir() -> Path:
     env_dir = os.environ.get("OMNIVERSE_BUILD_DIR")
     if env_dir:
         return Path(env_dir).resolve()
-    
     if os.environ.get("OMNIVERSE_CLOUD_BUILD") == "1" or os.environ.get("CI") == "true":
         workspace_path = Path("/workspace")
         if workspace_path.exists():
             return workspace_path
-
     return Path.cwd().resolve()
 
 def find_file(filename: str, search_paths: list) -> Path:
@@ -70,6 +71,12 @@ def safe_rmtree(path: Path):
             except Exception:
                 pass
 
+def sanitize_dart_code(dart_code: str) -> str:
+    """Fixes non-existent Flutter material constants like Colors.black80 -> Colors.black87."""
+    fixed = re.sub(r'Colors\.black80\b', 'Colors.black87', dart_code)
+    fixed = re.sub(r'Colors\.white80\b', 'Colors.white87', fixed)
+    return fixed
+
 def generate_android_scaffolding(app_dir: Path, package_name: str, app_label: str):
     android_dir = app_dir / "mobile" / "android"
     app_android_dir = android_dir / "app"
@@ -88,7 +95,7 @@ def generate_android_scaffolding(app_dir: Path, package_name: str, app_label: st
     res_mipmap.mkdir(parents=True, exist_ok=True)
     res_mipmap_v26.mkdir(parents=True, exist_ok=True)
     
-    # 1. settings.gradle with AGP 8.11.1
+    # 1. settings.gradle
     settings_gradle = f"""pluginManagement {{
     def flutterSdkPath = {{
         def properties = new Properties()
@@ -144,7 +151,7 @@ tasks.register("clean", Delete) {
     with open(android_dir / "build.gradle", "w", encoding="utf-8") as f:
         f.write(build_gradle)
         
-    # 3. app/build.gradle (compileSdk 36 satisfies sqflite_android requirements)
+    # 3. app/build.gradle (compileSdk 36 for sqflite_android)
     app_build_gradle = f"""plugins {{
     id "com.android.application"
     id "kotlin-android"
@@ -168,7 +175,7 @@ android {{
     defaultConfig {{
         applicationId "{package_name}"
         minSdk 24
-        targetSdk 36
+        targetSdk 34
         versionCode 1
         versionName "1.0.0"
     }}
@@ -229,7 +236,19 @@ class MainActivity: FlutterActivity()
     with open(app_android_dir / "src" / "main" / "AndroidManifest.xml", "w", encoding="utf-8") as f:
         f.write(manifest_xml)
         
-    # 6. styles.xml & launch_background.xml
+    # 6. AAPT Launcher Icon XML Resources (res/mipmap/ic_launcher.xml & v26)
+    ic_launcher_xml = """<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@android:color/black" />
+    <foreground android:drawable="@drawable/launch_background" />
+</adaptive-icon>
+"""
+    with open(res_mipmap / "ic_launcher.xml", "w", encoding="utf-8") as f:
+        f.write(ic_launcher_xml)
+    with open(res_mipmap_v26 / "ic_launcher.xml", "w", encoding="utf-8") as f:
+        f.write(ic_launcher_xml)
+
+    # 7. styles.xml & launch_background.xml
     styles_xml = """<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">
@@ -250,30 +269,6 @@ class MainActivity: FlutterActivity()
 """
     with open(res_draw / "launch_background.xml", "w", encoding="utf-8") as f:
         f.write(bg_xml)
-
-    # 7. Mipmap Launcher Icon Resources for AAPT Linker
-    ic_launcher_xml = """<?xml version="1.0" encoding="utf-8"?>
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-    <path
-        android:fillColor="#FF111827"
-        android:pathData="M0,0h108v108h-108z"/>
-</vector>
-"""
-    with open(res_mipmap / "ic_launcher.xml", "w", encoding="utf-8") as f:
-        f.write(ic_launcher_xml)
-
-    ic_launcher_v26_xml = """<?xml version="1.0" encoding="utf-8"?>
-<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@drawable/launch_background"/>
-    <foreground android:drawable="@mipmap/ic_launcher"/>
-</adaptive-icon>
-"""
-    with open(res_mipmap_v26 / "ic_launcher.xml", "w", encoding="utf-8") as f:
-        f.write(ic_launcher_v26_xml)
         
     # 8. gradle.properties
     gradle_props = """org.gradle.jvmargs=-Xmx4096m -XX:+UseG1GC
@@ -298,18 +293,6 @@ distributionUrl=https\\://services.gradle.org/distributions/gradle-8.14-bin.zip
     with open(wrapper_dir / "gradle-wrapper.properties", "w", encoding="utf-8") as f:
         f.write(wrapper_props)
 
-def sanitize_dart_code(lib_dir: Path):
-    """Auto-repairs invalid Flutter members like Colors.black80 -> Colors.black87 across linked Dart files."""
-    for dart_file in lib_dir.glob("*.dart"):
-        try:
-            content = dart_file.read_text(encoding="utf-8")
-            if "Colors.black80" in content:
-                content = content.replace("Colors.black80", "Colors.black87")
-                dart_file.write_text(content, encoding="utf-8")
-                print(f"  [✓] Auto-repaired Colors.black80 -> Colors.black87 in {dart_file.name}")
-        except Exception:
-            pass
-
 def create_standalone_project(base_dir: Path, app_folder_name: str, package_name: str, app_label: str, main_dart_src: str, auxiliary_files: list, search_paths: list):
     app_dir = base_dir / "apps" / app_folder_name
     safe_rmtree(app_dir)
@@ -322,23 +305,31 @@ def create_standalone_project(base_dir: Path, app_folder_name: str, package_name
     # Copy or create main.dart
     main_file = find_file(main_dart_src, search_paths)
     if main_file:
-        shutil.copy(main_file, mobile_lib / "main.dart")
+        with open(main_file, "r", encoding="utf-8", errors="ignore") as f:
+            content = f.read()
+        sanitized = sanitize_dart_code(content)
+        with open(mobile_lib / "main.dart", "w", encoding="utf-8") as f:
+            f.write(sanitized)
         print(f"  [✓] Linked main.dart from {main_file.name}")
     else:
         with open(mobile_lib / "main.dart", "w", encoding="utf-8") as f:
             f.write(f"import 'package:flutter/material.dart'; void main() => runApp(MaterialApp(home: Scaffold(body: Center(child: Text('{app_label} Standalone App')))));")
         print(f"  [!] Fallback main.dart created for {app_label}")
         
-    # Copy auxiliary dart/python/service files
+    # Copy auxiliary files with Dart code sanitization
     for aux_name in auxiliary_files:
         aux_file = find_file(aux_name, search_paths)
         if aux_file:
-            shutil.copy(aux_file, mobile_lib / aux_file.name)
+            if aux_file.suffix == ".dart":
+                with open(aux_file, "r", encoding="utf-8", errors="ignore") as f:
+                    content = f.read()
+                sanitized = sanitize_dart_code(content)
+                with open(mobile_lib / aux_file.name, "w", encoding="utf-8") as f:
+                    f.write(sanitized)
+            else:
+                shutil.copy(aux_file, mobile_lib / aux_file.name)
             print(f"  [✓] Linked dependency: {aux_file.name}")
             
-    # Sanitize Dart code for known invalid members
-    sanitize_dart_code(mobile_lib)
-
     # pubspec.yaml
     pubspec = f"""name: {app_folder_name}
 description: "{app_label} Standalone Subsystem APK"
@@ -372,10 +363,6 @@ flutter:
     print(f"[✓] Project generated: apps/{app_folder_name}/mobile (AGP 8.11.1, CompileSDK 36, Gradle 8.14 Ready)")
 
 def build_all_apps():
-    if "--version" in sys.argv:
-        print(f"build_multi_app_suite.py version {__version__} ({BUILD_REVISION})")
-        sys.exit(0)
-
     base_dir = resolve_base_dir()
     print("==================================================================")
     print(f"OMNIVERSE MULTI-APP SUITE GENERATOR [v{__version__}]")
@@ -400,8 +387,8 @@ def build_all_apps():
         "idle_plaza_standalone",
         "com.omniverse.idle_plaza",
         "Omniverse Idle Plaza",
-        "halo_plaza_experience_ui",
-        ["plaza_fighting_game_engine", "continuity_token_service"],
+        "halo_plaza_experience_ui.dart",
+        ["plaza_fighting_game_engine.dart", "continuity_token_service.dart"],
         search_paths
     )
 
@@ -412,7 +399,7 @@ def build_all_apps():
         "phaser_studio_standalone",
         "com.omniverse.phaser_studio",
         "OmniPhaser 2D Studio",
-        "omni_phaser_studio_ui",
+        "omni_phaser_studio_ui.dart",
         [],
         search_paths
     )
@@ -424,8 +411,8 @@ def build_all_apps():
         "kickback_main_standalone",
         "com.omniverse.kickback",
         "The KickBack Social Network",
-        "kickback_main_app_ui",
-        ["kickback_seamless_stripe_checkout", "continuity_token_service"],
+        "kickback_main_app_ui.dart",
+        ["kickback_seamless_stripe_checkout.dart", "continuity_token_service.dart"],
         search_paths
     )
 
@@ -436,7 +423,7 @@ def build_all_apps():
         "mesh_monitor_standalone",
         "com.omniverse.mesh_monitor",
         "Omniverse Mesh Monitor",
-        "omni_mobile_mesh_monitor_ui",
+        "omni_mobile_mesh_monitor_ui.dart",
         [],
         search_paths
     )
@@ -448,14 +435,13 @@ def build_all_apps():
         "omniverse_superapp_master",
         "com.omniverse.superapp",
         "The Omniverse Superapp",
-        "kickback_main_app_ui",
+        "omniverse_superapp_master_ui.dart",
         [
-            "halo_plaza_experience_ui",
-            "omni_phaser_studio_ui",
-            "omni_mobile_mesh_monitor_ui",
-            "plaza_fighting_game_engine",
-            "continuity_token_service",
-            "kickback_seamless_stripe_checkout"
+            "kickback_main_app_ui.dart",
+            "halo_plaza_experience_ui.dart",
+            "plaza_fighting_game_engine.dart",
+            "continuity_token_service.dart",
+            "kickback_seamless_stripe_checkout.dart"
         ],
         search_paths
     )
@@ -465,4 +451,7 @@ def build_all_apps():
     print("==================================================================")
 
 if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] in ["--version", "-v"]:
+        print(f"build_multi_app_suite.py version {__version__} ({BUILD_REVISION})")
+        sys.exit(0)
     build_all_apps()

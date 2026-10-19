@@ -35,7 +35,7 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: 🧹 Clean Flutter Build Cache
+      - name: 🧹 Clean Pre-build Cache
         run: |
           cd omni_mobile_mesh_monitor_app/mobile
           flutter clean

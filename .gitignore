@@ -2,7 +2,7 @@
 # THE OMNIVERSE & THE KICKBACK - CANONICAL MASTER .gitignore
 # ==============================================================================
 
-# 1. FLUTTER & NATIVE BUILD OUTPUTS
+# Flutter, Dart & Native Build Outputs
 .dart_tool/
 .packages
 .pub-cache/
@@ -10,42 +10,36 @@
 build/
 **/build/
 mobile/build/
+ios/Pods/
 android/.gradle/
 .gradle/
 *.apk
 *.aab
-*.aar
 
-# 2. HEAVY BINARIES (>50MB SHARED LIBS)
+# Binary Executables & Heavy Cache
 *.jar
 *.so
 *.dll
 *.dylib
 *.exe
+*.bin
+*.iso
 
-# 3. LEGACY DRAFT VERSIONED SUFFIX FILES (EXCLUDES CANONICAL SCRIPTS)
-*-v[0-9]*.dart
-*-v[0-9]*.py
-*-v[0-9]*.yaml
-*-v[0-9]*.yml
-*-v[0-9]*.sh
-*-v[0-9]*.md
-
-# 4. OS DUPLICATES
-* (1).*
-* (2).*
-*.tmp
-.DS_Store
-Thumbs.db
-
-# 5. PYTHON CACHES
+# Python & Daemon Caches
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+.pytest_cache/
+.env
 venv/
 env/
 
-# 6. IDE & LOCAL STAGING
+# IDE & OS Settings
+.DS_Store
+Thumbs.db
 .idea/
+
+# Intermediate Scratch & Out Directories
 scratch/
 out/

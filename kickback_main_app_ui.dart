@@ -97,7 +97,7 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Column(
-          crossAxisAlignment: CrossAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
             Text('The KickBack', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             Text(
@@ -109,6 +109,7 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
         backgroundColor: const Color(0xFF1F1F1F),
         elevation: 2,
         actions: [
+          IconButton(icon: const Icon(Icons.settings, color: Color(0xFF03DAC6)), tooltip: 'Settings & Accreditation', onPressed: () => _showSettingsAndAccreditationDialog(context)),
           IconButton(
             icon: const Icon(Icons.account_balance_wallet_outlined, color: Color(0xFFBB86FC)),
             tooltip: 'Sovereign Wallet',
@@ -237,7 +238,7 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(
-          crossAxisAlignment: CrossAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
@@ -249,7 +250,7 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
@@ -315,7 +316,7 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
           padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 'Sovereign Wallet & Dual Payments',
@@ -379,7 +380,7 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
           padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
               Text('Hardware Attestation', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
               SizedBox(height: 12),
@@ -393,6 +394,47 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
           ),
         );
       },
+    );
+  }
+
+
+  void _showSettingsAndAccreditationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1F1F1F),
+        title: Row(
+          children: const [
+            Icon(Icons.stars, color: Color(0xFF03DAC6)),
+            SizedBox(width: 8),
+            Text('Settings & Accreditation', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              Text('APP & BUILD SPECIFICATIONS', style: TextStyle(color: Color(0xFFBB86FC), fontWeight: FontWeight.bold, fontSize: 11)),
+              SizedBox(height: 4),
+              Text('• Application: The KickBack Social Network'),
+              Text('• Build Version: v5.2.0 (Build 2026-10-18.v5.2-canonical)'),
+              Text('• Feed Integrity: 100% Verified Human-Only Feed'),
+              SizedBox(height: 12),
+              Text('TECHNOLOGY ACCREDITATION & CREDITS', style: TextStyle(color: Color(0xFF03DAC6), fontWeight: FontWeight.bold, fontSize: 11)),
+              SizedBox(height: 4),
+              Text('• Flutter & Dart SDK: Responsive Material 3 social network interface.'),
+              Text('• Android Play Integrity & KeyStore: Hardware remote attestation & keystroke motion telemetry.'),
+              Text('• Continuity-Engine & SQLite WAL: Local append-only event log & Merkle DAG immutability.'),
+              Text('• libp2p GossipSub & LocalSend: Serverless P2P social post syndication.'),
+              Text('• Stripe SDK & Polygon Network: Creator subscription tiers & off-chain micro-tipping.'),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
+        ],
+      ),
     );
   }
 }

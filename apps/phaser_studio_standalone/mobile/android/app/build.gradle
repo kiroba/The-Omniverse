@@ -22,8 +22,8 @@ android {
         applicationId "com.omniverse.phaser_studio"
         minSdk 24
         targetSdk 36
-        versionCode 1
-        versionName "1.0.0"
+        versionCode 520
+        versionName "5.2.0"
     }
 
     buildTypes {

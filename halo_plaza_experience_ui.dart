@@ -84,7 +84,7 @@ class _HaloPlazaMainScreenState extends State<HaloPlazaMainScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Column(
-          crossAxisAlignment: CrossAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
             Text('Halo Plaza Hub', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             Text('1 Sovereign Player Online • Local State', style: TextStyle(color: Color(0xFF03DAC6), fontSize: 11)),
@@ -92,6 +92,9 @@ class _HaloPlazaMainScreenState extends State<HaloPlazaMainScreen> {
         ),
         backgroundColor: const Color(0xFF16162A),
         elevation: 2,
+        actions: [
+          IconButton(icon: const Icon(Icons.settings, color: Color(0xFF03DAC6)), tooltip: 'Settings & Accreditation', onPressed: () => _showSettingsAndAccreditationDialog(context)),
+        ],
       ),
       body: _buildCurrentZoneView(),
       bottomNavigationBar: BottomNavigationBar(
@@ -129,7 +132,7 @@ class _HaloPlazaMainScreenState extends State<HaloPlazaMainScreen> {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
-        crossAxisAlignment: CrossAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             width: double.infinity,
@@ -144,7 +147,7 @@ class _HaloPlazaMainScreenState extends State<HaloPlazaMainScreen> {
               border: Border.all(color: const Color(0xFFBB86FC).withOpacity(0.3)),
             ),
             child: Column(
-              crossAxisAlignment: CrossAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
                 Text(
                   'Welcome to Halo Plaza',
@@ -190,7 +193,7 @@ class _HaloPlazaMainScreenState extends State<HaloPlazaMainScreen> {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
-        crossAxisAlignment: CrossAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('Arcade Lounge Mini-Games', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
           const SizedBox(height: 6),
@@ -218,7 +221,7 @@ class _HaloPlazaMainScreenState extends State<HaloPlazaMainScreen> {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
-        crossAxisAlignment: CrossAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('RPG Idle Realm - Skilling Hub', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
           const SizedBox(height: 6),
@@ -229,7 +232,7 @@ class _HaloPlazaMainScreenState extends State<HaloPlazaMainScreen> {
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
-                crossAxisAlignment: CrossAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -317,6 +320,47 @@ class _HaloPlazaMainScreenState extends State<HaloPlazaMainScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+
+  void _showSettingsAndAccreditationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF16162A),
+        title: Row(
+          children: const [
+            Icon(Icons.stars, color: Color(0xFF03DAC6)),
+            SizedBox(width: 8),
+            Text('Settings & Accreditation', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              Text('APP & BUILD SPECIFICATIONS', style: TextStyle(color: Color(0xFFBB86FC), fontWeight: FontWeight.bold, fontSize: 11)),
+              SizedBox(height: 4),
+              Text('• Application: Omniverse Halo Plaza & Arcade Hub'),
+              Text('• Build Version: v5.2.0 (Build 2026-10-18.v5.2-canonical)'),
+              Text('• Subsystems: 2D Spatial Plaza, Mini-Game Arcade & Offline RPG Idle Realm'),
+              SizedBox(height: 12),
+              Text('TECHNOLOGY ACCREDITATION & CREDITS', style: TextStyle(color: Color(0xFF03DAC6), fontWeight: FontWeight.bold, fontSize: 11)),
+              SizedBox(height: 4),
+              Text('• Flutter 2D Canvas & Flame Engine: 60 FPS 2D spatial rendering & sprite sheet animation.'),
+              Text('• 2D Combat Brawler Engine: Real-time physics, hitboxes & sprite state machines.'),
+              Text('• Janken Markov Chain AI: Adaptive AI probability matrix for RPSLS puzzle game.'),
+              Text('• LPE Idle Skilling Engine: Background tick calculator for 23 skilling trees.'),
+              Text('• SQLite WAL & Merkle DAG: Persistent local inventory, XP & equipment state.'),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
+        ],
       ),
     );
   }

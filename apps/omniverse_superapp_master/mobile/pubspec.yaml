@@ -1,7 +1,7 @@
 name: omniverse_superapp_master
 description: "The Omniverse Superapp Standalone Subsystem APK"
 publish_to: 'none'
-version: 1.0.0+1
+version: 5.2.0+520
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

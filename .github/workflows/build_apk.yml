@@ -34,7 +34,7 @@ jobs:
 
       - name: ⚙️ Organize Project & Generate Standalone App Workspaces
         run: |
-          python3 organize_project*.py || true
+          python3 organize_project.py || true
           python3 build_multi_app_suite.py || python3 scripts/build_multi_app_suite.py
 
       - name: ☕ Set up Java JDK 17

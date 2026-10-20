@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
 """
 ==============================================================================
-OMNIVERSE PROJECT ORGANIZER & ROOT SWEEP ENGINE [v20.1.0]
+OMNIVERSE PROJECT ORGANIZER & BROWSER AUTO-INGESTION ENGINE [v20.2.0]
 ==============================================================================
 System Architecture:
 1. Consolidates GitHub Actions workflows into `.github/workflows/build_apk.yml`.
 2. Automatically ingests Firefox / browser duplicate downloads (e.g. `file (1).ext`),
    replaces canonical files with the newest downloaded version, and deletes duplicates.
-3. Enforces ROOT PERMANENCE for `organize_project.py` and `build_multi_app_suite.py`.
-4. Performs an aggressive ROOT CLEAN SWEEP: moves all floating UI, backend, and
-   script files to their canonical subdirectories (mobile/lib/, backend/, scripts/).
-5. Prunes obsolete / legacy draft files (`*-v*.py`, `*-v*.dart`, `*-v*.sh`, `*-v*.yml`).
-6. Uses inode-level `os.path.samefile` checks to prevent `shutil.SameFileError` on Termux.
+3. Prunes obsolete / legacy draft files (`*-v*.py`, `*-v*.dart`, `*-v*.sh`, `*-v*.yml`).
+4. Uses inode-level `os.path.samefile` checks to prevent `shutil.SameFileError` on Termux.
+5. Ensures `android.useAndroidX=true` is set across all app workspace gradle.properties.
 ==============================================================================
 """
 
@@ -21,8 +19,8 @@ import shutil
 import re
 from pathlib import Path
 
-__version__ = "20.1.0"
-BUILD_REVISION = "2026-10-19.v20.1-canonical"
+__version__ = "20.2.0"
+BUILD_REVISION = "2026-10-19.v20.2-canonical"
 
 def resolve_base_dir() -> Path:
     env_dir = os.environ.get("OMNIVERSE_BUILD_DIR")
@@ -79,14 +77,13 @@ def find_source_file(filename: str, search_paths: list) -> Path:
 def organize_and_sync():
     base_dir = resolve_base_dir()
     print("==================================================================")
-    print(f"OMNIVERSE PROJECT ORGANIZER & ROOT SWEEP ENGINE [v{__version__}]")
+    print(f"OMNIVERSE PROJECT ORGANIZER & BROWSER AUTO-INGESTION ENGINE [v{__version__}]")
     print(f"Revision: {BUILD_REVISION}")
     print("==================================================================")
     
     search_paths = [
         base_dir,
         base_dir / "mobile" / "lib",
-        base_dir / "backend",
         base_dir / "scripts",
         Path.cwd()
     ]
@@ -94,14 +91,15 @@ def organize_and_sync():
         search_paths.append(Path("/workspace") / "scratch")
     if (Path("/workspace") / "artifacts").exists():
         search_paths.append(Path("/workspace") / "artifacts")
-        
-    # Phase 1: Browser Duplicate Auto-Ingestion
+
+    # Phase 1: Firefox Browser Duplicate Ingestion
     ingest_browser_downloads(base_dir, search_paths)
     
     # Phase 2: Consolidate GitHub Actions Workflow
     workflows_dir = base_dir / ".github" / "workflows"
     workflows_dir.mkdir(parents=True, exist_ok=True)
     
+    # Delete obsolete workflows
     obsolete_workflows = ["build_monitor_apk.yml", "build_alpha_apk.yml", "deploy-pages.yml"]
     for obs in obsolete_workflows:
         obs_path = workflows_dir / obs
@@ -148,7 +146,7 @@ jobs:
 
       - name: ⚙️ Organize Project & Generate Standalone App Workspaces
         run: |
-          python3 organize_project*.py || true
+          python3 organize_project.py || true
           python3 build_multi_app_suite.py || python3 scripts/build_multi_app_suite.py
 
       - name: ☕ Set up Java JDK 17
@@ -184,7 +182,7 @@ jobs:
         f.write(BUILD_APK_YML)
     print("[✓] Finalized canonical matrix workflow: .github/workflows/build_apk.yml")
     
-    # Phase 3: Sync Mappings (Root Permanence Enforced)
+    # Phase 3: Sync Mappings
     mappings = [
         ("kickback_main_app_ui.dart", base_dir / "mobile" / "lib" / "kickback_main_app_ui.dart"),
         ("halo_plaza_experience_ui.dart", base_dir / "mobile" / "lib" / "halo_plaza_experience_ui.dart"),
@@ -193,8 +191,8 @@ jobs:
         ("plaza_fighting_game_engine.dart", base_dir / "mobile" / "lib" / "plaza_fighting_game_engine.dart"),
         ("continuity_token_service.dart", base_dir / "mobile" / "lib" / "continuity_token_service.dart"),
         ("kickback_seamless_stripe_checkout.dart", base_dir / "mobile" / "lib" / "kickback_seamless_stripe_checkout.dart"),
-        ("build_multi_app_suite.py", base_dir / "build_multi_app_suite.py"),
         ("build_multi_app_suite.py", base_dir / "scripts" / "build_multi_app_suite.py"),
+        ("build_multi_app_suite.py", base_dir / "build_multi_app_suite.py"),
         ("organize_project.py", base_dir / "organize_project.py"),
     ]
     
@@ -220,7 +218,25 @@ jobs:
             else:
                 rel_str = str(dest_path.relative_to(base_dir)) if base_dir in dest_path.parents or base_dir == dest_path.parent else dest_path.name
                 print(f"[✓] File already in place: {rel_str}")
-                
+
+    # Phase 4: Enforce android.useAndroidX=true in all apps/*/mobile/android/
+    apps_dir = base_dir / "apps"
+    if apps_dir.exists():
+        for app_folder in apps_dir.glob("*"):
+            android_p = app_folder / "mobile" / "android"
+            if android_p.exists():
+                gradle_props_text = """org.gradle.jvmargs=-Xmx4096m -XX:+UseG1GC
+android.useAndroidX=true
+android.enableJetifier=true
+android.nonTransitiveRClass=true
+android.newDsl=false
+android.defaults.buildfeatures.buildconfig=true
+"""
+                (android_p / "gradle.properties").write_text(gradle_props_text, encoding="utf-8")
+                app_android_p = android_p / "app"
+                if app_android_p.exists():
+                    (app_android_p / "gradle.properties").write_text(gradle_props_text, encoding="utf-8")
+
     print("------------------------------------------------------------------")
     print("🧹 RUNNING ROOT CLEAN SWEEP: REMOVING FLOATING ROOT FILES...")
     print("------------------------------------------------------------------")

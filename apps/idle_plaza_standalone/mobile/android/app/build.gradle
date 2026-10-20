@@ -22,8 +22,8 @@ android {
         applicationId "com.omniverse.idle_plaza"
         minSdk 26
         targetSdk 36
-        versionCode 520
-        versionName "5.2.0"
+        versionCode 540
+        versionName "5.4.0"
     }
 
     buildTypes {

@@ -13,7 +13,6 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 void main() {
   runApp(const PlazaFightingGameApp());
@@ -485,7 +484,7 @@ class _PlazaFightingGameScreenState extends State<PlazaFightingGameScreen> with 
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.75),
+                        color: Colors.black.withValues(alpha: 0.75),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: const Color(0xFF00FFCC), width: 2),
                       ),
@@ -650,7 +649,7 @@ class ArenaStagePainter extends CustomPainter {
 
     // 3. Draw Impact Particles
     for (var pt in particles) {
-      final pPaint = Paint()..color = pt.color.withOpacity(1.0 - (pt.life / pt.maxLife));
+      final pPaint = Paint()..color = pt.color.withValues(alpha: 1.0 - (pt.life / pt.maxLife));
       canvas.drawCircle(Offset(pt.x, pt.y), 3.0, pPaint);
     }
   }
@@ -658,7 +657,7 @@ class ArenaStagePainter extends CustomPainter {
   void _drawFighter(Canvas canvas, FighterCharacter f) {
     // Aura Glow
     final auraPaint = Paint()
-      ..color = f.auraColor.withOpacity(0.35)
+      ..color = f.auraColor.withValues(alpha: 0.35)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 15);
     canvas.drawCircle(Offset(f.x, f.y - 45), 35, auraPaint);
 
@@ -673,7 +672,7 @@ class ArenaStagePainter extends CustomPainter {
 
     // Active Attack Hitbox Overlay
     if (f.activeHitbox != null) {
-      final hitPaint = Paint()..color = f.auraColor.withOpacity(0.5);
+      final hitPaint = Paint()..color = f.auraColor.withValues(alpha: 0.5);
       canvas.drawRect(f.activeHitbox!, hitPaint);
     }
   }

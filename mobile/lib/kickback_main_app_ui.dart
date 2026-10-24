@@ -1,3 +1,4 @@
+// ignore_for_file: unused_field
 // ============================================================================
 // THE KICKBACK & OMNIVERSE: COMPLETE MULTI-TAB APPLICATION MAIN ENTRYPOINT
 // Target File: mobile/lib/main.dart
@@ -60,7 +61,8 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
       "id": "evt_01948a",
       "author": "@alex_creator",
       "badge": "HUMAN_VERIFIED",
-      "content": "Just launched the new multi-perspective live stream for tonight's concert! Switch between 4 camera angles in real time over P2P mesh.",
+      "content":
+          "Just launched the new multi-perspective live stream for tonight's concert! Switch between 4 camera angles in real time over P2P mesh.",
       "timestamp": "2 mins ago",
       "likes": 24,
       "tipsUSD": 15.00,
@@ -70,7 +72,8 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
       "id": "evt_01948b",
       "author": "@maya_artist",
       "badge": "HUMAN_VERIFIED",
-      "content": "Updated my OmniMarket creator store with new 3D avatar cosmetics. 98% creator payout directly into my hardware enclave wallet!",
+      "content":
+          "Updated my OmniMarket creator store with new 3D avatar cosmetics. 98% creator payout directly into my hardware enclave wallet!",
       "timestamp": "14 mins ago",
       "likes": 42,
       "tipsUSD": 38.50,
@@ -80,7 +83,8 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
       "id": "evt_01948c",
       "author": "@dev_node_01",
       "badge": "SYSTEM_INFO",
-      "content": "[P2P MESH NOTICE] 12 local Wi-Fi Aware & BLE bootnodes active. Zero cloud servers required.",
+      "content":
+          "[P2P MESH NOTICE] 12 local Wi-Fi Aware & BLE bootnodes active. Zero cloud servers required.",
       "timestamp": "1 hour ago",
       "likes": 89,
       "tipsUSD": 0.00,
@@ -99,7 +103,8 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
         "timestamp": "Just now",
         "likes": 1,
         "tipsUSD": 0.00,
-        "merkleHash": "0x${DateTime.now().microsecondsSinceEpoch.toRadixString(16).substring(0, 12).toUpperCase()}",
+        "merkleHash":
+            "0x${DateTime.now().microsecondsSinceEpoch.toRadixString(16).substring(0, 12).toUpperCase()}",
       });
     });
   }
@@ -114,7 +119,8 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
           children: const [
             Icon(Icons.edit_note, color: Color(0xFF00FFCC)),
             SizedBox(width: 8),
-            Text('Create Human Feed Post', style: TextStyle(color: Colors.white, fontSize: 16)),
+            Text('Create Human Feed Post',
+                style: TextStyle(color: Colors.white, fontSize: 16)),
           ],
         ),
         content: Column(
@@ -124,11 +130,15 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: const Color(0xFF00FFCC).withOpacity(0.15),
+                color: const Color(0xFF00FFCC).withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: const Color(0xFF00FFCC)),
               ),
-              child: const Text('🛡 HUMAN ATTESTED (Stargate Ed25519)', style: TextStyle(color: Color(0xFF00FFCC), fontSize: 10, fontWeight: FontWeight.bold)),
+              child: const Text('🛡 HUMAN ATTESTED (Stargate Ed25519)',
+                  style: TextStyle(
+                      color: Color(0xFF00FFCC),
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold)),
             ),
             const SizedBox(height: 12),
             TextField(
@@ -139,7 +149,8 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
                 hintText: "What's happening on your mesh node?",
                 hintStyle: TextStyle(color: Colors.grey),
                 border: OutlineInputBorder(),
-                focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFF00FFCC))),
+                focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF00FFCC))),
               ),
             ),
           ],
@@ -154,8 +165,11 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
               _addNewPost(controller.text);
               Navigator.pop(ctx);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00FFCC)),
-            child: const Text('Publish Post', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF00FFCC)),
+            child: const Text('Publish Post',
+                style: TextStyle(
+                    color: Colors.black, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -179,17 +193,21 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF00FFCC).withOpacity(0.2),
+                  color: const Color(0xFF00FFCC).withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.hub, color: Color(0xFF00FFCC), size: 20),
+                child:
+                    const Icon(Icons.hub, color: Color(0xFF00FFCC), size: 20),
               ),
               const SizedBox(width: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('The KickBack', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                  Text('Local Mesh: $_activePeers Peers Active', style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                  const Text('The KickBack',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text('Local Mesh: $_activePeers Peers Active',
+                      style: const TextStyle(color: Colors.grey, fontSize: 11)),
                 ],
               ),
             ],
@@ -197,7 +215,8 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.account_balance_wallet, color: Color(0xFF00FFCC)),
+            icon: const Icon(Icons.account_balance_wallet,
+                color: Color(0xFF00FFCC)),
             tooltip: "Hardware Wallet",
             onPressed: _showWalletDetailsModal,
           ),
@@ -207,7 +226,8 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text("🛡 Stargate Ed25519 Enclave Active | Zero-Cloud Self-Sovereignty"),
+                  content: Text(
+                      "🛡 Stargate Ed25519 Enclave Active | Zero-Cloud Self-Sovereignty"),
                   backgroundColor: Color(0xFF162235),
                 ),
               );
@@ -231,10 +251,14 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
         backgroundColor: const Color(0xFF1E293B),
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.dynamic_feed), label: 'Human Feed'),
-          BottomNavigationBarItem(icon: Icon(Icons.videocam), label: 'Mesh Fusion'),
-          BottomNavigationBarItem(icon: Icon(Icons.storefront), label: 'OmniMarket'),
-          BottomNavigationBarItem(icon: Icon(Icons.terminal), label: 'Telemetry'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.dynamic_feed), label: 'Human Feed'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.videocam), label: 'Mesh Fusion'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.storefront), label: 'OmniMarket'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.terminal), label: 'Telemetry'),
         ],
       ),
     );
@@ -283,20 +307,33 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
                   children: [
                     Row(
                       children: [
-                        Text(_userHandle, style: const TextStyle(color: Color(0xFF00FFCC), fontWeight: FontWeight.bold, fontSize: 15)),
+                        Text(_userHandle,
+                            style: const TextStyle(
+                                color: Color(0xFF00FFCC),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15)),
                         const SizedBox(width: 6),
-                        const Icon(Icons.verified, color: Color(0xFF00FFCC), size: 14),
+                        const Icon(Icons.verified,
+                            color: Color(0xFF00FFCC), size: 14),
                       ],
                     ),
-                    Text("Key: $_pubkey", style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                    Text("Key: $_pubkey",
+                        style:
+                            const TextStyle(color: Colors.grey, fontSize: 11)),
                   ],
                 ),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text("\$${_usdBalance.toStringAsFixed(2)} USD", style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold, fontSize: 14)),
-                  Text("$_omniCredits Credits", style: const TextStyle(color: Colors.white70, fontSize: 11)),
+                  Text("\$${_usdBalance.toStringAsFixed(2)} USD",
+                      style: const TextStyle(
+                          color: Colors.greenAccent,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14)),
+                  Text("$_omniCredits Credits",
+                      style:
+                          const TextStyle(color: Colors.white70, fontSize: 11)),
                 ],
               ),
             ],
@@ -304,7 +341,11 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
         ),
         const SizedBox(height: 16),
 
-        const Text("Sovereign Human Feed (100% Bot-Free)", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+        const Text("Sovereign Human Feed (100% Bot-Free)",
+            style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 15)),
         const SizedBox(height: 10),
 
         ..._posts.map((post) => _buildPostCard(post)).toList(),
@@ -329,24 +370,43 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
             children: [
               Row(
                 children: [
-                  Text(post['author'], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                  Text(post['author'],
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14)),
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: post['badge'] == 'HUMAN_VERIFIED' ? const Color(0xFF00FFCC).withOpacity(0.15) : Colors.amber.withOpacity(0.15),
+                      color: post['badge'] == 'HUMAN_VERIFIED'
+                          ? const Color(0xFF00FFCC).withValues(alpha: 0.15)
+                          : Colors.amber.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: post['badge'] == 'HUMAN_VERIFIED' ? const Color(0xFF00FFCC) : Colors.amber),
+                      border: Border.all(
+                          color: post['badge'] == 'HUMAN_VERIFIED'
+                              ? const Color(0xFF00FFCC)
+                              : Colors.amber),
                     ),
-                    child: Text(post['badge'], style: TextStyle(color: post['badge'] == 'HUMAN_VERIFIED' ? const Color(0xFF00FFCC) : Colors.amber, fontSize: 9, fontWeight: FontWeight.bold)),
+                    child: Text(post['badge'],
+                        style: TextStyle(
+                            color: post['badge'] == 'HUMAN_VERIFIED'
+                                ? const Color(0xFF00FFCC)
+                                : Colors.amber,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
-              Text(post['timestamp'], style: const TextStyle(color: Colors.grey, fontSize: 11)),
+              Text(post['timestamp'],
+                  style: const TextStyle(color: Colors.grey, fontSize: 11)),
             ],
           ),
           const SizedBox(height: 10),
-          Text(post['content'], style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.4)),
+          Text(post['content'],
+              style: const TextStyle(
+                  color: Colors.white70, fontSize: 13, height: 1.4)),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -354,29 +414,40 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
               Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.favorite_border, color: Colors.pinkAccent, size: 18),
+                    icon: const Icon(Icons.favorite_border,
+                        color: Colors.pinkAccent, size: 18),
                     onPressed: () {
                       setState(() => post['likes']++);
                     },
                   ),
-                  Text("${post['likes']}", style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                  Text("${post['likes']}",
+                      style: const TextStyle(color: Colors.grey, fontSize: 12)),
                   const SizedBox(width: 16),
                   IconButton(
-                    icon: const Icon(Icons.monetization_on_outlined, color: Colors.greenAccent, size: 18),
+                    icon: const Icon(Icons.monetization_on_outlined,
+                        color: Colors.greenAccent, size: 18),
                     onPressed: () {
                       setState(() {
                         post['tipsUSD'] += 1.00;
                         _usdBalance -= 1.00;
                       });
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Tipped \$1.00 USD to ${post['author']}"), backgroundColor: Colors.green),
+                        SnackBar(
+                            content:
+                                Text("Tipped \$1.00 USD to ${post['author']}"),
+                            backgroundColor: Colors.green),
                       );
                     },
                   ),
-                  Text("\$${post['tipsUSD'].toStringAsFixed(2)}", style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                  Text("\$${post['tipsUSD'].toStringAsFixed(2)}",
+                      style: const TextStyle(color: Colors.grey, fontSize: 12)),
                 ],
               ),
-              Text("DAG: ${post['merkleHash']}", style: const TextStyle(color: Colors.grey, fontSize: 10, fontFamily: 'monospace')),
+              Text("DAG: ${post['merkleHash']}",
+                  style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 10,
+                      fontFamily: 'monospace')),
             ],
           ),
         ],
@@ -391,9 +462,15 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text("🎥 Live Multi-Perspective Camera Fusion", style: TextStyle(color: Color(0xFF00FFCC), fontWeight: FontWeight.bold, fontSize: 16)),
+        const Text("🎥 Live Multi-Perspective Camera Fusion",
+            style: TextStyle(
+                color: Color(0xFF00FFCC),
+                fontWeight: FontWeight.bold,
+                fontSize: 16)),
         const SizedBox(height: 6),
-        const Text("Switch seamlessly between 4 P2P camera angles with zero cloud relay servers.", style: TextStyle(color: Colors.grey, fontSize: 12)),
+        const Text(
+            "Switch seamlessly between 4 P2P camera angles with zero cloud relay servers.",
+            style: TextStyle(color: Colors.grey, fontSize: 12)),
         const SizedBox(height: 16),
 
         // Main Viewport
@@ -412,8 +489,13 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
                   children: [
                     Icon(Icons.videocam, color: Color(0xFF00FFCC), size: 48),
                     SizedBox(height: 8),
-                    Text("[ ACTIVE STAGE STREAM: CAM 01 - MAIN FRONT ]", style: TextStyle(color: Color(0xFF00FFCC), fontFamily: 'monospace', fontSize: 12)),
-                    Text("1080p @ 60 FPS | P2P Direct WebRTC Stream", style: TextStyle(color: Colors.grey, fontSize: 11)),
+                    Text("[ ACTIVE STAGE STREAM: CAM 01 - MAIN FRONT ]",
+                        style: TextStyle(
+                            color: Color(0xFF00FFCC),
+                            fontFamily: 'monospace',
+                            fontSize: 12)),
+                    Text("1080p @ 60 FPS | P2P Direct WebRTC Stream",
+                        style: TextStyle(color: Colors.grey, fontSize: 11)),
                   ],
                 ),
               ),
@@ -421,9 +503,16 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
                 top: 12,
                 left: 12,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(4)),
-                  child: const Text("LIVE P2P", style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(4)),
+                  child: const Text("LIVE P2P",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold)),
                 ),
               ),
             ],
@@ -431,7 +520,11 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
         ),
         const SizedBox(height: 16),
 
-        const Text("Select Perspective Angle:", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+        const Text("Select Perspective Angle:",
+            style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 13)),
         const SizedBox(height: 10),
 
         Row(
@@ -454,15 +547,25 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: isActive ? const Color(0xFF00FFCC).withOpacity(0.2) : const Color(0xFF1E293B),
+          color: isActive
+              ? const Color(0xFF00FFCC).withValues(alpha: 0.2)
+              : const Color(0xFF1E293B),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: isActive ? const Color(0xFF00FFCC) : const Color(0xFF334155)),
+          border: Border.all(
+              color:
+                  isActive ? const Color(0xFF00FFCC) : const Color(0xFF334155)),
         ),
         child: Column(
           children: [
-            Icon(icon, color: isActive ? const Color(0xFF00FFCC) : Colors.grey, size: 20),
+            Icon(icon,
+                color: isActive ? const Color(0xFF00FFCC) : Colors.grey,
+                size: 20),
             const SizedBox(height: 4),
-            Text(label, style: TextStyle(color: isActive ? const Color(0xFF00FFCC) : Colors.white70, fontSize: 10, fontWeight: FontWeight.bold)),
+            Text(label,
+                style: TextStyle(
+                    color: isActive ? const Color(0xFF00FFCC) : Colors.white70,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold)),
           ],
         ),
       ),
@@ -479,25 +582,39 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text("🛒 OmniMarket Creator Storefront", style: TextStyle(color: Color(0xFF00FFCC), fontWeight: FontWeight.bold, fontSize: 16)),
+            const Text("🛒 OmniMarket Creator Storefront",
+                style: TextStyle(
+                    color: Color(0xFF00FFCC),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16)),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(color: const Color(0xFF7209B7), borderRadius: BorderRadius.circular(12)),
-              child: const Text("98% Creator Payout", style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+              decoration: BoxDecoration(
+                  color: const Color(0xFF7209B7),
+                  borderRadius: BorderRadius.circular(12)),
+              child: const Text("98% Creator Payout",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold)),
             ),
           ],
         ),
         const SizedBox(height: 16),
-
-        _buildStoreItem("Neon Cyber Helmet", "Avatar Cosmetics", "250 Credits", Icons.security),
-        _buildStoreItem("9x9 Cube Survival Pass", "Game Mini-App", "500 Credits", Icons.grid_on),
-        _buildStoreItem("Spades VIP Lounge Badge", "Social Mini-App", "150 Credits", Icons.style),
-        _buildStoreItem("Markov AI NPC Architect", "AI Agent License", "1,000 Credits", Icons.smart_toy),
+        _buildStoreItem("Neon Cyber Helmet", "Avatar Cosmetics", "250 Credits",
+            Icons.security),
+        _buildStoreItem("9x9 Cube Survival Pass", "Game Mini-App",
+            "500 Credits", Icons.grid_on),
+        _buildStoreItem("Spades VIP Lounge Badge", "Social Mini-App",
+            "150 Credits", Icons.style),
+        _buildStoreItem("Markov AI NPC Architect", "AI Agent License",
+            "1,000 Credits", Icons.smart_toy),
       ],
     );
   }
 
-  Widget _buildStoreItem(String title, String category, String price, IconData icon) {
+  Widget _buildStoreItem(
+      String title, String category, String price, IconData icon) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -510,7 +627,9 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: const Color(0xFF00FFCC).withOpacity(0.15), borderRadius: BorderRadius.circular(8)),
+            decoration: BoxDecoration(
+                color: const Color(0xFF00FFCC).withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(8)),
             child: Icon(icon, color: const Color(0xFF00FFCC)),
           ),
           const SizedBox(width: 14),
@@ -518,19 +637,31 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-                Text(category, style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                Text(title,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14)),
+                Text(category,
+                    style: const TextStyle(color: Colors.grey, fontSize: 11)),
               ],
             ),
           ),
           ElevatedButton(
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Purchased $title for $price!"), backgroundColor: const Color(0xFF7209B7)),
+                SnackBar(
+                    content: Text("Purchased $title for $price!"),
+                    backgroundColor: const Color(0xFF7209B7)),
               );
             },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00FFCC)),
-            child: Text(price, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 12)),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF00FFCC)),
+            child: Text(price,
+                style: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12)),
           ),
         ],
       ),
@@ -544,9 +675,12 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text("💻 Core Engine Telemetry & IPC Console", style: TextStyle(color: Color(0xFF00FFCC), fontWeight: FontWeight.bold, fontSize: 16)),
+        const Text("💻 Core Engine Telemetry & IPC Console",
+            style: TextStyle(
+                color: Color(0xFF00FFCC),
+                fontWeight: FontWeight.bold,
+                fontSize: 16)),
         const SizedBox(height: 12),
-
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
@@ -560,15 +694,20 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
             "[CRDT] Merkle Root: 0x0185D7BE92C4\n"
             "[AUTH] Stargate Ed25519 Hardware Enclave Key Validated\n"
             "[MARKOV] Sub-1ms CPU NPC Builder Inference Loop Active",
-            style: TextStyle(color: Color(0xFF00FFCC), fontFamily: 'monospace', fontSize: 11, height: 1.5),
+            style: TextStyle(
+                color: Color(0xFF00FFCC),
+                fontFamily: 'monospace',
+                fontSize: 11,
+                height: 1.5),
           ),
         ),
         const SizedBox(height: 20),
-
         ElevatedButton.icon(
           onPressed: _showEasterEggDialog,
           icon: const Icon(Icons.monitor, color: Colors.black),
-          label: const Text('OPEN EASTER EGG MONITOR', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+          label: const Text('OPEN EASTER EGG MONITOR',
+              style:
+                  TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF00FFCC),
             padding: const EdgeInsets.symmetric(vertical: 14),
@@ -582,30 +721,47 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF1E293B),
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => Container(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("🔑 Stargate Hardware Wallet", style: TextStyle(color: Color(0xFF00FFCC), fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text("🔑 Stargate Hardware Wallet",
+                style: TextStyle(
+                    color: Color(0xFF00FFCC),
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
-            Text("Public Key: $_pubkey", style: const TextStyle(color: Colors.grey, fontFamily: 'monospace', fontSize: 12)),
+            Text("Public Key: $_pubkey",
+                style: const TextStyle(
+                    color: Colors.grey, fontFamily: 'monospace', fontSize: 12)),
             const Divider(color: Colors.white24, height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text("USD Payout Balance:", style: TextStyle(color: Colors.white70)),
-                Text("\$${_usdBalance.toStringAsFixed(2)} USD", style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold, fontSize: 16)),
+                const Text("USD Payout Balance:",
+                    style: TextStyle(color: Colors.white70)),
+                Text("\$${_usdBalance.toStringAsFixed(2)} USD",
+                    style: const TextStyle(
+                        color: Colors.greenAccent,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16)),
               ],
             ),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text("OmniCredits Balance:", style: TextStyle(color: Colors.white70)),
-                Text("$_omniCredits Credits", style: const TextStyle(color: Color(0xFF00FFCC), fontWeight: FontWeight.bold, fontSize: 16)),
+                const Text("OmniCredits Balance:",
+                    style: TextStyle(color: Colors.white70)),
+                Text("$_omniCredits Credits",
+                    style: const TextStyle(
+                        color: Color(0xFF00FFCC),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16)),
               ],
             ),
             const SizedBox(height: 20),
@@ -613,8 +769,11 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () => Navigator.pop(ctx),
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00FFCC)),
-                child: const Text("Close Wallet", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF00FFCC)),
+                child: const Text("Close Wallet",
+                    style: TextStyle(
+                        color: Colors.black, fontWeight: FontWeight.bold)),
               ),
             ),
           ],
@@ -628,7 +787,8 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF0A0E17),
-        title: const Text('🕹 EASTER EGG UNLOCKED!', style: TextStyle(color: Color(0xFF00FFCC))),
+        title: const Text('🕹 EASTER EGG UNLOCKED!',
+            style: TextStyle(color: Color(0xFF00FFCC))),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -642,7 +802,9 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
               width: double.infinity,
               color: Colors.black,
               child: const Center(
-                child: Text('[ 3D RAYCAST PROCESS MONITOR ]', style: TextStyle(color: Color(0xFF00FFCC), fontFamily: 'monospace')),
+                child: Text('[ 3D RAYCAST PROCESS MONITOR ]',
+                    style: TextStyle(
+                        color: Color(0xFF00FFCC), fontFamily: 'monospace')),
               ),
             ),
           ],

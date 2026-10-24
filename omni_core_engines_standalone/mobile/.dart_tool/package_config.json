@@ -207,13 +207,13 @@
     },
     {
       "name": "sqflite",
-      "rootUri": "file:///C:/Users/kiidh/AppData/Local/Pub/Cache/hosted/pub.dev/sqflite-2.4.4+2",
+      "rootUri": "file:///C:/Users/kiidh/AppData/Local/Pub/Cache/hosted/pub.dev/sqflite-2.4.5",
       "packageUri": "lib/",
       "languageVersion": "3.12"
     },
     {
       "name": "sqflite_android",
-      "rootUri": "file:///C:/Users/kiidh/AppData/Local/Pub/Cache/hosted/pub.dev/sqflite_android-2.4.4+1",
+      "rootUri": "file:///C:/Users/kiidh/AppData/Local/Pub/Cache/hosted/pub.dev/sqflite_android-2.4.5",
       "packageUri": "lib/",
       "languageVersion": "3.12"
     },
@@ -231,7 +231,7 @@
     },
     {
       "name": "sqflite_platform_interface",
-      "rootUri": "file:///C:/Users/kiidh/AppData/Local/Pub/Cache/hosted/pub.dev/sqflite_platform_interface-2.4.2",
+      "rootUri": "file:///C:/Users/kiidh/AppData/Local/Pub/Cache/hosted/pub.dev/sqflite_platform_interface-2.4.3",
       "packageUri": "lib/",
       "languageVersion": "3.12"
     },
@@ -291,9 +291,9 @@
     },
     {
       "name": "web",
-      "rootUri": "file:///C:/Users/kiidh/AppData/Local/Pub/Cache/hosted/pub.dev/web-1.1.1",
+      "rootUri": "file:///C:/Users/kiidh/AppData/Local/Pub/Cache/hosted/pub.dev/web-1.1.2",
       "packageUri": "lib/",
-      "languageVersion": "3.4"
+      "languageVersion": "3.13"
     },
     {
       "name": "omni_core_engines_standalone",

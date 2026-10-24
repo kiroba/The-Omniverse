@@ -1,3 +1,4 @@
+// ignore_for_file: unused_field
 // ============================================================================
 // THE OMNIVERSE & THE KICKBACK: HALO PLAZA (LPE PLAZA) EXPERIENCE
 // Target Module: `com.kickback.halo_plaza`
@@ -10,6 +11,7 @@
 
 import 'dart:async';
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 void main() {
@@ -76,7 +78,8 @@ class HaloPlazaScreen extends StatefulWidget {
   State<HaloPlazaScreen> createState() => _HaloPlazaScreenState();
 }
 
-class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderStateMixin {
+class _HaloPlazaScreenState extends State<HaloPlazaScreen>
+    with TickerProviderStateMixin {
   // Local User's Halo State
   final String _userHandle = "@citizen.a8f9";
   final String _userPubkey = "0x8F92A1B439C0E71D";
@@ -182,7 +185,8 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
           peer.y += (peer.targetY - peer.y) * 0.08;
 
           // Occasionally pick a new target within bounds
-          if ((peer.x - peer.targetX).abs() < 5 && (peer.y - peer.targetY).abs() < 5) {
+          if ((peer.x - peer.targetX).abs() < 5 &&
+              (peer.y - peer.targetY).abs() < 5) {
             if (rnd.nextDouble() < 0.3) {
               peer.targetX = 40.0 + rnd.nextDouble() * 280.0;
               peer.targetY = 60.0 + rnd.nextDouble() * 280.0;
@@ -240,7 +244,10 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
             SizedBox(width: 8),
             Text(
               "HALO PLAZA SHOWCASE",
-              style: TextStyle(color: Color(0xFF00FFCC), fontWeight: FontWeight.bold, fontSize: 16),
+              style: TextStyle(
+                  color: Color(0xFF00FFCC),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16),
             ),
           ],
         ),
@@ -261,7 +268,8 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
               color: _isWifiAwareActive ? const Color(0xFF38BDF8) : Colors.grey,
             ),
             tooltip: "Wi-Fi Aware NAN Cluster Active",
-            onPressed: () => setState(() => _isWifiAwareActive = !_isWifiAwareActive),
+            onPressed: () =>
+                setState(() => _isWifiAwareActive = !_isWifiAwareActive),
           ),
         ],
       ),
@@ -292,7 +300,8 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
       decoration: BoxDecoration(
         color: const Color(0xFF131C2E),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF00FFCC).withOpacity(0.4)),
+        border:
+            Border.all(color: const Color(0xFF00FFCC).withValues(alpha: 0.4)),
       ),
       child: Row(
         children: [
@@ -301,7 +310,7 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
             height: 50,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFF00FFCC).withOpacity(0.2),
+              color: const Color(0xFF00FFCC).withValues(alpha: 0.2),
               border: Border.all(color: const Color(0xFF00FFCC), width: 2),
             ),
             child: const Center(
@@ -317,18 +326,25 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
                   children: [
                     Text(
                       _userHandle,
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15),
                     ),
                     const SizedBox(width: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF7209B7).withOpacity(0.6),
+                        color: const Color(0xFF7209B7).withValues(alpha: 0.6),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: const Text(
                         "HALO TRANSFER ACTIVE",
-                        style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -346,7 +362,10 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
             children: [
               Text(
                 "$_omniCredits OC",
-                style: const TextStyle(color: Color(0xFF00FFCC), fontWeight: FontWeight.bold, fontSize: 14),
+                style: const TextStyle(
+                    color: Color(0xFF00FFCC),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14),
               ),
               Text(
                 "\$${_usdBalance.toStringAsFixed(2)} USD",
@@ -370,7 +389,7 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
         border: Border.all(color: const Color(0xFF1E293B), width: 2),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF00FFCC).withOpacity(0.05),
+            color: const Color(0xFF00FFCC).withValues(alpha: 0.05),
             blurRadius: 15,
             spreadRadius: 2,
           )
@@ -385,10 +404,13 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
           ),
 
           // Portal Kiosks
-          _buildPortalKiosk(60, 60, "9x9 Maze", Colors.greenAccent, Icons.grid_view),
-          _buildPortalKiosk(300, 60, "Janken AI", Colors.amberAccent, Icons.casino),
+          _buildPortalKiosk(
+              60, 60, "9x9 Maze", Colors.greenAccent, Icons.grid_view),
+          _buildPortalKiosk(
+              300, 60, "Janken AI", Colors.amberAccent, Icons.casino),
           _buildPortalKiosk(60, 320, "Spades", Colors.cyanAccent, Icons.style),
-          _buildPortalKiosk(300, 320, "Idle Plaza", Colors.purpleAccent, Icons.bolt),
+          _buildPortalKiosk(
+              300, 320, "Idle Plaza", Colors.purpleAccent, Icons.bolt),
 
           // Peer Halos Discovered in Mesh
           for (var peer in _peers)
@@ -404,11 +426,15 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
                       height: 44,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Color(int.parse(peer.auraColorHex)).withOpacity(0.2),
-                        border: Border.all(color: Color(int.parse(peer.auraColorHex)), width: 2),
+                        color: Color(int.parse(peer.auraColorHex))
+                            .withValues(alpha: 0.2),
+                        border: Border.all(
+                            color: Color(int.parse(peer.auraColorHex)),
+                            width: 2),
                         boxShadow: [
                           BoxShadow(
-                            color: Color(int.parse(peer.auraColorHex)).withOpacity(0.4),
+                            color: Color(int.parse(peer.auraColorHex))
+                                .withValues(alpha: 0.4),
                             blurRadius: 10,
                           )
                         ],
@@ -426,14 +452,16 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
                     ),
                     const SizedBox(height: 2),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 4, vertical: 1),
                       decoration: BoxDecoration(
-                        color: Colors.black80,
+                        color: Colors.black87,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
                         peer.handle,
-                        style: const TextStyle(color: Colors.white, fontSize: 9),
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 9),
                       ),
                     ),
                   ],
@@ -452,8 +480,9 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
                   height: 52,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: const Color(0xFF00FFCC).withOpacity(0.3),
-                    border: Border.all(color: const Color(0xFF00FFCC), width: 3),
+                    color: const Color(0xFF00FFCC).withValues(alpha: 0.3),
+                    border:
+                        Border.all(color: const Color(0xFF00FFCC), width: 3),
                     boxShadow: const [
                       BoxShadow(
                         color: Color(0xFF00FFCC),
@@ -468,14 +497,18 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
                 ),
                 const SizedBox(height: 2),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: const Color(0xFF00FFCC),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: const Text(
                     "YOU (HALO)",
-                    style: TextStyle(color: Colors.black, fontSize: 9, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -486,7 +519,8 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
     );
   }
 
-  Widget _buildPortalKiosk(double x, double y, String label, Color color, IconData icon) {
+  Widget _buildPortalKiosk(
+      double x, double y, String label, Color color, IconData icon) {
     return Positioned(
       left: x - 30,
       top: y - 30,
@@ -495,8 +529,8 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
         height: 60,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: color.withOpacity(0.15),
-          border: Border.all(color: color.withOpacity(0.6), width: 1.5),
+          color: color.withValues(alpha: 0.15),
+          border: Border.all(color: color.withValues(alpha: 0.6), width: 1.5),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -505,7 +539,8 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
             const SizedBox(height: 2),
             Text(
               label,
-              style: TextStyle(color: color, fontSize: 8, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  color: color, fontSize: 8, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
           ],
@@ -534,18 +569,21 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
               Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.arrow_left, color: Color(0xFF00FFCC)),
+                    icon:
+                        const Icon(Icons.arrow_left, color: Color(0xFF00FFCC)),
                     onPressed: () => _moveUserHalo(-20, 0),
                   ),
                   const Icon(Icons.touch_app, color: Colors.white54, size: 16),
                   IconButton(
-                    icon: const Icon(Icons.arrow_right, color: Color(0xFF00FFCC)),
+                    icon:
+                        const Icon(Icons.arrow_right, color: Color(0xFF00FFCC)),
                     onPressed: () => _moveUserHalo(20, 0),
                   ),
                 ],
               ),
               IconButton(
-                icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF00FFCC)),
+                icon:
+                    const Icon(Icons.arrow_drop_down, color: Color(0xFF00FFCC)),
                 onPressed: () => _moveUserHalo(0, 20),
               ),
             ],
@@ -559,7 +597,10 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
                     children: [
                       Text(
                         "PLAZA NAVIGATOR",
-                        style: TextStyle(color: Color(0xFF00FFCC), fontWeight: FontWeight.bold, fontSize: 12),
+                        style: TextStyle(
+                            color: Color(0xFF00FFCC),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12),
                       ),
                       SizedBox(height: 4),
                       Text(
@@ -573,27 +614,40 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
                     children: [
                       Text(
                         "PORTAL DETECTED:",
-                        style: const TextStyle(color: Colors.amberAccent, fontSize: 10, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            color: Colors.amberAccent,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold),
                       ),
                       Text(
                         _activePortalName!,
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14),
                       ),
                       const SizedBox(height: 6),
                       ElevatedButton.icon(
                         onPressed: () {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text("Launching $_activePortalName over local P2P mesh!"),
+                              content: Text(
+                                  "Launching $_activePortalName over local P2P mesh!"),
                               backgroundColor: const Color(0xFF7209B7),
                             ),
                           );
                         },
-                        icon: const Icon(Icons.rocket_launch, size: 14, color: Colors.black),
-                        label: const Text("ENTER MINI-APP ARENA", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 11)),
+                        icon: const Icon(Icons.rocket_launch,
+                            size: 14, color: Colors.black),
+                        label: const Text("ENTER MINI-APP ARENA",
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 11)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF00FFCC),
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
                         ),
                       ),
                     ],
@@ -621,11 +675,17 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
             children: [
               Text(
                 "P2P MESH & PLAZA TELEMETRY",
-                style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold),
               ),
               Text(
                 "127.0.0.1:9200 IN-SYNC",
-                style: TextStyle(color: Color(0xFF00FFCC), fontSize: 10, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: Color(0xFF00FFCC),
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -633,9 +693,12 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildTelemetryMetric("DISCOVERED HALOS", "$_activeMeshPeersCount Peers", Colors.cyanAccent),
-              _buildTelemetryMetric("BLE RSSI", "-48 dBm Avg", Colors.greenAccent),
-              _buildTelemetryMetric("FRAME LATENCY", "7.2 ms (120 FPS)", Colors.purpleAccent),
+              _buildTelemetryMetric("DISCOVERED HALOS",
+                  "$_activeMeshPeersCount Peers", Colors.cyanAccent),
+              _buildTelemetryMetric(
+                  "BLE RSSI", "-48 dBm Avg", Colors.greenAccent),
+              _buildTelemetryMetric(
+                  "FRAME LATENCY", "7.2 ms (120 FPS)", Colors.purpleAccent),
             ],
           ),
         ],
@@ -648,7 +711,9 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: const TextStyle(color: Colors.white38, fontSize: 9)),
-        Text(val, style: TextStyle(color: col, fontWeight: FontWeight.bold, fontSize: 11)),
+        Text(val,
+            style: TextStyle(
+                color: col, fontWeight: FontWeight.bold, fontSize: 11)),
       ],
     );
   }
@@ -674,13 +739,17 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
                     height: 48,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Color(int.parse(peer.auraColorHex)).withOpacity(0.3),
-                      border: Border.all(color: Color(int.parse(peer.auraColorHex)), width: 2),
+                      color: Color(int.parse(peer.auraColorHex))
+                          .withValues(alpha: 0.3),
+                      border: Border.all(
+                          color: Color(int.parse(peer.auraColorHex)), width: 2),
                     ),
                     child: Center(
                       child: Text(
                         peer.handle.substring(1, 3).toUpperCase(),
-                        style: TextStyle(color: Color(int.parse(peer.auraColorHex)), fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: Color(int.parse(peer.auraColorHex)),
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -692,15 +761,20 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
                         children: [
                           Text(
                             peer.handle,
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16),
                           ),
                           const SizedBox(width: 6),
-                          const Icon(Icons.shield, color: Color(0xFF00FFCC), size: 16),
+                          const Icon(Icons.shield,
+                              color: Color(0xFF00FFCC), size: 16),
                         ],
                       ),
                       Text(
                         "Key: ${peer.pubkey} | Reputation: ${peer.reputationScore}%",
-                        style: const TextStyle(color: Colors.white54, fontSize: 11),
+                        style: const TextStyle(
+                            color: Colors.white54, fontSize: 11),
                       ),
                     ],
                   ),
@@ -716,8 +790,14 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Equipped Item: ${peer.currentCosmetic}", style: const TextStyle(color: Colors.white70, fontSize: 12)),
-                    const Text("98% Creator Split", style: TextStyle(color: Color(0xFF00FFCC), fontSize: 10, fontWeight: FontWeight.bold)),
+                    Text("Equipped Item: ${peer.currentCosmetic}",
+                        style: const TextStyle(
+                            color: Colors.white70, fontSize: 12)),
+                    const Text("98% Creator Split",
+                        style: TextStyle(
+                            color: Color(0xFF00FFCC),
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -730,14 +810,20 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text("Tipped 50 OmniCredits to ${peer.handle}!"),
+                            content: Text(
+                                "Tipped 50 OmniCredits to ${peer.handle}!"),
                             backgroundColor: const Color(0xFF00FFCC),
                           ),
                         );
                       },
-                      icon: const Icon(Icons.card_giftcard, size: 16, color: Colors.black),
-                      label: const Text("TIP 50 OC", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00FFCC)),
+                      icon: const Icon(Icons.card_giftcard,
+                          size: 16, color: Colors.black),
+                      label: const Text("TIP 50 OC",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF00FFCC)),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -747,14 +833,18 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> with TickerProviderSt
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text("Initiated P2P Trade with ${peer.handle}"),
+                            content:
+                                Text("Initiated P2P Trade with ${peer.handle}"),
                             backgroundColor: const Color(0xFF7209B7),
                           ),
                         );
                       },
-                      icon: const Icon(Icons.swap_horiz, size: 16, color: Color(0xFF00FFCC)),
-                      label: const Text("P2P TRADE", style: TextStyle(color: Color(0xFF00FFCC))),
-                      style: OutlinedButton.styleFrom(side: const BorderSide(color: Color(0xFF00FFCC))),
+                      icon: const Icon(Icons.swap_horiz,
+                          size: 16, color: Color(0xFF00FFCC)),
+                      label: const Text("P2P TRADE",
+                          style: TextStyle(color: Color(0xFF00FFCC))),
+                      style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Color(0xFF00FFCC))),
                     ),
                   ),
                 ],
@@ -771,7 +861,7 @@ class _GridBlueprintPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFF1E293B).withOpacity(0.5)
+      ..color = const Color(0xFF1E293B).withValues(alpha: 0.5)
       ..strokeWidth = 1.0;
 
     const double step = 25.0;

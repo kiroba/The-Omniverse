@@ -5,7 +5,6 @@
 // Version: 4.0.0 - Windows Back Navigation & Proximity Sheet Edition
 // ============================================================================
 
-import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -161,7 +160,7 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: const Color(0xFF7209B7).withOpacity(0.3),
+              color: const Color(0xFF7209B7).withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: const Color(0xFF7209B7)),
             ),
@@ -178,7 +177,7 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFF0B101D),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF00FFCC).withOpacity(0.3)),
+        border: Border.all(color: const Color(0xFF00FFCC).withValues(alpha: 0.3)),
       ),
       child: Stack(
         children: [
@@ -200,7 +199,7 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> {
                     shape: BoxShape.circle,
                     color: const Color(0xFF00FFCC),
                     boxShadow: [
-                      BoxShadow(color: const Color(0xFF00FFCC).withOpacity(0.6), blurRadius: 10, spreadRadius: 2),
+                      BoxShadow(color: const Color(0xFF00FFCC).withValues(alpha: 0.6), blurRadius: 10, spreadRadius: 2),
                     ],
                   ),
                   child: const Center(child: Icon(Icons.person, color: Colors.black, size: 20)),
@@ -225,7 +224,7 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> {
                           shape: BoxShape.circle,
                           color: Color(p['color'] as int),
                           boxShadow: [
-                            BoxShadow(color: Color(p['color'] as int).withOpacity(0.5), blurRadius: 8),
+                            BoxShadow(color: Color(p['color'] as int).withValues(alpha: 0.5), blurRadius: 8),
                           ],
                         ),
                         child: Center(child: Text((p['handle'] as String)[1].toUpperCase(), style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold))),
@@ -292,7 +291,7 @@ class _HaloPlazaScreenState extends State<HaloPlazaScreen> {
                   Text("Proximity Peer: ${peer['handle']}", style: const TextStyle(color: Color(0xFF00FFCC), fontWeight: FontWeight.bold, fontSize: 15)),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(color: Colors.greenAccent.withOpacity(0.2), borderRadius: BorderRadius.circular(6)),
+                    decoration: BoxDecoration(color: Colors.greenAccent.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(6)),
                     child: Text("Signal: ${peer['rssi']} dBm", style: const TextStyle(color: Colors.greenAccent, fontSize: 10)),
                   ),
                 ],
@@ -363,7 +362,7 @@ class _GridBlueprintPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFF00FFCC).withOpacity(0.08)
+      ..color = const Color(0xFF00FFCC).withValues(alpha: 0.08)
       ..strokeWidth = 1.0;
 
     double step = 25.0;

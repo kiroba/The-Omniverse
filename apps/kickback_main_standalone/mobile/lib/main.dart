@@ -1,3 +1,4 @@
+// ignore_for_file: unused_field
 // ============================================================================
 // THE KICKBACK & OMNIVERSE: MODULAR COMPONENT-DRIVEN APPLICATION SHELL (V4)
 // Target File: mobile/lib/main.dart
@@ -109,7 +110,7 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
     {
       "id": "sb_job_9002",
       "title": "Creator Monetization & Tip Match",
-      "content": "Matching all $1, $5, and $10 tips given to verified educators this week!",
+      "content": "Matching all \$1, \$5, and \$10 tips given to verified educators this week!",
       "time": "Tomorrow at 10:00",
       "status": "DRAFT_APPROVED",
       "channels": ["Omniverse P2P", "Meta / Instagram"],
@@ -222,7 +223,7 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
                 Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF00FFCC).withOpacity(0.2),
+                    color: const Color(0xFF00FFCC).withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: const Color(0xFF00FFCC)),
                   ),
@@ -242,7 +243,7 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
                 decoration: BoxDecoration(
                   color: const Color(0xFF0F172A),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.greenAccent.withOpacity(0.4)),
+                  border: Border.all(color: Colors.greenAccent.withValues(alpha: 0.4)),
                 ),
                 child: Row(
                   children: [
@@ -338,7 +339,7 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: const Color(0xFF00FFCC).withOpacity(0.15),
+                color: const Color(0xFF00FFCC).withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: const Color(0xFF00FFCC)),
               ),
@@ -422,7 +423,7 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
       margin: const EdgeInsets.only(bottom: 14),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.white.withOpacity(0.08)),
+        side: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(14),
@@ -455,7 +456,7 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF00FFCC).withOpacity(0.2),
+                                color: const Color(0xFF00FFCC).withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: const Text(
@@ -537,9 +538,9 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: const Color(0xFF00FFCC).withOpacity(0.15),
+          color: const Color(0xFF00FFCC).withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: const Color(0xFF00FFCC).withOpacity(0.4)),
+          border: Border.all(color: const Color(0xFF00FFCC).withValues(alpha: 0.4)),
         ),
         child: Text(
           "+\$${amount.toStringAsFixed(0)}",
@@ -656,9 +657,9 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
               onTap: () => setState(() => _selectedCamAngle = idx),
               child: Container(
                 decoration: BoxDecoration(
-                  color: isSel ? const Color(0xFF00FFCC).withOpacity(0.2) : const Color(0xFF1E293B),
+                  color: isSel ? const Color(0xFF00FFCC).withValues(alpha: 0.2) : const Color(0xFF1E293B),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: isSel ? const Color(0xFF00FFCC) : Colors.grey.withOpacity(0.3)),
+                  border: Border.all(color: isSel ? const Color(0xFF00FFCC) : Colors.grey.withValues(alpha: 0.3)),
                 ),
                 child: Center(
                   child: Text(
@@ -734,7 +735,7 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
       decoration: BoxDecoration(
         color: const Color(0xFF1E293B),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: accent.withOpacity(0.3)),
+        border: Border.all(color: accent.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -742,7 +743,7 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: accent.withOpacity(0.1),
+                color: accent.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Center(child: Icon(icon, color: accent, size: 36)),
@@ -774,7 +775,7 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.greenAccent.withOpacity(0.2),
+                color: Colors.greenAccent.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: Colors.greenAccent),
               ),
@@ -787,7 +788,7 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
           color: const Color(0xFF1E293B),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: const Color(0xFF00FFCC).withOpacity(0.3)),
+            side: BorderSide(color: const Color(0xFF00FFCC).withValues(alpha: 0.3)),
           ),
           child: Padding(
             padding: const EdgeInsets.all(14),
@@ -814,7 +815,7 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: Color(acc['color'] as int).withOpacity(0.15),
+                              color: Color(acc['color'] as int).withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
@@ -858,7 +859,7 @@ class _KickBackAppShellState extends State<KickBackAppShell> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF7209B7).withOpacity(0.3),
+                            color: const Color(0xFF7209B7).withValues(alpha: 0.3),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(job['status'] as String, style: const TextStyle(color: Colors.purpleAccent, fontSize: 9, fontWeight: FontWeight.bold)),

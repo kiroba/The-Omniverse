@@ -32,7 +32,7 @@ class DesktopGatewayShell extends StatefulWidget {
 class _DesktopGatewayShellState extends State<DesktopGatewayShell> {
   int _selectedIndex = 0;
   bool _isDaemonRunning = true;
-  int _activePeers = 4;
+  final int _activePeers = 4;
   int _secretTapCount = 0;
 
   @override
@@ -50,7 +50,8 @@ class _DesktopGatewayShellState extends State<DesktopGatewayShell> {
             labelType: NavigationRailLabelType.all,
             selectedIconTheme: const IconThemeData(color: Color(0xFF00FFCC)),
             unselectedIconTheme: const IconThemeData(color: Colors.grey),
-            selectedLabelTextStyle: const TextStyle(color: Color(0xFF00FFCC), fontWeight: FontWeight.bold),
+            selectedLabelTextStyle: const TextStyle(
+                color: Color(0xFF00FFCC), fontWeight: FontWeight.bold),
             unselectedLabelTextStyle: const TextStyle(color: Colors.grey),
             leading: Padding(
               padding: const EdgeInsets.symmetric(vertical: 20.0),
@@ -62,7 +63,8 @@ class _DesktopGatewayShellState extends State<DesktopGatewayShell> {
                     _showEasterEggDialog(context);
                   }
                 },
-                child: const Icon(Icons.hub, color: Color(0xFF00FFCC), size: 36),
+                child:
+                    const Icon(Icons.hub, color: Color(0xFF00FFCC), size: 36),
               ),
             ),
             destinations: const [
@@ -84,8 +86,9 @@ class _DesktopGatewayShellState extends State<DesktopGatewayShell> {
               ),
             ],
           ),
-          const VerticalDivider(thickness: 1, width: 1, color: Color(0xFF1E293B)),
-          
+          const VerticalDivider(
+              thickness: 1, width: 1, color: Color(0xFF1E293B)),
+
           // Main Dashboard Content Area
           Expanded(
             child: Container(
@@ -120,7 +123,10 @@ class _DesktopGatewayShellState extends State<DesktopGatewayShell> {
           children: [
             const Text(
               '🕹 OMNIVERSE CORE ENGINES DESKTOP GATEWAY',
-              style: TextStyle(color: Color(0xFF00FFCC), fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  color: Color(0xFF00FFCC),
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold),
             ),
             Row(
               children: [
@@ -128,7 +134,9 @@ class _DesktopGatewayShellState extends State<DesktopGatewayShell> {
                 Text(
                   _isDaemonRunning ? 'ACTIVE (127.0.0.1:9200)' : 'STOPPED',
                   style: TextStyle(
-                    color: _isDaemonRunning ? Colors.greenAccent : Colors.redAccent,
+                    color: _isDaemonRunning
+                        ? Colors.greenAccent
+                        : Colors.redAccent,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -167,7 +175,9 @@ class _DesktopGatewayShellState extends State<DesktopGatewayShell> {
         ElevatedButton.icon(
           onPressed: () => _showEasterEggDialog(context),
           icon: const Icon(Icons.monitor, color: Colors.black),
-          label: const Text('OPEN PROCESS TELEMETRY & EASTER EGG MONITOR', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+          label: const Text('OPEN PROCESS TELEMETRY & EASTER EGG MONITOR',
+              style:
+                  TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF00FFCC),
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -181,7 +191,11 @@ class _DesktopGatewayShellState extends State<DesktopGatewayShell> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('🌐 LOCAL P2P MESH NETWORK TOPOLOGY', style: TextStyle(color: Color(0xFF00FFCC), fontSize: 18, fontWeight: FontWeight.bold)),
+        const Text('🌐 LOCAL P2P MESH NETWORK TOPOLOGY',
+            style: TextStyle(
+                color: Color(0xFF00FFCC),
+                fontSize: 18,
+                fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
         Expanded(
           child: Container(
@@ -194,7 +208,10 @@ class _DesktopGatewayShellState extends State<DesktopGatewayShell> {
             child: const Center(
               child: Text(
                 '• Active Bootnodes: 127.0.0.1:9200 (IPC Loopback)\n• Peer ID: 0x8F92A1...\n• CRDT State Synchronization: IN_SYNC (0ms drift)',
-                style: TextStyle(color: Colors.white70, fontFamily: 'monospace', fontSize: 13),
+                style: TextStyle(
+                    color: Colors.white70,
+                    fontFamily: 'monospace',
+                    fontSize: 13),
               ),
             ),
           ),
@@ -210,7 +227,8 @@ class _DesktopGatewayShellState extends State<DesktopGatewayShell> {
       child: const SingleChildScrollView(
         child: Text(
           '[INFO] Gateway loopback bound to 127.0.0.1:9200\n[INFO] Starting zero-dependency core runners...\n[P2P] GossipSub relay activated (128 pkts/sec)\n[CRDT] Local Merkle Root updated: 0x0185D7BE\n[MARKOV] Inference state: INSPECT_CUBE -> REPAIR_HATCH (0.85 conf)',
-          style: TextStyle(color: Color(0xFF00FFCC), fontFamily: 'monospace', fontSize: 12),
+          style: TextStyle(
+              color: Color(0xFF00FFCC), fontFamily: 'monospace', fontSize: 12),
         ),
       ),
     );
@@ -218,11 +236,13 @@ class _DesktopGatewayShellState extends State<DesktopGatewayShell> {
 
   Widget _buildSettingsTab() {
     return const Center(
-      child: Text('Desktop Gateway Configurations & System Tray Settings', style: TextStyle(color: Colors.white70)),
+      child: Text('Desktop Gateway Configurations & System Tray Settings',
+          style: TextStyle(color: Colors.white70)),
     );
   }
 
-  Widget _buildDesktopCard(String title, String status, String detail, Color color) {
+  Widget _buildDesktopCard(
+      String title, String status, String detail, Color color) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -233,11 +253,15 @@ class _DesktopGatewayShellState extends State<DesktopGatewayShell> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 15)),
+          Text(title,
+              style: TextStyle(
+                  color: color, fontWeight: FontWeight.bold, fontSize: 15)),
           const SizedBox(height: 8),
-          Text(status, style: const TextStyle(color: Colors.white, fontSize: 13)),
+          Text(status,
+              style: const TextStyle(color: Colors.white, fontSize: 13)),
           const SizedBox(height: 4),
-          Text(detail, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+          Text(detail,
+              style: const TextStyle(color: Colors.grey, fontSize: 12)),
         ],
       ),
     );
@@ -248,7 +272,8 @@ class _DesktopGatewayShellState extends State<DesktopGatewayShell> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: const Color(0xFF0A0E17),
-        title: const Text('🕹 CORE ENGINES PROCESS MONITOR (DESKTOP)', style: TextStyle(color: Color(0xFF00FFCC))),
+        title: const Text('🕹 CORE ENGINES PROCESS MONITOR (DESKTOP)',
+            style: TextStyle(color: Color(0xFF00FFCC))),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -262,7 +287,8 @@ class _DesktopGatewayShellState extends State<DesktopGatewayShell> {
               width: 400,
               color: Colors.black,
               child: const Center(
-                child: Text('[ 3D RAYCAST CUBE & MERKLE DAG MONITOR ]', style: TextStyle(color: Color(0xFF00FFCC))),
+                child: Text('[ 3D RAYCAST CUBE & MERKLE DAG MONITOR ]',
+                    style: TextStyle(color: Color(0xFF00FFCC))),
               ),
             ),
           ],
@@ -270,7 +296,8 @@ class _DesktopGatewayShellState extends State<DesktopGatewayShell> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('CLOSE', style: TextStyle(color: Color(0xFF00FFCC))),
+            child:
+                const Text('CLOSE', style: TextStyle(color: Color(0xFF00FFCC))),
           ),
         ],
       ),

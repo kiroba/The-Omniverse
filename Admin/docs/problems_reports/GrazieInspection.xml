@@ -1,0 +1,662 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/incremental/debug/mergeDebugResources/merged.dir/values/values.xml</file>
+  <line>230</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/incremental/debug/mergeDebugResources/merged.dir/values/values.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>The word &quot;timeout&quot; is a noun. The verb is spelled with a space.</description>
+  <highlighted_element>timeout</highlighted_element>
+  <language>XML</language>
+  <offset>14</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/manifest_merge_blame_file/debug/processDebugMainManifest/manifest-merger-blame-debug-report.txt</file>
+  <line>1</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/manifest_merge_blame_file/debug/processDebugMainManifest/manifest-merger-blame-debug-report.txt" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>File types are usually capitalized</description>
+  <highlighted_element>xml</highlighted_element>
+  <language>TEXT</language>
+  <offset>3</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/manifest_merge_blame_file/debug/processDebugMainManifest/manifest-merger-blame-debug-report.txt</file>
+  <line>91</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/manifest_merge_blame_file/debug/processDebugMainManifest/manifest-merger-blame-debug-report.txt" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>The standard spelling is 'metadata'</description>
+  <highlighted_element>meta-data</highlighted_element>
+  <language>TEXT</language>
+  <offset>32</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/reports/problems/problems-report.html</file>
+  <line>11</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/reports/problems/problems-report.html" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>File types are usually capitalized</description>
+  <highlighted_element>html</highlighted_element>
+  <language>HTML</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/reports/problems/problems-report.html</file>
+  <line>133</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/reports/problems/problems-report.html" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>File types are usually capitalized</description>
+  <highlighted_element>html</highlighted_element>
+  <language>HTML</language>
+  <offset>37</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/reports/problems/problems-report.html</file>
+  <line>481</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/reports/problems/problems-report.html" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>File types are usually capitalized</description>
+  <highlighted_element>html</highlighted_element>
+  <language>HTML</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/build/reports/problems/problems-report.html</file>
+  <line>11</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/build/reports/problems/problems-report.html" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>File types are usually capitalized</description>
+  <highlighted_element>html</highlighted_element>
+  <language>HTML</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/build/reports/problems/problems-report.html</file>
+  <line>133</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/build/reports/problems/problems-report.html" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>File types are usually capitalized</description>
+  <highlighted_element>html</highlighted_element>
+  <language>HTML</language>
+  <offset>37</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/build/reports/problems/problems-report.html</file>
+  <line>481</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/build/reports/problems/problems-report.html" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>File types are usually capitalized</description>
+  <highlighted_element>html</highlighted_element>
+  <language>HTML</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/NOTICE.txt</file>
+  <line>7</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/NOTICE.txt" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you mean ', too'?</description>
+  <highlighted_element>, to</highlighted_element>
+  <language>TEXT</language>
+  <offset>41</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.WinForms.xml</file>
+  <line>42</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.WinForms.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Use 'a' instead of 'an' if the following word doesn't start with a vowel sound, e.g. 'a sentence', 'a university'.</description>
+  <highlighted_element>an</highlighted_element>
+  <language>XML</language>
+  <offset>187</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.WinForms.xml</file>
+  <line>52</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.WinForms.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Use 'a' instead of 'an' if the following word doesn't start with a vowel sound, e.g. 'a sentence', 'a university'.</description>
+  <highlighted_element>an</highlighted_element>
+  <language>XML</language>
+  <offset>198</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.WinForms.xml</file>
+  <line>454</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.WinForms.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>The verb 'navigate' does not usually follow articles like 'a'. Check that 'navigate' is spelled correctly; using 'navigate' as a noun may be non-standard.</description>
+  <highlighted_element>a navigate</highlighted_element>
+  <language>XML</language>
+  <offset>49</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>83</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Use 'a' instead of 'an' if the following word doesn't start with a vowel sound, e.g. 'a sentence', 'a university'.</description>
+  <highlighted_element>an</highlighted_element>
+  <language>XML</language>
+  <offset>187</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>93</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Use 'a' instead of 'an' if the following word doesn't start with a vowel sound, e.g. 'a sentence', 'a university'.</description>
+  <highlighted_element>an</highlighted_element>
+  <language>XML</language>
+  <offset>198</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>103</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Use 'a' instead of 'an' if the following word doesn't start with a vowel sound, e.g. 'a sentence', 'a university'.</description>
+  <highlighted_element>an</highlighted_element>
+  <language>XML</language>
+  <offset>188</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>218</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A comma may be missing after the conjunctive/linking adverb 'Otherwise'.</description>
+  <highlighted_element>Otherwise</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>615</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>The standard spelling is 'JavaScript'</description>
+  <highlighted_element>javaScript</highlighted_element>
+  <language>XML</language>
+  <offset>46</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>1146</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Use a comma before 'and' if it connects two independent clauses (unless they are closely connected and short).</description>
+  <highlighted_element>and</highlighted_element>
+  <language>XML</language>
+  <offset>53</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>1249</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Use a comma before 'and' if it connects two independent clauses (unless they are closely connected and short).</description>
+  <highlighted_element>and</highlighted_element>
+  <language>XML</language>
+  <offset>58</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>1370</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Consider using the plural form here.</description>
+  <highlighted_element>element's</highlighted_element>
+  <language>XML</language>
+  <offset>41</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>1371</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Use a comma before 'and' if it connects two independent clauses (unless they are closely connected and short).</description>
+  <highlighted_element>and</highlighted_element>
+  <language>XML</language>
+  <offset>91</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>1473</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>This word is normally spelled as one.</description>
+  <highlighted_element>anti-aliasing</highlighted_element>
+  <language>XML</language>
+  <offset>29</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>1473</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>This word is normally spelled as one.</description>
+  <highlighted_element>anti-aliasing</highlighted_element>
+  <language>XML</language>
+  <offset>84</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.WinForms.xml</file>
+  <line>42</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.WinForms.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Use 'a' instead of 'an' if the following word doesn't start with a vowel sound, e.g. 'a sentence', 'a university'.</description>
+  <highlighted_element>an</highlighted_element>
+  <language>XML</language>
+  <offset>187</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.WinForms.xml</file>
+  <line>52</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.WinForms.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Use 'a' instead of 'an' if the following word doesn't start with a vowel sound, e.g. 'a sentence', 'a university'.</description>
+  <highlighted_element>an</highlighted_element>
+  <language>XML</language>
+  <offset>198</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.WinForms.xml</file>
+  <line>454</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.WinForms.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>The verb 'navigate' does not usually follow articles like 'a'. Check that 'navigate' is spelled correctly; using 'navigate' as a noun may be non-standard.</description>
+  <highlighted_element>a navigate</highlighted_element>
+  <language>XML</language>
+  <offset>49</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>83</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Use 'a' instead of 'an' if the following word doesn't start with a vowel sound, e.g. 'a sentence', 'a university'.</description>
+  <highlighted_element>an</highlighted_element>
+  <language>XML</language>
+  <offset>187</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>93</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Use 'a' instead of 'an' if the following word doesn't start with a vowel sound, e.g. 'a sentence', 'a university'.</description>
+  <highlighted_element>an</highlighted_element>
+  <language>XML</language>
+  <offset>198</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>103</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Use 'a' instead of 'an' if the following word doesn't start with a vowel sound, e.g. 'a sentence', 'a university'.</description>
+  <highlighted_element>an</highlighted_element>
+  <language>XML</language>
+  <offset>188</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>218</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A comma may be missing after the conjunctive/linking adverb 'Otherwise'.</description>
+  <highlighted_element>Otherwise</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>615</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>The standard spelling is 'JavaScript'</description>
+  <highlighted_element>javaScript</highlighted_element>
+  <language>XML</language>
+  <offset>46</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>1146</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Use a comma before 'and' if it connects two independent clauses (unless they are closely connected and short).</description>
+  <highlighted_element>and</highlighted_element>
+  <language>XML</language>
+  <offset>53</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>1249</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Use a comma before 'and' if it connects two independent clauses (unless they are closely connected and short).</description>
+  <highlighted_element>and</highlighted_element>
+  <language>XML</language>
+  <offset>58</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>1370</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Consider using the plural form here.</description>
+  <highlighted_element>element's</highlighted_element>
+  <language>XML</language>
+  <offset>41</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>1371</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Use a comma before 'and' if it connects two independent clauses (unless they are closely connected and short).</description>
+  <highlighted_element>and</highlighted_element>
+  <language>XML</language>
+  <offset>91</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>1473</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>This word is normally spelled as one.</description>
+  <highlighted_element>anti-aliasing</highlighted_element>
+  <language>XML</language>
+  <offset>29</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>1473</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>This word is normally spelled as one.</description>
+  <highlighted_element>anti-aliasing</highlighted_element>
+  <language>XML</language>
+  <offset>84</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/tools/wv2winrt/wv2winrt.xml</file>
+  <line>29</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/tools/wv2winrt/wv2winrt.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible typo detected.</description>
+  <highlighted_element>wv2winrt</highlighted_element>
+  <language>XML</language>
+  <offset>28</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/tools/wv2winrt/wv2winrt.xml</file>
+  <line>35</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/tools/wv2winrt/wv2winrt.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>A comma may be missing after the conjunctive/linking adverb 'Otherwise'.</description>
+  <highlighted_element>Otherwise</highlighted_element>
+  <language>XML</language>
+  <offset>64</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/tools/wv2winrt/wv2winrt.xml</file>
+  <line>42</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/tools/wv2winrt/wv2winrt.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible typo detected.</description>
+  <highlighted_element>wv2winrt</highlighted_element>
+  <language>XML</language>
+  <offset>52</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/tools/wv2winrt/wv2winrt.xml</file>
+  <line>43</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/tools/wv2winrt/wv2winrt.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible typo detected.</description>
+  <highlighted_element>wv2winrt</highlighted_element>
+  <language>XML</language>
+  <offset>53</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/tools/wv2winrt/wv2winrt.xml</file>
+  <line>43</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/tools/wv2winrt/wv2winrt.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>The standard spelling is 'JavaScript'</description>
+  <highlighted_element>javascript</highlighted_element>
+  <language>XML</language>
+  <offset>71</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/tools/wv2winrt/wv2winrt.xml</file>
+  <line>44</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/tools/wv2winrt/wv2winrt.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible typo detected.</description>
+  <highlighted_element>wv2winrt</highlighted_element>
+  <language>XML</language>
+  <offset>56</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/tools/wv2winrt/wv2winrt.xml</file>
+  <line>45</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/tools/wv2winrt/wv2winrt.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible typo detected.</description>
+  <highlighted_element>wv2winrt</highlighted_element>
+  <language>XML</language>
+  <offset>63</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/tools/wv2winrt/wv2winrt.xml</file>
+  <line>46</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/tools/wv2winrt/wv2winrt.xml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Possible typo detected.</description>
+  <highlighted_element>wv2winrt</highlighted_element>
+  <language>XML</language>
+  <offset>64</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Windows.ImplementationLibrary/ThirdPartyNotices.txt</file>
+  <line>4</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Windows.ImplementationLibrary/ThirdPartyNotices.txt" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you mean ', too'?</description>
+  <highlighted_element>, to</highlighted_element>
+  <language>TEXT</language>
+  <offset>278</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/windows/flutter/ephemeral/.plugin_symlinks/flutter_inappwebview_windows/example/README.md</file>
+  <line>3</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/windows/flutter/ephemeral/.plugin_symlinks/flutter_inappwebview_windows/example/README.md" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you mean Microsoft Windows?</description>
+  <highlighted_element>windows</highlighted_element>
+  <language>Markdown</language>
+  <offset>49</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/windows/flutter/ephemeral/.plugin_symlinks/flutter_inappwebview_windows/example/analysis_options.yaml</file>
+  <line>20</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/windows/flutter/ephemeral/.plugin_symlinks/flutter_inappwebview_windows/example/analysis_options.yaml" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>Did you mean the programming language?</description>
+  <highlighted_element>dart</highlighted_element>
+  <language>yaml</language>
+  <offset>18</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/localsend_chunk_receiver.py</file>
+  <line>77</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/localsend_chunk_receiver.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>This word is normally spelled as one.</description>
+  <highlighted_element>multi-threaded</highlighted_element>
+  <language>Python</language>
+  <offset>30</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_mainnet_cutover_suite.py</file>
+  <line>6</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_mainnet_cutover_suite.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>File types are usually capitalized</description>
+  <highlighted_element>json</highlighted_element>
+  <language>Python</language>
+  <offset>79</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_role_entitlement_engine.py</file>
+  <line>6</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_role_entitlement_engine.py" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>File types are usually capitalized</description>
+  <highlighted_element>json</highlighted_element>
+  <language>Python</language>
+  <offset>64</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/mobile/android/build/reports/problems/problems-report.html</file>
+  <line>11</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/mobile/android/build/reports/problems/problems-report.html" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>File types are usually capitalized</description>
+  <highlighted_element>html</highlighted_element>
+  <language>HTML</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/mobile/android/build/reports/problems/problems-report.html</file>
+  <line>133</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/mobile/android/build/reports/problems/problems-report.html" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>File types are usually capitalized</description>
+  <highlighted_element>html</highlighted_element>
+  <language>HTML</language>
+  <offset>37</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/mobile/android/build/reports/problems/problems-report.html</file>
+  <line>481</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/mobile/android/build/reports/problems/problems-report.html" />
+  <problem_class id="GrazieInspection" severity="GRAMMAR_ERROR" attribute_key="GRAMMAR_ERROR">Grammar</problem_class>
+  <description>File types are usually capitalized</description>
+  <highlighted_element>html</highlighted_element>
+  <language>HTML</language>
+  <offset>0</offset>
+  <length>4</length>
+</problem>
+</problems>

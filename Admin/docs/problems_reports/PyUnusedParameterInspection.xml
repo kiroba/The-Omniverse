@@ -1,0 +1,146 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/downloads/omniverse_interactive_gui_builder.py</file>
+  <line>417</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/downloads/omniverse_interactive_gui_builder.py" />
+  <problem_class id="PyUnusedParameterInspection" severity="WEAK WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">Unused parameter</problem_class>
+  <description>Parameter 'mod_id' value is not used</description>
+  <highlighted_element>mod_id</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/backend_services/omni-checkout-gateway/omni_checkout_backend_gateway.py</file>
+  <line>36</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/backend_services/omni-checkout-gateway/omni_checkout_backend_gateway.py" />
+  <problem_class id="PyUnusedParameterInspection" severity="WEAK WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">Unused parameter</problem_class>
+  <description>Parameter 'creator_wallet_or_acct' value is not used</description>
+  <highlighted_element>creator_wallet_or_acct: str</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/backend_services/omni-checkout-gateway/omni_checkout_backend_gateway.py</file>
+  <line>37</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/backend_services/omni-checkout-gateway/omni_checkout_backend_gateway.py" />
+  <problem_class id="PyUnusedParameterInspection" severity="WEAK WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">Unused parameter</problem_class>
+  <description>Parameter 'customer_email' value is not used</description>
+  <highlighted_element>customer_email: Optional[str] = None</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>36</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/backend_services/omni-checkout-gateway/omni_checkout_backend_gateway.py</file>
+  <line>64</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/backend_services/omni-checkout-gateway/omni_checkout_backend_gateway.py" />
+  <problem_class id="PyUnusedParameterInspection" severity="WEAK WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">Unused parameter</problem_class>
+  <description>Parameter 'sig_header' value is not used</description>
+  <highlighted_element>sig_header: str</highlighted_element>
+  <language>Python</language>
+  <offset>63</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/backend_services/omni-ipc-daemon/omni_flet_desktop_control_panel.py</file>
+  <line>54</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/backend_services/omni-ipc-daemon/omni_flet_desktop_control_panel.py" />
+  <problem_class id="PyUnusedParameterInspection" severity="WEAK WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">Unused parameter</problem_class>
+  <description>Parameter 'daemon_script_path' value is not used</description>
+  <highlighted_element>daemon_script_path: Path</highlighted_element>
+  <language>Python</language>
+  <offset>27</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/branching_story_consensus_engine.py</file>
+  <line>65</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/branching_story_consensus_engine.py" />
+  <problem_class id="PyUnusedParameterInspection" severity="WEAK WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">Unused parameter</problem_class>
+  <description>Parameter 'voter_pubkey' value is not used</description>
+  <highlighted_element>voter_pubkey: str</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/branching_story_consensus_engine.py</file>
+  <line>67</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/branching_story_consensus_engine.py" />
+  <problem_class id="PyUnusedParameterInspection" severity="WEAK WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">Unused parameter</problem_class>
+  <description>Parameter 'voter_stargate_sig' value is not used</description>
+  <highlighted_element>voter_stargate_sig: str</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/omniverse_interactive_gui_builder.py</file>
+  <line>417</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/omniverse_interactive_gui_builder.py" />
+  <problem_class id="PyUnusedParameterInspection" severity="WEAK WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">Unused parameter</problem_class>
+  <description>Parameter 'mod_id' value is not used</description>
+  <highlighted_element>mod_id</highlighted_element>
+  <language>Python</language>
+  <offset>33</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/role_entitlement_and_milestone_engine.py</file>
+  <line>69</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/role_entitlement_and_milestone_engine.py" />
+  <problem_class id="PyUnusedParameterInspection" severity="WEAK WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">Unused parameter</problem_class>
+  <description>Parameter 'payment_proof_hash' value is not used</description>
+  <highlighted_element>payment_proof_hash: str</highlighted_element>
+  <language>Python</language>
+  <offset>42</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/time_vault_engine.py</file>
+  <line>66</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/time_vault_engine.py" />
+  <problem_class id="PyUnusedParameterInspection" severity="WEAK WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">Unused parameter</problem_class>
+  <description>Parameter 'peer_pubkey' value is not used</description>
+  <highlighted_element>peer_pubkey: str</highlighted_element>
+  <language>Python</language>
+  <offset>46</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_mainnet_cutover_suite.py</file>
+  <line>37</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_mainnet_cutover_suite.py" />
+  <problem_class id="PyUnusedParameterInspection" severity="WEAK WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">Unused parameter</problem_class>
+  <description>Parameter 'public_key_id' value is not used</description>
+  <highlighted_element>public_key_id: str</highlighted_element>
+  <language>Python</language>
+  <offset>21</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/build_multi_app_suite-v4.py</file>
+  <line>36</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/build_multi_app_suite-v4.py" />
+  <problem_class id="PyUnusedParameterInspection" severity="WEAK WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">Unused parameter</problem_class>
+  <description>Parameter 'exc_info' value is not used</description>
+  <highlighted_element>exc_info</highlighted_element>
+  <language>Python</language>
+  <offset>41</offset>
+  <length>8</length>
+</problem>
+</problems>

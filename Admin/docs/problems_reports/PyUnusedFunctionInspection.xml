@@ -1,0 +1,14 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/backend_services/omni-ipc-daemon/omni_flet_desktop_control_panel.py</file>
+  <line>92</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/backend_services/omni-ipc-daemon/omni_flet_desktop_control_panel.py" />
+  <problem_class id="PyUnusedFunctionInspection" severity="WEAK WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">Unused function</problem_class>
+  <description>Local function 'on_module_toggle' is not used</description>
+  <highlighted_element>on_module_toggle</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>16</length>
+</problem>
+</problems>

@@ -1,0 +1,22 @@
+name: kickback_social
+description: Standalone sub-app repository for KickBack-Social
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  omni_hub_core:
+    path: ../../../packages/omni_hub_core
+  omni_stripe_checkout:
+    path: ../../../packages/omni_stripe_checkout
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true

@@ -1,0 +1,218 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Core.xml</file>
+  <line>2173</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Core.xml" />
+  <problem_class id="CheckTagEmptyBody" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Empty element content</problem_class>
+  <description>XML tag has empty body</description>
+  <highlighted_element>&lt;param name=&quot;value&quot;&gt;&lt;/param&gt;</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>28</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Core.xml</file>
+  <line>2174</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Core.xml" />
+  <problem_class id="CheckTagEmptyBody" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Empty element content</problem_class>
+  <description>XML tag has empty body</description>
+  <highlighted_element>&lt;param name=&quot;Domain&quot;&gt;&lt;/param&gt;</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>29</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Core.xml</file>
+  <line>2175</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Core.xml" />
+  <problem_class id="CheckTagEmptyBody" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Empty element content</problem_class>
+  <description>XML tag has empty body</description>
+  <highlighted_element>&lt;param name=&quot;Path&quot;&gt;&lt;/param&gt;</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Core.xml</file>
+  <line>2839</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Core.xml" />
+  <problem_class id="CheckTagEmptyBody" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Empty element content</problem_class>
+  <description>XML tag has empty body</description>
+  <highlighted_element>&lt;param name=&quot;postData&quot;&gt;&lt;/param&gt;</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>31</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Core.xml</file>
+  <line>3633</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Core.xml" />
+  <problem_class id="CheckTagEmptyBody" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Empty element content</problem_class>
+  <description>XML tag has empty body</description>
+  <highlighted_element>&lt;exception cref=&quot;T:System.InvalidOperationException&quot;&gt;&lt;/exception&gt;</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>65</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Core.xml</file>
+  <line>7277</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Core.xml" />
+  <problem_class id="CheckTagEmptyBody" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Empty element content</problem_class>
+  <description>XML tag has empty body</description>
+  <highlighted_element>&lt;description&gt;&lt;/description&gt;</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Core.xml</file>
+  <line>7282</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Core.xml" />
+  <problem_class id="CheckTagEmptyBody" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Empty element content</problem_class>
+  <description>XML tag has empty body</description>
+  <highlighted_element>&lt;description&gt;&lt;/description&gt;</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Core.xml</file>
+  <line>7307</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Core.xml" />
+  <problem_class id="CheckTagEmptyBody" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Empty element content</problem_class>
+  <description>XML tag has empty body</description>
+  <highlighted_element>&lt;description&gt;&lt;/description&gt;</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Core.xml</file>
+  <line>7312</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Core.xml" />
+  <problem_class id="CheckTagEmptyBody" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Empty element content</problem_class>
+  <description>XML tag has empty body</description>
+  <highlighted_element>&lt;description&gt;&lt;/description&gt;</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Core.xml</file>
+  <line>2173</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Core.xml" />
+  <problem_class id="CheckTagEmptyBody" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Empty element content</problem_class>
+  <description>XML tag has empty body</description>
+  <highlighted_element>&lt;param name=&quot;value&quot;&gt;&lt;/param&gt;</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>28</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Core.xml</file>
+  <line>2174</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Core.xml" />
+  <problem_class id="CheckTagEmptyBody" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Empty element content</problem_class>
+  <description>XML tag has empty body</description>
+  <highlighted_element>&lt;param name=&quot;Domain&quot;&gt;&lt;/param&gt;</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>29</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Core.xml</file>
+  <line>2175</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Core.xml" />
+  <problem_class id="CheckTagEmptyBody" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Empty element content</problem_class>
+  <description>XML tag has empty body</description>
+  <highlighted_element>&lt;param name=&quot;Path&quot;&gt;&lt;/param&gt;</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Core.xml</file>
+  <line>2839</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Core.xml" />
+  <problem_class id="CheckTagEmptyBody" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Empty element content</problem_class>
+  <description>XML tag has empty body</description>
+  <highlighted_element>&lt;param name=&quot;postData&quot;&gt;&lt;/param&gt;</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>31</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Core.xml</file>
+  <line>3633</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Core.xml" />
+  <problem_class id="CheckTagEmptyBody" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Empty element content</problem_class>
+  <description>XML tag has empty body</description>
+  <highlighted_element>&lt;exception cref=&quot;T:System.InvalidOperationException&quot;&gt;&lt;/exception&gt;</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>65</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Core.xml</file>
+  <line>7277</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Core.xml" />
+  <problem_class id="CheckTagEmptyBody" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Empty element content</problem_class>
+  <description>XML tag has empty body</description>
+  <highlighted_element>&lt;description&gt;&lt;/description&gt;</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Core.xml</file>
+  <line>7282</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Core.xml" />
+  <problem_class id="CheckTagEmptyBody" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Empty element content</problem_class>
+  <description>XML tag has empty body</description>
+  <highlighted_element>&lt;description&gt;&lt;/description&gt;</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Core.xml</file>
+  <line>7307</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Core.xml" />
+  <problem_class id="CheckTagEmptyBody" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Empty element content</problem_class>
+  <description>XML tag has empty body</description>
+  <highlighted_element>&lt;description&gt;&lt;/description&gt;</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Core.xml</file>
+  <line>7312</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Core.xml" />
+  <problem_class id="CheckTagEmptyBody" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Empty element content</problem_class>
+  <description>XML tag has empty body</description>
+  <highlighted_element>&lt;description&gt;&lt;/description&gt;</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+</problems>

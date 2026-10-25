@@ -1,0 +1,184 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/index.md</file>
+  <line>3</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/index.md" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Invalid child element in a block mapping #loc</description>
+  <highlighted_element>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/settings.gradle</file>
+  <line>3</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/settings.gradle" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Cannot resolve symbol 'Properties' #loc</description>
+  <highlighted_element>Properties</highlighted_element>
+  <language>Groovy</language>
+  <offset>29</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/settings.gradle</file>
+  <line>4</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/settings.gradle" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Cannot resolve symbol 'File' #loc</description>
+  <highlighted_element>File</highlighted_element>
+  <language>Groovy</language>
+  <offset>23</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/idle_plaza_standalone/mobile/android/settings.gradle</file>
+  <line>3</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/idle_plaza_standalone/mobile/android/settings.gradle" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Cannot resolve symbol 'Properties' #loc</description>
+  <highlighted_element>Properties</highlighted_element>
+  <language>Groovy</language>
+  <offset>29</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/idle_plaza_standalone/mobile/android/settings.gradle</file>
+  <line>4</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/idle_plaza_standalone/mobile/android/settings.gradle" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Cannot resolve symbol 'File' #loc</description>
+  <highlighted_element>File</highlighted_element>
+  <language>Groovy</language>
+  <offset>23</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/kickback_main_standalone/mobile/android/settings.gradle</file>
+  <line>3</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/kickback_main_standalone/mobile/android/settings.gradle" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Cannot resolve symbol 'Properties' #loc</description>
+  <highlighted_element>Properties</highlighted_element>
+  <language>Groovy</language>
+  <offset>29</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/kickback_main_standalone/mobile/android/settings.gradle</file>
+  <line>4</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/kickback_main_standalone/mobile/android/settings.gradle" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Cannot resolve symbol 'File' #loc</description>
+  <highlighted_element>File</highlighted_element>
+  <language>Groovy</language>
+  <offset>23</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/mesh_monitor_standalone/mobile/android/settings.gradle</file>
+  <line>3</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/mesh_monitor_standalone/mobile/android/settings.gradle" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Cannot resolve symbol 'Properties' #loc</description>
+  <highlighted_element>Properties</highlighted_element>
+  <language>Groovy</language>
+  <offset>29</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/mesh_monitor_standalone/mobile/android/settings.gradle</file>
+  <line>4</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/mesh_monitor_standalone/mobile/android/settings.gradle" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Cannot resolve symbol 'File' #loc</description>
+  <highlighted_element>File</highlighted_element>
+  <language>Groovy</language>
+  <offset>23</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/omniverse_superapp_master/mobile/android/settings.gradle</file>
+  <line>3</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/omniverse_superapp_master/mobile/android/settings.gradle" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Cannot resolve symbol 'Properties' #loc</description>
+  <highlighted_element>Properties</highlighted_element>
+  <language>Groovy</language>
+  <offset>29</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/omniverse_superapp_master/mobile/android/settings.gradle</file>
+  <line>4</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/omniverse_superapp_master/mobile/android/settings.gradle" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Cannot resolve symbol 'File' #loc</description>
+  <highlighted_element>File</highlighted_element>
+  <language>Groovy</language>
+  <offset>23</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/phaser_studio_standalone/mobile/android/settings.gradle</file>
+  <line>3</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/phaser_studio_standalone/mobile/android/settings.gradle" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Cannot resolve symbol 'Properties' #loc</description>
+  <highlighted_element>Properties</highlighted_element>
+  <language>Groovy</language>
+  <offset>29</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/phaser_studio_standalone/mobile/android/settings.gradle</file>
+  <line>4</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/phaser_studio_standalone/mobile/android/settings.gradle" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Cannot resolve symbol 'File' #loc</description>
+  <highlighted_element>File</highlighted_element>
+  <language>Groovy</language>
+  <offset>23</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/mobile/android/app/build.gradle</file>
+  <line>7</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/mobile/android/app/build.gradle" />
+  <problem_class id="Annotator" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Annotator</problem_class>
+  <hints />
+  <description>Cannot resolve symbol 'Properties' #loc</description>
+  <highlighted_element>Properties</highlighted_element>
+  <language>Groovy</language>
+  <offset>26</offset>
+  <length>10</length>
+</problem>
+</problems>

@@ -1,0 +1,74 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/omniverse_websocket_pubsub_bridge.py</file>
+  <line>114</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/omniverse_websocket_pubsub_bridge.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _event_history of a class</description>
+  <highlighted_element>self.topic_manager._event_history</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>33</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/omniverse_websocket_pubsub_bridge.py</file>
+  <line>154</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/omniverse_websocket_pubsub_bridge.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _event_history of a class</description>
+  <highlighted_element>self.topic_manager._event_history</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>33</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/omniverse_websocket_pubsub_bridge.py</file>
+  <line>222</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/omniverse_websocket_pubsub_bridge.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _event_history of a class</description>
+  <highlighted_element>topic_mgr._event_history</highlighted_element>
+  <language>Python</language>
+  <offset>54</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_websocket_pubsub_bridge.py</file>
+  <line>118</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_websocket_pubsub_bridge.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _event_history of a class</description>
+  <highlighted_element>self.topic_manager._event_history</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>33</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_websocket_pubsub_bridge.py</file>
+  <line>155</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_websocket_pubsub_bridge.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _event_history of a class</description>
+  <highlighted_element>self.topic_manager._event_history</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>33</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_websocket_pubsub_bridge.py</file>
+  <line>214</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_websocket_pubsub_bridge.py" />
+  <problem_class id="PyProtectedMemberInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Accessing a protected member of a class or a module</problem_class>
+  <description>Access to a protected member _event_history of a class</description>
+  <highlighted_element>topic_mgr._event_history</highlighted_element>
+  <language>Python</language>
+  <offset>54</offset>
+  <length>24</length>
+</problem>
+</problems>

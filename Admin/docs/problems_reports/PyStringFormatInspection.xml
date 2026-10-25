@@ -1,0 +1,14 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/omni_core_engines_easter_egg.py</file>
+  <line>114</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/omni_core_engines_easter_egg.py" />
+  <problem_class id="PyStringFormatInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Errors in string formatting operations</problem_class>
+  <description>Format spec is not supported for '{sleep}' ('object.__format__' only accepts empty string)</description>
+  <highlighted_element>:02d</highlighted_element>
+  <language>Python</language>
+  <offset>62</offset>
+  <length>4</length>
+</problem>
+</problems>

@@ -1,0 +1,110 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/index (2).md</file>
+  <line>20</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/index (2).md" />
+  <problem_class id="MarkdownUnresolvedFileReference" severity="WARNING" attribute_key="INFO_ATTRIBUTES">Unresolved file references</problem_class>
+  <description>Cannot resolve file 'socioboard_b2b_gateway_adapter.py'</description>
+  <highlighted_element>socioboard_b2b_gateway_adapter.py</highlighted_element>
+  <language>Markdown</language>
+  <offset>121</offset>
+  <length>33</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/index (2).md</file>
+  <line>21</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/index (2).md" />
+  <problem_class id="MarkdownUnresolvedFileReference" severity="WARNING" attribute_key="INFO_ATTRIBUTES">Unresolved file references</problem_class>
+  <description>Cannot resolve file 'vscode_copilot_omniverse_master_instructions.md'</description>
+  <highlighted_element>vscode_copilot_omniverse_master_instructions.md</highlighted_element>
+  <language>Markdown</language>
+  <offset>118</offset>
+  <length>47</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/index (2).md</file>
+  <line>22</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/index (2).md" />
+  <problem_class id="MarkdownUnresolvedFileReference" severity="WARNING" attribute_key="INFO_ATTRIBUTES">Unresolved file references</problem_class>
+  <description>Cannot resolve file 'omni_source_directory.md'</description>
+  <highlighted_element>omni_source_directory.md</highlighted_element>
+  <language>Markdown</language>
+  <offset>101</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/index.md</file>
+  <line>25</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/index.md" />
+  <problem_class id="MarkdownUnresolvedFileReference" severity="WARNING" attribute_key="INFO_ATTRIBUTES">Unresolved file references</problem_class>
+  <description>Cannot resolve file 'vscode_copilot_omniverse_master_instructions.md'</description>
+  <highlighted_element>vscode_copilot_omniverse_master_instructions.md</highlighted_element>
+  <language>Markdown</language>
+  <offset>103</offset>
+  <length>47</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/index.md</file>
+  <line>26</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/index.md" />
+  <problem_class id="MarkdownUnresolvedFileReference" severity="WARNING" attribute_key="INFO_ATTRIBUTES">Unresolved file references</problem_class>
+  <description>Cannot resolve file 'kickback_complete_architecture_and_feature_spec.md'</description>
+  <highlighted_element>kickback_complete_architecture_and_feature_spec.md</highlighted_element>
+  <language>Markdown</language>
+  <offset>92</offset>
+  <length>50</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/index.md</file>
+  <line>27</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/index.md" />
+  <problem_class id="MarkdownUnresolvedFileReference" severity="WARNING" attribute_key="INFO_ATTRIBUTES">Unresolved file references</problem_class>
+  <description>Cannot resolve file 'omni_source_directory.md'</description>
+  <highlighted_element>omni_source_directory.md</highlighted_element>
+  <language>Markdown</language>
+  <offset>109</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/index.md</file>
+  <line>88</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/index.md" />
+  <problem_class id="MarkdownUnresolvedFileReference" severity="WARNING" attribute_key="INFO_ATTRIBUTES">Unresolved file references</problem_class>
+  <description>Cannot resolve file 'socioboard_b2b_gateway_adapter.py'</description>
+  <highlighted_element>socioboard_b2b_gateway_adapter.py</highlighted_element>
+  <language>Markdown</language>
+  <offset>121</offset>
+  <length>33</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/index.md</file>
+  <line>89</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/index.md" />
+  <problem_class id="MarkdownUnresolvedFileReference" severity="WARNING" attribute_key="INFO_ATTRIBUTES">Unresolved file references</problem_class>
+  <description>Cannot resolve file 'vscode_copilot_omniverse_master_instructions.md'</description>
+  <highlighted_element>vscode_copilot_omniverse_master_instructions.md</highlighted_element>
+  <language>Markdown</language>
+  <offset>118</offset>
+  <length>47</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/index.md</file>
+  <line>90</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/index.md" />
+  <problem_class id="MarkdownUnresolvedFileReference" severity="WARNING" attribute_key="INFO_ATTRIBUTES">Unresolved file references</problem_class>
+  <description>Cannot resolve file 'omni_source_directory.md'</description>
+  <highlighted_element>omni_source_directory.md</highlighted_element>
+  <language>Markdown</language>
+  <offset>101</offset>
+  <length>24</length>
+</problem>
+</problems>

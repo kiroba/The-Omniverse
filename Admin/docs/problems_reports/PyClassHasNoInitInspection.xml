@@ -1,0 +1,194 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/config/kickback_tier_payment_config.py</file>
+  <line>4</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/config/kickback_tier_payment_config.py" />
+  <problem_class id="PyClassHasNoInitInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Class has no `__init__` method</problem_class>
+  <description>Class has no __init__ method</description>
+  <highlighted_element>KickBackPaymentTierEngine</highlighted_element>
+  <language>Python</language>
+  <offset>6</offset>
+  <length>25</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/backend_services/omni-ipc-daemon/omni_defensive_parser.py</file>
+  <line>144</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/backend_services/omni-ipc-daemon/omni_defensive_parser.py" />
+  <problem_class id="PyClassHasNoInitInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Class has no `__init__` method</problem_class>
+  <description>Class has no __init__ method</description>
+  <highlighted_element>DummyFile</highlighted_element>
+  <language>Python</language>
+  <offset>14</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/backend_services/omni-ipc-daemon/omni_phase1_security_suite.py</file>
+  <line>23</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/backend_services/omni-ipc-daemon/omni_phase1_security_suite.py" />
+  <problem_class id="PyClassHasNoInitInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Class has no `__init__` method</problem_class>
+  <description>Class has no __init__ method</description>
+  <highlighted_element>LocalPayloadEncryptor</highlighted_element>
+  <language>Python</language>
+  <offset>6</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/backend_services/omni-ipc-daemon/omni_phase1_security_suite.py</file>
+  <line>76</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/backend_services/omni-ipc-daemon/omni_phase1_security_suite.py" />
+  <problem_class id="PyClassHasNoInitInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Class has no `__init__` method</problem_class>
+  <description>Class has no __init__ method</description>
+  <highlighted_element>CanonicalEventGuard</highlighted_element>
+  <language>Python</language>
+  <offset>6</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/kickback_gift_and_credit_engine.py</file>
+  <line>129</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/kickback_gift_and_credit_engine.py" />
+  <problem_class id="PyClassHasNoInitInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Class has no `__init__` method</problem_class>
+  <description>Class has no __init__ method</description>
+  <highlighted_element>KickBackGiftEngine</highlighted_element>
+  <language>Python</language>
+  <offset>6</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/kickback_gift_and_credit_engine.py</file>
+  <line>232</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/kickback_gift_and_credit_engine.py" />
+  <problem_class id="PyClassHasNoInitInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Class has no `__init__` method</problem_class>
+  <description>Class has no __init__ method</description>
+  <highlighted_element>LiveGiftNotificationEngine</highlighted_element>
+  <language>Python</language>
+  <offset>6</offset>
+  <length>26</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/p2p_bootnode_cluster.py</file>
+  <line>41</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/p2p_bootnode_cluster.py" />
+  <problem_class id="PyClassHasNoInitInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Class has no `__init__` method</problem_class>
+  <description>Class has no __init__ method</description>
+  <highlighted_element>CGNATTraversalEngine</highlighted_element>
+  <language>Python</language>
+  <offset>6</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/p2p_milestone_consensus_engine.py</file>
+  <line>55</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/p2p_milestone_consensus_engine.py" />
+  <problem_class id="PyClassHasNoInitInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Class has no `__init__` method</problem_class>
+  <description>Class has no __init__ method</description>
+  <highlighted_element>MilestoneThresholdConfig</highlighted_element>
+  <language>Python</language>
+  <offset>6</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_continuity_social_import_engine.py</file>
+  <line>26</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_continuity_social_import_engine.py" />
+  <problem_class id="PyClassHasNoInitInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Class has no `__init__` method</problem_class>
+  <description>Class has no __init__ method</description>
+  <highlighted_element>ZeroDepKey</highlighted_element>
+  <language>Python</language>
+  <offset>6</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_mainnet_cutover_suite.py</file>
+  <line>43</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_mainnet_cutover_suite.py" />
+  <problem_class id="PyClassHasNoInitInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Class has no `__init__` method</problem_class>
+  <description>Class has no __init__ method</description>
+  <highlighted_element>ZeroDepEventEnvelope</highlighted_element>
+  <language>Python</language>
+  <offset>6</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_p2p_bootnode_cluster.py</file>
+  <line>23</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_p2p_bootnode_cluster.py" />
+  <problem_class id="PyClassHasNoInitInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Class has no `__init__` method</problem_class>
+  <description>Class has no __init__ method</description>
+  <highlighted_element>ZeroDepNodeKey</highlighted_element>
+  <language>Python</language>
+  <offset>6</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_p2p_bootnode_cluster.py</file>
+  <line>51</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_p2p_bootnode_cluster.py" />
+  <problem_class id="PyClassHasNoInitInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Class has no `__init__` method</problem_class>
+  <description>Class has no __init__ method</description>
+  <highlighted_element>CGNATTraversalEngine</highlighted_element>
+  <language>Python</language>
+  <offset>6</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_p2p_milestone_consensus_engine.py</file>
+  <line>25</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_p2p_milestone_consensus_engine.py" />
+  <problem_class id="PyClassHasNoInitInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Class has no `__init__` method</problem_class>
+  <description>Class has no __init__ method</description>
+  <highlighted_element>ZeroDepNodeKey</highlighted_element>
+  <language>Python</language>
+  <offset>6</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_p2p_milestone_consensus_engine.py</file>
+  <line>62</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_p2p_milestone_consensus_engine.py" />
+  <problem_class id="PyClassHasNoInitInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Class has no `__init__` method</problem_class>
+  <description>Class has no __init__ method</description>
+  <highlighted_element>MilestoneThresholdConfig</highlighted_element>
+  <language>Python</language>
+  <offset>6</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_role_entitlement_engine.py</file>
+  <line>61</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_role_entitlement_engine.py" />
+  <problem_class id="PyClassHasNoInitInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Class has no `__init__` method</problem_class>
+  <description>Class has no __init__ method</description>
+  <highlighted_element>ZeroDepUserEntitlementProfile</highlighted_element>
+  <language>Python</language>
+  <offset>6</offset>
+  <length>29</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_websocket_pubsub_bridge.py</file>
+  <line>24</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/zero_dep_websocket_pubsub_bridge.py" />
+  <problem_class id="PyClassHasNoInitInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Class has no `__init__` method</problem_class>
+  <description>Class has no __init__ method</description>
+  <highlighted_element>ZeroDepKey</highlighted_element>
+  <language>Python</language>
+  <offset>6</offset>
+  <length>10</length>
+</problem>
+</problems>

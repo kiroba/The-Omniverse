@@ -1,0 +1,1796 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/AndroidManifest.xml</file>
+  <line>5</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:icon is not allowed here #loc</description>
+  <highlighted_element>android:icon</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/AndroidManifest.xml</file>
+  <line>9</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:launchMode is not allowed here #loc</description>
+  <highlighted_element>android:launchMode</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/AndroidManifest.xml</file>
+  <line>10</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:taskAffinity is not allowed here #loc</description>
+  <highlighted_element>android:taskAffinity</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/AndroidManifest.xml</file>
+  <line>11</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:theme is not allowed here #loc</description>
+  <highlighted_element>android:theme</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/AndroidManifest.xml</file>
+  <line>12</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:configChanges is not allowed here #loc</description>
+  <highlighted_element>android:configChanges</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/AndroidManifest.xml</file>
+  <line>13</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:hardwareAccelerated is not allowed here #loc</description>
+  <highlighted_element>android:hardwareAccelerated</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/AndroidManifest.xml</file>
+  <line>14</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:windowSoftInputMode is not allowed here #loc</description>
+  <highlighted_element>android:windowSoftInputMode</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/AndroidManifest.xml</file>
+  <line>42</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:mimeType is not allowed here #loc</description>
+  <highlighted_element>android:mimeType</highlighted_element>
+  <language>XML</language>
+  <offset>18</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>4</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:versionCode is not allowed here #loc</description>
+  <highlighted_element>android:versionCode</highlighted_element>
+  <language>XML</language>
+  <offset>4</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>5</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:versionName is not allowed here #loc</description>
+  <highlighted_element>android:versionName</highlighted_element>
+  <language>XML</language>
+  <offset>4</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>27</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:mimeType is not allowed here #loc</description>
+  <highlighted_element>android:mimeType</highlighted_element>
+  <language>XML</language>
+  <offset>18</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>33</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:protectionLevel is not allowed here #loc</description>
+  <highlighted_element>android:protectionLevel</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>39</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:appComponentFactory is not allowed here #loc</description>
+  <highlighted_element>android:appComponentFactory</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>41</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:extractNativeLibs is not allowed here #loc</description>
+  <highlighted_element>android:extractNativeLibs</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>25</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>42</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:icon is not allowed here #loc</description>
+  <highlighted_element>android:icon</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>46</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:configChanges is not allowed here #loc</description>
+  <highlighted_element>android:configChanges</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>48</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:hardwareAccelerated is not allowed here #loc</description>
+  <highlighted_element>android:hardwareAccelerated</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>49</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:launchMode is not allowed here #loc</description>
+  <highlighted_element>android:launchMode</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>50</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:taskAffinity is not allowed here #loc</description>
+  <highlighted_element>android:taskAffinity</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>51</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:theme is not allowed here #loc</description>
+  <highlighted_element>android:theme</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>52</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:windowSoftInputMode is not allowed here #loc</description>
+  <highlighted_element>android:windowSoftInputMode</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>80</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:required is not allowed here #loc</description>
+  <highlighted_element>android:required</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>83</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:required is not allowed here #loc</description>
+  <highlighted_element>android:required</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>88</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:exported is not allowed here #loc</description>
+  <highlighted_element>android:exported</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>99</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:directBootAware is not allowed here #loc</description>
+  <highlighted_element>android:directBootAware</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>100</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:enabled is not allowed here #loc</description>
+  <highlighted_element>android:enabled</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>101</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:exported is not allowed here #loc</description>
+  <highlighted_element>android:exported</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>102</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:permission is not allowed here #loc</description>
+  <highlighted_element>android:permission</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>4</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:versionCode is not allowed here #loc</description>
+  <highlighted_element>android:versionCode</highlighted_element>
+  <language>XML</language>
+  <offset>4</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>5</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:versionName is not allowed here #loc</description>
+  <highlighted_element>android:versionName</highlighted_element>
+  <language>XML</language>
+  <offset>4</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>27</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:mimeType is not allowed here #loc</description>
+  <highlighted_element>android:mimeType</highlighted_element>
+  <language>XML</language>
+  <offset>18</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>33</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:protectionLevel is not allowed here #loc</description>
+  <highlighted_element>android:protectionLevel</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>39</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:appComponentFactory is not allowed here #loc</description>
+  <highlighted_element>android:appComponentFactory</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>41</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:extractNativeLibs is not allowed here #loc</description>
+  <highlighted_element>android:extractNativeLibs</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>25</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>42</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:icon is not allowed here #loc</description>
+  <highlighted_element>android:icon</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>46</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:configChanges is not allowed here #loc</description>
+  <highlighted_element>android:configChanges</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>48</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:hardwareAccelerated is not allowed here #loc</description>
+  <highlighted_element>android:hardwareAccelerated</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>49</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:launchMode is not allowed here #loc</description>
+  <highlighted_element>android:launchMode</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>50</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:taskAffinity is not allowed here #loc</description>
+  <highlighted_element>android:taskAffinity</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>51</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:theme is not allowed here #loc</description>
+  <highlighted_element>android:theme</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>52</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:windowSoftInputMode is not allowed here #loc</description>
+  <highlighted_element>android:windowSoftInputMode</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>80</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:required is not allowed here #loc</description>
+  <highlighted_element>android:required</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>83</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:required is not allowed here #loc</description>
+  <highlighted_element>android:required</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>88</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:exported is not allowed here #loc</description>
+  <highlighted_element>android:exported</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>99</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:directBootAware is not allowed here #loc</description>
+  <highlighted_element>android:directBootAware</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>100</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:enabled is not allowed here #loc</description>
+  <highlighted_element>android:enabled</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>101</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:exported is not allowed here #loc</description>
+  <highlighted_element>android:exported</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>102</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:permission is not allowed here #loc</description>
+  <highlighted_element>android:permission</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>4</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:versionCode is not allowed here #loc</description>
+  <highlighted_element>android:versionCode</highlighted_element>
+  <language>XML</language>
+  <offset>4</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>5</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:versionName is not allowed here #loc</description>
+  <highlighted_element>android:versionName</highlighted_element>
+  <language>XML</language>
+  <offset>4</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>27</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:mimeType is not allowed here #loc</description>
+  <highlighted_element>android:mimeType</highlighted_element>
+  <language>XML</language>
+  <offset>18</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>33</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:protectionLevel is not allowed here #loc</description>
+  <highlighted_element>android:protectionLevel</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>39</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:appComponentFactory is not allowed here #loc</description>
+  <highlighted_element>android:appComponentFactory</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>41</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:extractNativeLibs is not allowed here #loc</description>
+  <highlighted_element>android:extractNativeLibs</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>25</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>42</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:icon is not allowed here #loc</description>
+  <highlighted_element>android:icon</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>46</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:configChanges is not allowed here #loc</description>
+  <highlighted_element>android:configChanges</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>48</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:hardwareAccelerated is not allowed here #loc</description>
+  <highlighted_element>android:hardwareAccelerated</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>49</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:launchMode is not allowed here #loc</description>
+  <highlighted_element>android:launchMode</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>50</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:taskAffinity is not allowed here #loc</description>
+  <highlighted_element>android:taskAffinity</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>51</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:theme is not allowed here #loc</description>
+  <highlighted_element>android:theme</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>52</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:windowSoftInputMode is not allowed here #loc</description>
+  <highlighted_element>android:windowSoftInputMode</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>80</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:required is not allowed here #loc</description>
+  <highlighted_element>android:required</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>83</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:required is not allowed here #loc</description>
+  <highlighted_element>android:required</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>88</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:exported is not allowed here #loc</description>
+  <highlighted_element>android:exported</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>99</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:directBootAware is not allowed here #loc</description>
+  <highlighted_element>android:directBootAware</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>100</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:enabled is not allowed here #loc</description>
+  <highlighted_element>android:enabled</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>101</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:exported is not allowed here #loc</description>
+  <highlighted_element>android:exported</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>102</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:permission is not allowed here #loc</description>
+  <highlighted_element>android:permission</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>4</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:versionCode is not allowed here #loc</description>
+  <highlighted_element>android:versionCode</highlighted_element>
+  <language>XML</language>
+  <offset>4</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>5</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:versionName is not allowed here #loc</description>
+  <highlighted_element>android:versionName</highlighted_element>
+  <language>XML</language>
+  <offset>4</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>27</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:mimeType is not allowed here #loc</description>
+  <highlighted_element>android:mimeType</highlighted_element>
+  <language>XML</language>
+  <offset>18</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>33</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:protectionLevel is not allowed here #loc</description>
+  <highlighted_element>android:protectionLevel</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>39</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:appComponentFactory is not allowed here #loc</description>
+  <highlighted_element>android:appComponentFactory</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>41</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:extractNativeLibs is not allowed here #loc</description>
+  <highlighted_element>android:extractNativeLibs</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>25</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>42</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:icon is not allowed here #loc</description>
+  <highlighted_element>android:icon</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>46</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:configChanges is not allowed here #loc</description>
+  <highlighted_element>android:configChanges</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>48</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:hardwareAccelerated is not allowed here #loc</description>
+  <highlighted_element>android:hardwareAccelerated</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>49</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:launchMode is not allowed here #loc</description>
+  <highlighted_element>android:launchMode</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>50</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:taskAffinity is not allowed here #loc</description>
+  <highlighted_element>android:taskAffinity</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>51</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:theme is not allowed here #loc</description>
+  <highlighted_element>android:theme</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>52</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:windowSoftInputMode is not allowed here #loc</description>
+  <highlighted_element>android:windowSoftInputMode</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>80</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:required is not allowed here #loc</description>
+  <highlighted_element>android:required</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>83</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:required is not allowed here #loc</description>
+  <highlighted_element>android:required</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>88</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:exported is not allowed here #loc</description>
+  <highlighted_element>android:exported</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>99</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:directBootAware is not allowed here #loc</description>
+  <highlighted_element>android:directBootAware</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>23</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>100</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:enabled is not allowed here #loc</description>
+  <highlighted_element>android:enabled</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>101</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:exported is not allowed here #loc</description>
+  <highlighted_element>android:exported</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>102</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:permission is not allowed here #loc</description>
+  <highlighted_element>android:permission</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_res/debug/packageDebugResources/drawable-v21/launch_background.xml</file>
+  <line>3</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_res/debug/packageDebugResources/drawable-v21/launch_background.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>URI is not registered (Settings | Languages &amp; Frameworks | Schemas and DTDs) #loc</description>
+  <highlighted_element>http://schemas.android.com/apk/res/android</highlighted_element>
+  <language>XML</language>
+  <offset>27</offset>
+  <length>42</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>6</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:icon is not allowed here #loc</description>
+  <highlighted_element>android:icon</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>10</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:launchMode is not allowed here #loc</description>
+  <highlighted_element>android:launchMode</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>11</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:theme is not allowed here #loc</description>
+  <highlighted_element>android:theme</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>12</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:configChanges is not allowed here #loc</description>
+  <highlighted_element>android:configChanges</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>13</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:hardwareAccelerated is not allowed here #loc</description>
+  <highlighted_element>android:hardwareAccelerated</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>14</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:windowSoftInputMode is not allowed here #loc</description>
+  <highlighted_element>android:windowSoftInputMode</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/build/WebView2Rules.Project.xml</file>
+  <line>2</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/build/WebView2Rules.Project.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>URI is not registered (Settings | Languages &amp; Frameworks | Schemas and DTDs) #loc</description>
+  <highlighted_element>http://schemas.microsoft.com/build/2009/properties</highlighted_element>
+  <language>XML</language>
+  <offset>86</offset>
+  <length>50</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Windows.ImplementationLibrary/natvis/wil.natvis</file>
+  <line>10</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Windows.ImplementationLibrary/natvis/wil.natvis" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>URI is not registered (Settings | Languages &amp; Frameworks | Schemas and DTDs) #loc</description>
+  <highlighted_element>http://schemas.microsoft.com/vstudio/debugger/natvis/2010</highlighted_element>
+  <language>XML</language>
+  <offset>23</offset>
+  <length>57</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/idle_plaza_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>6</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/idle_plaza_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:icon is not allowed here #loc</description>
+  <highlighted_element>android:icon</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/idle_plaza_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>10</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/idle_plaza_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:launchMode is not allowed here #loc</description>
+  <highlighted_element>android:launchMode</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/idle_plaza_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>11</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/idle_plaza_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:theme is not allowed here #loc</description>
+  <highlighted_element>android:theme</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/idle_plaza_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>12</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/idle_plaza_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:configChanges is not allowed here #loc</description>
+  <highlighted_element>android:configChanges</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/idle_plaza_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>13</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/idle_plaza_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:hardwareAccelerated is not allowed here #loc</description>
+  <highlighted_element>android:hardwareAccelerated</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/idle_plaza_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>14</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/idle_plaza_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:windowSoftInputMode is not allowed here #loc</description>
+  <highlighted_element>android:windowSoftInputMode</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/kickback_main_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>6</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/kickback_main_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:icon is not allowed here #loc</description>
+  <highlighted_element>android:icon</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/kickback_main_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>10</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/kickback_main_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:launchMode is not allowed here #loc</description>
+  <highlighted_element>android:launchMode</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/kickback_main_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>11</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/kickback_main_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:theme is not allowed here #loc</description>
+  <highlighted_element>android:theme</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/kickback_main_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>12</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/kickback_main_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:configChanges is not allowed here #loc</description>
+  <highlighted_element>android:configChanges</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/kickback_main_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>13</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/kickback_main_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:hardwareAccelerated is not allowed here #loc</description>
+  <highlighted_element>android:hardwareAccelerated</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/kickback_main_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>14</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/kickback_main_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:windowSoftInputMode is not allowed here #loc</description>
+  <highlighted_element>android:windowSoftInputMode</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/mesh_monitor_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>6</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/mesh_monitor_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:icon is not allowed here #loc</description>
+  <highlighted_element>android:icon</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/mesh_monitor_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>10</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/mesh_monitor_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:launchMode is not allowed here #loc</description>
+  <highlighted_element>android:launchMode</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/mesh_monitor_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>11</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/mesh_monitor_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:theme is not allowed here #loc</description>
+  <highlighted_element>android:theme</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/mesh_monitor_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>12</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/mesh_monitor_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:configChanges is not allowed here #loc</description>
+  <highlighted_element>android:configChanges</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/mesh_monitor_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>13</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/mesh_monitor_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:hardwareAccelerated is not allowed here #loc</description>
+  <highlighted_element>android:hardwareAccelerated</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/mesh_monitor_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>14</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/mesh_monitor_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:windowSoftInputMode is not allowed here #loc</description>
+  <highlighted_element>android:windowSoftInputMode</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/omniverse_superapp_master/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>6</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/omniverse_superapp_master/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:icon is not allowed here #loc</description>
+  <highlighted_element>android:icon</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/omniverse_superapp_master/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>10</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/omniverse_superapp_master/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:launchMode is not allowed here #loc</description>
+  <highlighted_element>android:launchMode</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/omniverse_superapp_master/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>11</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/omniverse_superapp_master/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:theme is not allowed here #loc</description>
+  <highlighted_element>android:theme</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/omniverse_superapp_master/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>12</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/omniverse_superapp_master/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:configChanges is not allowed here #loc</description>
+  <highlighted_element>android:configChanges</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/omniverse_superapp_master/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>13</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/omniverse_superapp_master/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:hardwareAccelerated is not allowed here #loc</description>
+  <highlighted_element>android:hardwareAccelerated</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/omniverse_superapp_master/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>14</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/omniverse_superapp_master/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:windowSoftInputMode is not allowed here #loc</description>
+  <highlighted_element>android:windowSoftInputMode</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/phaser_studio_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>6</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/phaser_studio_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:icon is not allowed here #loc</description>
+  <highlighted_element>android:icon</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/phaser_studio_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>10</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/phaser_studio_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:launchMode is not allowed here #loc</description>
+  <highlighted_element>android:launchMode</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/phaser_studio_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>11</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/phaser_studio_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:theme is not allowed here #loc</description>
+  <highlighted_element>android:theme</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/phaser_studio_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>12</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/phaser_studio_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:configChanges is not allowed here #loc</description>
+  <highlighted_element>android:configChanges</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/phaser_studio_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>13</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/phaser_studio_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:hardwareAccelerated is not allowed here #loc</description>
+  <highlighted_element>android:hardwareAccelerated</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/phaser_studio_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>14</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/phaser_studio_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:windowSoftInputMode is not allowed here #loc</description>
+  <highlighted_element>android:windowSoftInputMode</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>8</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:maxSdkVersion is not allowed here #loc</description>
+  <highlighted_element>android:maxSdkVersion</highlighted_element>
+  <language>XML</language>
+  <offset>77</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>17</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:icon is not allowed here #loc</description>
+  <highlighted_element>android:icon</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>18</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:hardwareAccelerated is not allowed here #loc</description>
+  <highlighted_element>android:hardwareAccelerated</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>19</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:allowBackup is not allowed here #loc</description>
+  <highlighted_element>android:allowBackup</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>24</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:launchMode is not allowed here #loc</description>
+  <highlighted_element>android:launchMode</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>25</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:theme is not allowed here #loc</description>
+  <highlighted_element>android:theme</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>26</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:configChanges is not allowed here #loc</description>
+  <highlighted_element>android:configChanges</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>27</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:hardwareAccelerated is not allowed here #loc</description>
+  <highlighted_element>android:hardwareAccelerated</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>28</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:windowSoftInputMode is not allowed here #loc</description>
+  <highlighted_element>android:windowSoftInputMode</highlighted_element>
+  <language>XML</language>
+  <offset>12</offset>
+  <length>27</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>39</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:scheme is not allowed here #loc</description>
+  <highlighted_element>android:scheme</highlighted_element>
+  <language>XML</language>
+  <offset>22</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>39</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="XmlHighlighting" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">XML highlighting</problem_class>
+  <hints />
+  <description>Attribute android:host is not allowed here #loc</description>
+  <highlighted_element>android:host</highlighted_element>
+  <language>XML</language>
+  <offset>48</offset>
+  <length>12</length>
+</problem>
+</problems>

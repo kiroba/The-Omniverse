@@ -1,0 +1,98 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/kickback_creator_control_dashboard.py</file>
+  <line>36</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/kickback_creator_control_dashboard.py" />
+  <problem_class id="PyPep8NamingInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">PEP 8 naming convention violation</problem_class>
+  <description>Function name should be lowercase</description>
+  <highlighted_element>do_GET</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/kickback_creator_control_dashboard.py</file>
+  <line>54</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/kickback_creator_control_dashboard.py" />
+  <problem_class id="PyPep8NamingInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">PEP 8 naming convention violation</problem_class>
+  <description>Function name should be lowercase</description>
+  <highlighted_element>do_POST</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/omni_live_daemon_server.py</file>
+  <line>75</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/omni_live_daemon_server.py" />
+  <problem_class id="PyPep8NamingInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">PEP 8 naming convention violation</problem_class>
+  <description>Function name should be lowercase</description>
+  <highlighted_element>do_GET</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/omni_live_daemon_server.py</file>
+  <line>112</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/omni_live_daemon_server.py" />
+  <problem_class id="PyPep8NamingInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">PEP 8 naming convention violation</problem_class>
+  <description>Function name should be lowercase</description>
+  <highlighted_element>do_GET</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/omni_live_daemon_server.py</file>
+  <line>147</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/omni_live_daemon_server.py" />
+  <problem_class id="PyPep8NamingInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">PEP 8 naming convention violation</problem_class>
+  <description>Function name should be lowercase</description>
+  <highlighted_element>do_POST</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/backend_services/omni-ipc-daemon/omni_live_daemon_server.py</file>
+  <line>75</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/backend_services/omni-ipc-daemon/omni_live_daemon_server.py" />
+  <problem_class id="PyPep8NamingInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">PEP 8 naming convention violation</problem_class>
+  <description>Function name should be lowercase</description>
+  <highlighted_element>do_GET</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/backend_services/omni-ipc-daemon/omni_live_daemon_server.py</file>
+  <line>112</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/backend_services/omni-ipc-daemon/omni_live_daemon_server.py" />
+  <problem_class id="PyPep8NamingInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">PEP 8 naming convention violation</problem_class>
+  <description>Function name should be lowercase</description>
+  <highlighted_element>do_GET</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>6</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/backend_services/omni-ipc-daemon/omni_live_daemon_server.py</file>
+  <line>147</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/backend_services/omni-ipc-daemon/omni_live_daemon_server.py" />
+  <problem_class id="PyPep8NamingInspection" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">PEP 8 naming convention violation</problem_class>
+  <description>Function name should be lowercase</description>
+  <highlighted_element>do_POST</highlighted_element>
+  <language>Python</language>
+  <offset>8</offset>
+  <length>7</length>
+</problem>
+</problems>

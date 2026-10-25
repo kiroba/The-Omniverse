@@ -1,0 +1,122 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/README_DESKTOP.md</file>
+  <line>74</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/README_DESKTOP.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Port / Path | Purpose | Recommended Action if Blocked | | :--- | :--- | :--- | | `127.0.0.1:9200` ...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>476</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/SECURITY.md</file>
+  <line>139</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/SECURITY.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Security Domain | Target Metric / Benchmark | Verification Method | | :--- | :--- | :--- | | **Pri...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>669</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/index (2).md</file>
+  <line>16</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/index (2).md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Deliverable | Description | Quick Link | | :--- | :--- | :--- | | 📱 **The KickBack Mobile App (`....</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>830</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/index.md</file>
+  <line>21</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/index.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Platform / Asset | Target File | Download Link | Verification / Spec | | :--- | :--- | :--- | :---...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>957</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/index.md</file>
+  <line>84</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/index.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Deliverable | Description | Quick Link | | :--- | :--- | :--- | | 📱 **The KickBack Mobile App (`....</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>830</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/mobile_assembly_and_build_guide (2).md</file>
+  <line>10</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/mobile_assembly_and_build_guide (2).md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Requirement | **Method 1: Termux + Acode** (100% On-Device) | **Method 2: GitHub Codespaces** (Clo...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>470</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/mobile_assembly_and_build_guide-v2 (2).md</file>
+  <line>10</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/mobile_assembly_and_build_guide-v2 (2).md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Requirement | **Method 1: Termux + Acode** (100% On-Device) | **Method 2: GitHub Codespaces** (Clo...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>602</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/mobile_assembly_and_build_guide-v2.md</file>
+  <line>10</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/mobile_assembly_and_build_guide-v2.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Requirement | **Method 1: Termux + Acode** (100% On-Device) | **Method 2: GitHub Codespaces** (Clo...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>602</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/mobile_assembly_and_build_guide-v3.md</file>
+  <line>10</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/mobile_assembly_and_build_guide-v3.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Requirement | **Method 1: Termux + Acode** (100% On-Device) | **Method 2: GitHub Codespaces** (Clo...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>602</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/mobile_assembly_and_build_guide.md</file>
+  <line>10</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/mobile_assembly_and_build_guide.md" />
+  <problem_class id="MarkdownIncorrectTableFormatting" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Incorrect table formatting</problem_class>
+  <description>Table is not correctly formatted</description>
+  <highlighted_element>| Requirement | **Method 1: Termux + Acode** (100% On-Device) | **Method 2: GitHub Codespaces** (Clo...</highlighted_element>
+  <language>Markdown</language>
+  <offset>0</offset>
+  <length>470</length>
+</problem>
+</problems>

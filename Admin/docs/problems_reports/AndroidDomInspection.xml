@@ -1,0 +1,890 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/AndroidManifest.xml</file>
+  <line>4</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class '{applicationName}'</description>
+  <highlighted_element>{applicationName}</highlighted_element>
+  <language>XML</language>
+  <offset>23</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/AndroidManifest.xml</file>
+  <line>7</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class 'MainActivity'</description>
+  <highlighted_element>MainActivity</highlighted_element>
+  <language>XML</language>
+  <offset>27</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/res/values/styles.xml</file>
+  <line>7</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/res/values/styles.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Cannot resolve symbol 'android:windowBackground'</description>
+  <highlighted_element>android:windowBackground</highlighted_element>
+  <language>XML</language>
+  <offset>20</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/res/values/styles.xml</file>
+  <line>16</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/res/values/styles.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Cannot resolve symbol 'android:windowBackground'</description>
+  <highlighted_element>android:windowBackground</highlighted_element>
+  <language>XML</language>
+  <offset>20</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/res/values-night/styles.xml</file>
+  <line>7</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/res/values-night/styles.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Cannot resolve symbol 'android:windowBackground'</description>
+  <highlighted_element>android:windowBackground</highlighted_element>
+  <language>XML</language>
+  <offset>20</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/res/values-night/styles.xml</file>
+  <line>16</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/android/app/src/main/res/values-night/styles.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Cannot resolve symbol 'android:windowBackground'</description>
+  <highlighted_element>android:windowBackground</highlighted_element>
+  <language>XML</language>
+  <offset>20</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>38</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved package 'android'</description>
+  <highlighted_element>android</highlighted_element>
+  <language>XML</language>
+  <offset>22</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>38</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved package 'app'</description>
+  <highlighted_element>app</highlighted_element>
+  <language>XML</language>
+  <offset>30</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>38</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class 'Application'</description>
+  <highlighted_element>Application</highlighted_element>
+  <language>XML</language>
+  <offset>34</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>45</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class 'MainActivity'</description>
+  <highlighted_element>MainActivity</highlighted_element>
+  <language>XML</language>
+  <offset>66</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>86</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved package 'androidx'</description>
+  <highlighted_element>androidx</highlighted_element>
+  <language>XML</language>
+  <offset>26</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>86</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved package 'startup'</description>
+  <highlighted_element>startup</highlighted_element>
+  <language>XML</language>
+  <offset>35</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>86</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class 'InitializationProvider'</description>
+  <highlighted_element>InitializationProvider</highlighted_element>
+  <language>XML</language>
+  <offset>43</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>98</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved package 'androidx'</description>
+  <highlighted_element>androidx</highlighted_element>
+  <language>XML</language>
+  <offset>26</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>98</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved package 'profileinstaller'</description>
+  <highlighted_element>profileinstaller</highlighted_element>
+  <language>XML</language>
+  <offset>35</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml</file>
+  <line>98</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/outputDebugAppLinkSettings/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class 'ProfileInstallReceiver'</description>
+  <highlighted_element>ProfileInstallReceiver</highlighted_element>
+  <language>XML</language>
+  <offset>52</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>38</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved package 'android'</description>
+  <highlighted_element>android</highlighted_element>
+  <language>XML</language>
+  <offset>22</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>38</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved package 'app'</description>
+  <highlighted_element>app</highlighted_element>
+  <language>XML</language>
+  <offset>30</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>38</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class 'Application'</description>
+  <highlighted_element>Application</highlighted_element>
+  <language>XML</language>
+  <offset>34</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>45</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class 'MainActivity'</description>
+  <highlighted_element>MainActivity</highlighted_element>
+  <language>XML</language>
+  <offset>66</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>86</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved package 'androidx'</description>
+  <highlighted_element>androidx</highlighted_element>
+  <language>XML</language>
+  <offset>26</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>86</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved package 'startup'</description>
+  <highlighted_element>startup</highlighted_element>
+  <language>XML</language>
+  <offset>35</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>86</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class 'InitializationProvider'</description>
+  <highlighted_element>InitializationProvider</highlighted_element>
+  <language>XML</language>
+  <offset>43</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>98</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved package 'androidx'</description>
+  <highlighted_element>androidx</highlighted_element>
+  <language>XML</language>
+  <offset>26</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>98</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved package 'profileinstaller'</description>
+  <highlighted_element>profileinstaller</highlighted_element>
+  <language>XML</language>
+  <offset>35</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml</file>
+  <line>98</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class 'ProfileInstallReceiver'</description>
+  <highlighted_element>ProfileInstallReceiver</highlighted_element>
+  <language>XML</language>
+  <offset>52</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>38</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved package 'android'</description>
+  <highlighted_element>android</highlighted_element>
+  <language>XML</language>
+  <offset>22</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>38</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved package 'app'</description>
+  <highlighted_element>app</highlighted_element>
+  <language>XML</language>
+  <offset>30</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>38</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class 'Application'</description>
+  <highlighted_element>Application</highlighted_element>
+  <language>XML</language>
+  <offset>34</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>45</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class 'MainActivity'</description>
+  <highlighted_element>MainActivity</highlighted_element>
+  <language>XML</language>
+  <offset>66</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>86</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved package 'androidx'</description>
+  <highlighted_element>androidx</highlighted_element>
+  <language>XML</language>
+  <offset>26</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>86</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved package 'startup'</description>
+  <highlighted_element>startup</highlighted_element>
+  <language>XML</language>
+  <offset>35</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>86</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class 'InitializationProvider'</description>
+  <highlighted_element>InitializationProvider</highlighted_element>
+  <language>XML</language>
+  <offset>43</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>98</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved package 'androidx'</description>
+  <highlighted_element>androidx</highlighted_element>
+  <language>XML</language>
+  <offset>26</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>98</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved package 'profileinstaller'</description>
+  <highlighted_element>profileinstaller</highlighted_element>
+  <language>XML</language>
+  <offset>35</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml</file>
+  <line>98</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class 'ProfileInstallReceiver'</description>
+  <highlighted_element>ProfileInstallReceiver</highlighted_element>
+  <language>XML</language>
+  <offset>52</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>38</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved package 'android'</description>
+  <highlighted_element>android</highlighted_element>
+  <language>XML</language>
+  <offset>22</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>38</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved package 'app'</description>
+  <highlighted_element>app</highlighted_element>
+  <language>XML</language>
+  <offset>30</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>38</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class 'Application'</description>
+  <highlighted_element>Application</highlighted_element>
+  <language>XML</language>
+  <offset>34</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>45</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class 'MainActivity'</description>
+  <highlighted_element>MainActivity</highlighted_element>
+  <language>XML</language>
+  <offset>66</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>86</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved package 'androidx'</description>
+  <highlighted_element>androidx</highlighted_element>
+  <language>XML</language>
+  <offset>26</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>86</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved package 'startup'</description>
+  <highlighted_element>startup</highlighted_element>
+  <language>XML</language>
+  <offset>35</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>86</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class 'InitializationProvider'</description>
+  <highlighted_element>InitializationProvider</highlighted_element>
+  <language>XML</language>
+  <offset>43</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>98</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved package 'androidx'</description>
+  <highlighted_element>androidx</highlighted_element>
+  <language>XML</language>
+  <offset>26</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>98</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved package 'profileinstaller'</description>
+  <highlighted_element>profileinstaller</highlighted_element>
+  <language>XML</language>
+  <offset>35</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml</file>
+  <line>98</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/gui_tools/desktop/build/app/intermediates/packaged_manifests/debug/processDebugManifestForPackage/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class 'ProfileInstallReceiver'</description>
+  <highlighted_element>ProfileInstallReceiver</highlighted_element>
+  <language>XML</language>
+  <offset>52</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>5</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class '{applicationName}'</description>
+  <highlighted_element>{applicationName}</highlighted_element>
+  <language>XML</language>
+  <offset>23</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>8</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class 'MainActivity'</description>
+  <highlighted_element>MainActivity</highlighted_element>
+  <language>XML</language>
+  <offset>27</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/app/src/main/res/values/styles.xml</file>
+  <line>4</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/app/src/main/res/values/styles.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Cannot resolve symbol 'android:windowBackground'</description>
+  <highlighted_element>android:windowBackground</highlighted_element>
+  <language>XML</language>
+  <offset>20</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/app/src/main/res/values/styles.xml</file>
+  <line>7</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/android/app/src/main/res/values/styles.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Cannot resolve symbol 'android:windowBackground'</description>
+  <highlighted_element>android:windowBackground</highlighted_element>
+  <language>XML</language>
+  <offset>20</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/idle_plaza_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>5</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/idle_plaza_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class '{applicationName}'</description>
+  <highlighted_element>{applicationName}</highlighted_element>
+  <language>XML</language>
+  <offset>23</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/idle_plaza_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>8</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/idle_plaza_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class 'MainActivity'</description>
+  <highlighted_element>MainActivity</highlighted_element>
+  <language>XML</language>
+  <offset>27</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/idle_plaza_standalone/mobile/android/app/src/main/res/values/styles.xml</file>
+  <line>4</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/idle_plaza_standalone/mobile/android/app/src/main/res/values/styles.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Cannot resolve symbol 'android:windowBackground'</description>
+  <highlighted_element>android:windowBackground</highlighted_element>
+  <language>XML</language>
+  <offset>20</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/idle_plaza_standalone/mobile/android/app/src/main/res/values/styles.xml</file>
+  <line>7</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/idle_plaza_standalone/mobile/android/app/src/main/res/values/styles.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Cannot resolve symbol 'android:windowBackground'</description>
+  <highlighted_element>android:windowBackground</highlighted_element>
+  <language>XML</language>
+  <offset>20</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/kickback_main_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>5</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/kickback_main_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class '{applicationName}'</description>
+  <highlighted_element>{applicationName}</highlighted_element>
+  <language>XML</language>
+  <offset>23</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/kickback_main_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>8</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/kickback_main_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class 'MainActivity'</description>
+  <highlighted_element>MainActivity</highlighted_element>
+  <language>XML</language>
+  <offset>27</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/kickback_main_standalone/mobile/android/app/src/main/res/values/styles.xml</file>
+  <line>4</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/kickback_main_standalone/mobile/android/app/src/main/res/values/styles.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Cannot resolve symbol 'android:windowBackground'</description>
+  <highlighted_element>android:windowBackground</highlighted_element>
+  <language>XML</language>
+  <offset>20</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/kickback_main_standalone/mobile/android/app/src/main/res/values/styles.xml</file>
+  <line>7</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/kickback_main_standalone/mobile/android/app/src/main/res/values/styles.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Cannot resolve symbol 'android:windowBackground'</description>
+  <highlighted_element>android:windowBackground</highlighted_element>
+  <language>XML</language>
+  <offset>20</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/mesh_monitor_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>5</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/mesh_monitor_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class '{applicationName}'</description>
+  <highlighted_element>{applicationName}</highlighted_element>
+  <language>XML</language>
+  <offset>23</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/mesh_monitor_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>8</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/mesh_monitor_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class 'MainActivity'</description>
+  <highlighted_element>MainActivity</highlighted_element>
+  <language>XML</language>
+  <offset>27</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/mesh_monitor_standalone/mobile/android/app/src/main/res/values/styles.xml</file>
+  <line>4</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/mesh_monitor_standalone/mobile/android/app/src/main/res/values/styles.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Cannot resolve symbol 'android:windowBackground'</description>
+  <highlighted_element>android:windowBackground</highlighted_element>
+  <language>XML</language>
+  <offset>20</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/mesh_monitor_standalone/mobile/android/app/src/main/res/values/styles.xml</file>
+  <line>7</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/mesh_monitor_standalone/mobile/android/app/src/main/res/values/styles.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Cannot resolve symbol 'android:windowBackground'</description>
+  <highlighted_element>android:windowBackground</highlighted_element>
+  <language>XML</language>
+  <offset>20</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/omniverse_superapp_master/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>5</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/omniverse_superapp_master/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class '{applicationName}'</description>
+  <highlighted_element>{applicationName}</highlighted_element>
+  <language>XML</language>
+  <offset>23</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/omniverse_superapp_master/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>8</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/omniverse_superapp_master/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class 'MainActivity'</description>
+  <highlighted_element>MainActivity</highlighted_element>
+  <language>XML</language>
+  <offset>27</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/omniverse_superapp_master/mobile/android/app/src/main/res/values/styles.xml</file>
+  <line>4</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/omniverse_superapp_master/mobile/android/app/src/main/res/values/styles.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Cannot resolve symbol 'android:windowBackground'</description>
+  <highlighted_element>android:windowBackground</highlighted_element>
+  <language>XML</language>
+  <offset>20</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/omniverse_superapp_master/mobile/android/app/src/main/res/values/styles.xml</file>
+  <line>7</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/omniverse_superapp_master/mobile/android/app/src/main/res/values/styles.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Cannot resolve symbol 'android:windowBackground'</description>
+  <highlighted_element>android:windowBackground</highlighted_element>
+  <language>XML</language>
+  <offset>20</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/phaser_studio_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>5</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/phaser_studio_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class '{applicationName}'</description>
+  <highlighted_element>{applicationName}</highlighted_element>
+  <language>XML</language>
+  <offset>23</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/phaser_studio_standalone/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>8</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/phaser_studio_standalone/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class 'MainActivity'</description>
+  <highlighted_element>MainActivity</highlighted_element>
+  <language>XML</language>
+  <offset>27</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/phaser_studio_standalone/mobile/android/app/src/main/res/values/styles.xml</file>
+  <line>4</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/phaser_studio_standalone/mobile/android/app/src/main/res/values/styles.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Cannot resolve symbol 'android:windowBackground'</description>
+  <highlighted_element>android:windowBackground</highlighted_element>
+  <language>XML</language>
+  <offset>20</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/phaser_studio_standalone/mobile/android/app/src/main/res/values/styles.xml</file>
+  <line>7</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/phaser_studio_standalone/mobile/android/app/src/main/res/values/styles.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Cannot resolve symbol 'android:windowBackground'</description>
+  <highlighted_element>android:windowBackground</highlighted_element>
+  <language>XML</language>
+  <offset>20</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>16</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class '{applicationName}'</description>
+  <highlighted_element>{applicationName}</highlighted_element>
+  <language>XML</language>
+  <offset>23</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/AndroidManifest.xml</file>
+  <line>22</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/AndroidManifest.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Unresolved class 'MainActivity'</description>
+  <highlighted_element>MainActivity</highlighted_element>
+  <language>XML</language>
+  <offset>27</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/res/values/styles.xml</file>
+  <line>4</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/res/values/styles.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Cannot resolve symbol 'android:windowBackground'</description>
+  <highlighted_element>android:windowBackground</highlighted_element>
+  <language>XML</language>
+  <offset>20</offset>
+  <length>24</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/res/values/styles.xml</file>
+  <line>7</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/scripts/mobile/android/app/src/main/res/values/styles.xml" />
+  <problem_class id="AndroidDomInspection" severity="ERROR" attribute_key="WRONG_REFERENCES_ATTRIBUTES">Android Resources Validation</problem_class>
+  <description>Cannot resolve symbol 'android:windowBackground'</description>
+  <highlighted_element>android:windowBackground</highlighted_element>
+  <language>XML</language>
+  <offset>20</offset>
+  <length>24</length>
+</problem>
+</problems>

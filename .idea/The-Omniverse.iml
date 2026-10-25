@@ -12,6 +12,33 @@
       <excludeFolder url="file://$MODULE_DIR$/tools/mobile/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/tools/mobile/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/tools/mobile/build" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/idle_plaza_standalone/mobile/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/idle_plaza_standalone/mobile/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/idle_plaza_standalone/mobile/build" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/kickback_main_standalone/mobile/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/kickback_main_standalone/mobile/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/kickback_main_standalone/mobile/build" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/mesh_monitor_standalone/mobile/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/mesh_monitor_standalone/mobile/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/mesh_monitor_standalone/mobile/build" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/omniverse_superapp_master/mobile/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/omniverse_superapp_master/mobile/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/omniverse_superapp_master/mobile/build" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/phaser_studio_standalone/mobile/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/phaser_studio_standalone/mobile/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/phaser_studio_standalone/mobile/build" />
+      <excludeFolder url="file://$MODULE_DIR$/mobile/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/mobile/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/mobile/build" />
+      <excludeFolder url="file://$MODULE_DIR$/omni_core_engines_standalone/mobile/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/omni_core_engines_standalone/mobile/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/omni_core_engines_standalone/mobile/build" />
+      <excludeFolder url="file://$MODULE_DIR$/omni_core_engines_standalone/mobile/windows/flutter/ephemeral/.plugin_symlinks/flutter_inappwebview_windows/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/omni_core_engines_standalone/mobile/windows/flutter/ephemeral/.plugin_symlinks/flutter_inappwebview_windows/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/omni_core_engines_standalone/mobile/windows/flutter/ephemeral/.plugin_symlinks/flutter_inappwebview_windows/build" />
+      <excludeFolder url="file://$MODULE_DIR$/omni_core_engines_standalone/mobile/windows/flutter/ephemeral/.plugin_symlinks/flutter_inappwebview_windows/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/omni_core_engines_standalone/mobile/windows/flutter/ephemeral/.plugin_symlinks/flutter_inappwebview_windows/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/omni_core_engines_standalone/mobile/windows/flutter/ephemeral/.plugin_symlinks/flutter_inappwebview_windows/example/build" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

@@ -1,0 +1,14 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/web/index.html</file>
+  <line>44</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/web/index.html" />
+  <problem_class id="HtmlUnknownTarget" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unresolved file in a link</problem_class>
+  <description>Cannot resolve file 'flutter_bootstrap.js'</description>
+  <highlighted_element>flutter_bootstrap.js</highlighted_element>
+  <language>HTML</language>
+  <offset>15</offset>
+  <length>20</length>
+</problem>
+</problems>

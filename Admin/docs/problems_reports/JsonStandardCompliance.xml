@@ -1,0 +1,38 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/.vscode/launch.json</file>
+  <line>2</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.vscode/launch.json" />
+  <problem_class id="JsonStandardCompliance" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Compliance with JSON standard</problem_class>
+  <description>JSON standard does not allow comments.</description>
+  <highlighted_element>// Use IntelliSense to learn about possible attributes.</highlighted_element>
+  <language>JSON</language>
+  <offset>4</offset>
+  <length>55</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.vscode/launch.json</file>
+  <line>3</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.vscode/launch.json" />
+  <problem_class id="JsonStandardCompliance" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Compliance with JSON standard</problem_class>
+  <description>JSON standard does not allow comments.</description>
+  <highlighted_element>// Hover to view descriptions of existing attributes.</highlighted_element>
+  <language>JSON</language>
+  <offset>4</offset>
+  <length>53</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/.vscode/launch.json</file>
+  <line>4</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/.vscode/launch.json" />
+  <problem_class id="JsonStandardCompliance" severity="ERROR" attribute_key="ERRORS_ATTRIBUTES">Compliance with JSON standard</problem_class>
+  <description>JSON standard does not allow comments.</description>
+  <highlighted_element>// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387</highlighted_element>
+  <language>JSON</language>
+  <offset>4</offset>
+  <length>78</length>
+</problem>
+</problems>

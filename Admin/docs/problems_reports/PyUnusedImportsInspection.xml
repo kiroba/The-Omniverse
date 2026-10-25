@@ -1,0 +1,110 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/downloads/omniverse_interactive_gui_builder.py</file>
+  <line>29</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/downloads/omniverse_interactive_gui_builder.py" />
+  <problem_class id="PyUnusedImportsInspection" severity="WARNING" attribute_key="INFO_ATTRIBUTES">Unused imports</problem_class>
+  <description>'tk' in the try block with 'except ImportError' should also be defined in the except block</description>
+  <highlighted_element>tk</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/downloads/omniverse_interactive_gui_builder.py</file>
+  <line>30</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/downloads/omniverse_interactive_gui_builder.py" />
+  <problem_class id="PyUnusedImportsInspection" severity="WARNING" attribute_key="INFO_ATTRIBUTES">Unused imports</problem_class>
+  <description>'ttk' in the try block with 'except ImportError' should also be defined in the except block</description>
+  <highlighted_element>ttk</highlighted_element>
+  <language>Python</language>
+  <offset>24</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/downloads/omniverse_interactive_gui_builder.py</file>
+  <line>30</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/downloads/omniverse_interactive_gui_builder.py" />
+  <problem_class id="PyUnusedImportsInspection" severity="WARNING" attribute_key="INFO_ATTRIBUTES">Unused imports</problem_class>
+  <description>'messagebox' in the try block with 'except ImportError' should also be defined in the except block</description>
+  <highlighted_element>messagebox</highlighted_element>
+  <language>Python</language>
+  <offset>29</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/downloads/omniverse_interactive_gui_builder.py</file>
+  <line>30</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/downloads/omniverse_interactive_gui_builder.py" />
+  <problem_class id="PyUnusedImportsInspection" severity="WARNING" attribute_key="INFO_ATTRIBUTES">Unused imports</problem_class>
+  <description>'scrolledtext' in the try block with 'except ImportError' should also be defined in the except block</description>
+  <highlighted_element>scrolledtext</highlighted_element>
+  <language>Python</language>
+  <offset>41</offset>
+  <length>12</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/backend_services/omni-ipc-daemon/omni_flet_desktop_control_panel.py</file>
+  <line>17</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/backend_services/omni-ipc-daemon/omni_flet_desktop_control_panel.py" />
+  <problem_class id="PyUnusedImportsInspection" severity="WARNING" attribute_key="INFO_ATTRIBUTES">Unused imports</problem_class>
+  <description>'ft' in the try block with 'except ImportError' should also be defined in the except block</description>
+  <highlighted_element>ft</highlighted_element>
+  <language>Python</language>
+  <offset>19</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/omniverse_interactive_gui_builder.py</file>
+  <line>29</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/omniverse_interactive_gui_builder.py" />
+  <problem_class id="PyUnusedImportsInspection" severity="WARNING" attribute_key="INFO_ATTRIBUTES">Unused imports</problem_class>
+  <description>'tk' in the try block with 'except ImportError' should also be defined in the except block</description>
+  <highlighted_element>tk</highlighted_element>
+  <language>Python</language>
+  <offset>22</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/omniverse_interactive_gui_builder.py</file>
+  <line>30</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/omniverse_interactive_gui_builder.py" />
+  <problem_class id="PyUnusedImportsInspection" severity="WARNING" attribute_key="INFO_ATTRIBUTES">Unused imports</problem_class>
+  <description>'ttk' in the try block with 'except ImportError' should also be defined in the except block</description>
+  <highlighted_element>ttk</highlighted_element>
+  <language>Python</language>
+  <offset>24</offset>
+  <length>3</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/omniverse_interactive_gui_builder.py</file>
+  <line>30</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/omniverse_interactive_gui_builder.py" />
+  <problem_class id="PyUnusedImportsInspection" severity="WARNING" attribute_key="INFO_ATTRIBUTES">Unused imports</problem_class>
+  <description>'messagebox' in the try block with 'except ImportError' should also be defined in the except block</description>
+  <highlighted_element>messagebox</highlighted_element>
+  <language>Python</language>
+  <offset>29</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/omniverse_interactive_gui_builder.py</file>
+  <line>30</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/omniverse_interactive_gui_builder.py" />
+  <problem_class id="PyUnusedImportsInspection" severity="WARNING" attribute_key="INFO_ATTRIBUTES">Unused imports</problem_class>
+  <description>'scrolledtext' in the try block with 'except ImportError' should also be defined in the except block</description>
+  <highlighted_element>scrolledtext</highlighted_element>
+  <language>Python</language>
+  <offset>41</offset>
+  <length>12</length>
+</problem>
+</problems>

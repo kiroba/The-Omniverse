@@ -1,0 +1,290 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/dev_blog_changelog-v29 (2).md</file>
+  <line>3</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/dev_blog_changelog-v29 (2).md" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>Some style guides suggest that commas should set off the year in a month-day-year date.</description>
+  <highlighted_element>2026</highlighted_element>
+  <language>Markdown</language>
+  <offset>24</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/mobile_assembly_and_build_guide-v3.md</file>
+  <line>4</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/mobile_assembly_and_build_guide-v3.md" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>Long sentences (44 words here) are harder to read, according to the research; consider splitting</description>
+  <highlighted_element>workflows.</highlighted_element>
+  <language>Markdown</language>
+  <offset>340</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/omni_mini_apps_testing_and_setup_guide.md</file>
+  <line>131</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/omni_mini_apps_testing_and_setup_guide.md" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>This word is chiefly South Asian English. Consider an alternative that is more suited for an international audience.</description>
+  <highlighted_element>skilling</highlighted_element>
+  <language>Markdown</language>
+  <offset>18</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/omni_planet_graphic_assets_manifest (2).md</file>
+  <line>117</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/omni_planet_graphic_assets_manifest (2).md" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>This word is chiefly South Asian English. Consider an alternative that is more suited for an international audience.</description>
+  <highlighted_element>skilling</highlighted_element>
+  <language>Markdown</language>
+  <offset>37</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/omni_planet_graphic_assets_manifest.md</file>
+  <line>117</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/omni_planet_graphic_assets_manifest.md" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>This word is chiefly South Asian English. Consider an alternative that is more suited for an international audience.</description>
+  <highlighted_element>skilling</highlighted_element>
+  <language>Markdown</language>
+  <offset>37</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.WinForms.xml</file>
+  <line>328</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.WinForms.xml" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>British roots ending with '-our' usually have '-or' in American English</description>
+  <highlighted_element>behaviour</highlighted_element>
+  <language>XML</language>
+  <offset>108</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>191</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>Consider shortening this phrase to just 'whether', unless you mean 'regardless of whether'.</description>
+  <highlighted_element>whether or not</highlighted_element>
+  <language>XML</language>
+  <offset>34</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>461</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>Consider removing &quot;of&quot; to be more concise</description>
+  <highlighted_element>all of the</highlighted_element>
+  <language>XML</language>
+  <offset>45</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>741</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>This phrase is redundant. Consider using 'outside'.</description>
+  <highlighted_element>outside of</highlighted_element>
+  <language>XML</language>
+  <offset>32</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>848</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>Consider removing &quot;of&quot; to be more concise</description>
+  <highlighted_element>all of the</highlighted_element>
+  <language>XML</language>
+  <offset>45</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>1070</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>Consider shortening this phrase to just 'whether', unless you mean 'regardless of whether'.</description>
+  <highlighted_element>whether or not</highlighted_element>
+  <language>XML</language>
+  <offset>44</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>1656</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib/net462/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>Consider removing &quot;of&quot; to be more concise</description>
+  <highlighted_element>all of the</highlighted_element>
+  <language>XML</language>
+  <offset>45</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.WinForms.xml</file>
+  <line>328</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.WinForms.xml" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>British roots ending with '-our' usually have '-or' in American English</description>
+  <highlighted_element>behaviour</highlighted_element>
+  <language>XML</language>
+  <offset>108</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>191</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>Consider shortening this phrase to just 'whether', unless you mean 'regardless of whether'.</description>
+  <highlighted_element>whether or not</highlighted_element>
+  <language>XML</language>
+  <offset>34</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>461</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>Consider removing &quot;of&quot; to be more concise</description>
+  <highlighted_element>all of the</highlighted_element>
+  <language>XML</language>
+  <offset>45</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>741</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>This phrase is redundant. Consider using 'outside'.</description>
+  <highlighted_element>outside of</highlighted_element>
+  <language>XML</language>
+  <offset>32</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>848</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>Consider removing &quot;of&quot; to be more concise</description>
+  <highlighted_element>all of the</highlighted_element>
+  <language>XML</language>
+  <offset>45</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>1070</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>Consider shortening this phrase to just 'whether', unless you mean 'regardless of whether'.</description>
+  <highlighted_element>whether or not</highlighted_element>
+  <language>XML</language>
+  <offset>44</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml</file>
+  <line>1656</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Web.WebView2/lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>Consider removing &quot;of&quot; to be more concise</description>
+  <highlighted_element>all of the</highlighted_element>
+  <language>XML</language>
+  <offset>45</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Windows.ImplementationLibrary/ThirdPartyNotices.txt</file>
+  <line>23</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Windows.ImplementationLibrary/ThirdPartyNotices.txt" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>Long sentences (67 words here) are harder to read, according to the research; consider splitting</description>
+  <highlighted_element>conditions:</highlighted_element>
+  <language>TEXT</language>
+  <offset>45</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Windows.ImplementationLibrary/ThirdPartyNotices.txt</file>
+  <line>34</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Windows.ImplementationLibrary/ThirdPartyNotices.txt" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>Long sentences (46 words here) are harder to read, according to the research; consider splitting</description>
+  <highlighted_element>SOFTWARE.</highlighted_element>
+  <language>TEXT</language>
+  <offset>4</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Windows.ImplementationLibrary/ThirdPartyNotices.txt</file>
+  <line>45</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Windows.ImplementationLibrary/ThirdPartyNotices.txt" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>Long sentences (63 words here) are harder to read, according to the research; consider splitting</description>
+  <highlighted_element>following:</highlighted_element>
+  <language>TEXT</language>
+  <offset>26</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Windows.ImplementationLibrary/ThirdPartyNotices.txt</file>
+  <line>52</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Windows.ImplementationLibrary/ThirdPartyNotices.txt" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>Long sentences (63 words here) are harder to read, according to the research; consider splitting</description>
+  <highlighted_element>processor.</highlighted_element>
+  <language>TEXT</language>
+  <offset>18</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Windows.ImplementationLibrary/ThirdPartyNotices.txt</file>
+  <line>60</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/apps/The-Omniverse/mobile/build/windows/x64/packages/Microsoft.Windows.ImplementationLibrary/ThirdPartyNotices.txt" />
+  <problem_class id="GrazieStyle" severity="STYLE_SUGGESTION" attribute_key="TEXT_STYLE_SUGGESTION">Style</problem_class>
+  <description>Long sentences (45 words here) are harder to read, according to the research; consider splitting</description>
+  <highlighted_element>SOFTWARE.</highlighted_element>
+  <language>TEXT</language>
+  <offset>16</offset>
+  <length>9</length>
+</problem>
+</problems>

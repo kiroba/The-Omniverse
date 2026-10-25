@@ -1,0 +1,26 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/Admin/docs/downloads/omniverse_interactive_gui_builder.py</file>
+  <line>722</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/Admin/docs/downloads/omniverse_interactive_gui_builder.py" />
+  <problem_class id="PyInvalidEscapeSequenceInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Invalid escape sequence</problem_class>
+  <description>Invalid escape sequence '\:'</description>
+  <highlighted_element>\:</highlighted_element>
+  <language>Python</language>
+  <offset>21</offset>
+  <length>2</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/packages/omni_core/engines/omniverse_interactive_gui_builder.py</file>
+  <line>722</line>
+  <module>The-Omniverse</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/packages/omni_core/engines/omniverse_interactive_gui_builder.py" />
+  <problem_class id="PyInvalidEscapeSequenceInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Invalid escape sequence</problem_class>
+  <description>Invalid escape sequence '\:'</description>
+  <highlighted_element>\:</highlighted_element>
+  <language>Python</language>
+  <offset>21</offset>
+  <length>2</length>
+</problem>
+</problems>

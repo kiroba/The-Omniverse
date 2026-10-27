@@ -8,6 +8,20 @@ on:
   workflow_dispatch:
 
 jobs:
+  core-package-tests:
+    name: omni_core_ui tests (Dart/Python interop)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      - name: Run package tests
+        working-directory: packages/omni_core_ui
+        run: |
+          flutter pub get
+          flutter test
+
   build-matrix:
     name: Build ${{ matrix.app_name }} APK
     runs-on: ubuntu-latest

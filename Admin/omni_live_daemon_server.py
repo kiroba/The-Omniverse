@@ -17,7 +17,6 @@ import time
 import json
 import sqlite3
 import hashlib
-from omni_signing import load_or_create_key, pubkey_hex, sign_event, verify_event
 import threading
 import socket
 import urllib.request
@@ -30,6 +29,8 @@ TELEMETRY_PORT = 9100
 CONTINUITY_IPC_PORT = 5000
 P2P_SYNC_PORT = 5005
 UDP_DISCOVERY_PORT = 9101
+OMNIMIND_MAX_PAYLOAD = 64 * 1024
+OMNIMIND_STALE_SECONDS = 15.0
 
 IPC_HOST = "127.0.0.1"
 P2P_HOST = "0.0.0.0"
@@ -37,10 +38,11 @@ MAX_PAYLOAD_SIZE = 5 * 1024 * 1024  # 5 MB Strict Cap
 
 class EngineState:
     def __init__(self):
-        self.signing_key = load_or_create_key()          # same key every restart
-        self.node_id = pubkey_hex(self.signing_key)       # node id = public key
+        self.node_id = "0x" + hashlib.sha256(f"node_key_{time.time()}_{os.getpid()}".encode()).hexdigest()[:32]
         self.start_time = time.time()
         self.seen_event_ids = set()
+        self.omnimind_telemetry = None   # latest OmniMind agent payload
+        self.omnimind_received_at = 0.0
         self.active_peers = {}  # {peer_ip: {"ip": peer_ip, "port": 5005, "last_seen": time.time()}}
         self.rx_bytes = 0
         self.tx_bytes = 0
@@ -73,8 +75,7 @@ def init_db() -> Path:
             author_pubkey TEXT NOT NULL,
             previous_hash TEXT NOT NULL,
             timestamp REAL NOT NULL,
-            payload_json TEXT DEFAULT '{}',
-            signature TEXT
+            payload_json TEXT DEFAULT '{}'
         );
     """)
     # Migration check for payload_json column
@@ -82,9 +83,6 @@ def init_db() -> Path:
     columns = [col[1] for col in c.fetchall()]
     if "payload_json" not in columns:
         c.execute("ALTER TABLE events ADD COLUMN payload_json TEXT DEFAULT '{}';")
-        conn.commit()
-    if "signature" not in columns:
-        c.execute("ALTER TABLE events ADD COLUMN signature TEXT;")
         conn.commit()
 
     # Load seen event_ids into memory for fast deduplication
@@ -120,10 +118,7 @@ def compute_canonical_event_id(action: str, author_pubkey: str, payload_obj: dic
 
 def process_and_store_event(data: dict, origin_peer: str = None) -> tuple[dict, int]:
     action = str(data.get("action", "USER_ACTION")).strip()
-    if origin_peer is None:
-        author = STATE.node_id   # local app: this node is the author, never trust a client-supplied name
-    else:
-        author = str(data.get("author_pubkey", "")).strip()
+    author = str(data.get("author_pubkey", STATE.node_id)).strip()
     payload_obj = data.get("payload", {})
     if not isinstance(payload_obj, dict):
         payload_obj = {}
@@ -157,17 +152,6 @@ def process_and_store_event(data: dict, origin_peer: str = None) -> tuple[dict, 
 
     event_id = computed_event_id
 
-    # --- Ed25519: remote events must be signed by their author; local events get signed by us ---
-    unsigned = {"action": action, "author_pubkey": author, "payload": payload_obj,
-                "previous_hash": prev_hash, "timestamp": timestamp}
-    if origin_peer is None:
-        signature = sign_event(STATE.signing_key, unsigned)
-    else:
-        signature = str(data.get("signature", ""))
-        if not verify_event(dict(unsigned, signature=signature)):
-            conn.close()
-            return {"status": "ERROR", "message": "Invalid or missing signature"}, 401
-
     # Deduplication check
     with STATE.lock:
         if event_id in STATE.seen_event_ids:
@@ -183,9 +167,9 @@ def process_and_store_event(data: dict, origin_peer: str = None) -> tuple[dict, 
 
     # Insert verified event
     c.execute("""
-        INSERT INTO events (event_id, action, author_pubkey, previous_hash, timestamp, payload_json, signature)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    """, (event_id, action, author, prev_hash, timestamp, json.dumps(payload_obj), signature))
+        INSERT INTO events (event_id, action, author_pubkey, previous_hash, timestamp, payload_json)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (event_id, action, author, prev_hash, timestamp, json.dumps(payload_obj)))
     conn.commit()
     conn.close()
 
@@ -198,8 +182,7 @@ def process_and_store_event(data: dict, origin_peer: str = None) -> tuple[dict, 
         "author_pubkey": author,
         "previous_hash": prev_hash,
         "timestamp": timestamp,
-        "payload": payload_obj,
-        "signature": signature
+        "payload": payload_obj
     }
 
     # Relay to active P2P peers (skipping origin sender)
@@ -303,8 +286,48 @@ class TelemetryHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
             self.wfile.write(body)
+        elif self.path == "/api/omnimind/telemetry":
+            with STATE.lock:
+                fresh = STATE.omnimind_telemetry is not None and time.time() - STATE.omnimind_received_at < OMNIMIND_STALE_SECONDS
+                payload = dict(STATE.omnimind_telemetry) if fresh else None
+            if not payload:
+                self.send_error(404, "No live OmniMind agent")
+                return
+            payload["age_seconds"] = round(time.time() - STATE.omnimind_received_at, 1)
+            body = json.dumps(payload).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
         else:
             self.send_error(404, "Endpoint Not Found")
+
+    def do_POST(self):
+        # Loopback-only cache for the decoupled OmniMind agent (omnimind_agent_telemetry_engine.py).
+        if self.path != "/api/omnimind/telemetry":
+            self.send_error(404, "Endpoint Not Found")
+            return
+        content_len = int(self.headers.get("Content-Length", 0))
+        if content_len <= 0 or content_len > OMNIMIND_MAX_PAYLOAD:
+            self.send_error(413, "Telemetry payload missing or too large (max 64KB)")
+            return
+        try:
+            data = json.loads(self.rfile.read(content_len).decode("utf-8"))
+            if not isinstance(data, dict):
+                raise ValueError("payload must be a JSON object")
+        except Exception as e:
+            self.send_error(400, f"Bad Request: {e}")
+            return
+        with STATE.lock:
+            STATE.omnimind_telemetry = data
+            STATE.omnimind_received_at = time.time()
+        body = b'{"status":"CACHED"}'
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
 
 class ContinuityIPCHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):

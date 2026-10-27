@@ -17,6 +17,7 @@ import time
 import json
 import sqlite3
 import hashlib
+from omni_signing import load_or_create_key, pubkey_hex, sign_event, verify_event
 import threading
 import socket
 import urllib.request
@@ -38,7 +39,8 @@ MAX_PAYLOAD_SIZE = 5 * 1024 * 1024  # 5 MB Strict Cap
 
 class EngineState:
     def __init__(self):
-        self.node_id = "0x" + hashlib.sha256(f"node_key_{time.time()}_{os.getpid()}".encode()).hexdigest()[:32]
+        self.signing_key = load_or_create_key()          # same key every restart
+        self.node_id = pubkey_hex(self.signing_key)       # node id = public key
         self.start_time = time.time()
         self.seen_event_ids = set()
         self.omnimind_telemetry = None   # latest OmniMind agent payload
@@ -75,7 +77,8 @@ def init_db() -> Path:
             author_pubkey TEXT NOT NULL,
             previous_hash TEXT NOT NULL,
             timestamp REAL NOT NULL,
-            payload_json TEXT DEFAULT '{}'
+            payload_json TEXT DEFAULT '{}',
+            signature TEXT
         );
     """)
     # Migration check for payload_json column
@@ -83,6 +86,9 @@ def init_db() -> Path:
     columns = [col[1] for col in c.fetchall()]
     if "payload_json" not in columns:
         c.execute("ALTER TABLE events ADD COLUMN payload_json TEXT DEFAULT '{}';")
+        conn.commit()
+    if "signature" not in columns:
+        c.execute("ALTER TABLE events ADD COLUMN signature TEXT;")
         conn.commit()
 
     # Load seen event_ids into memory for fast deduplication
@@ -118,7 +124,10 @@ def compute_canonical_event_id(action: str, author_pubkey: str, payload_obj: dic
 
 def process_and_store_event(data: dict, origin_peer: str = None) -> tuple[dict, int]:
     action = str(data.get("action", "USER_ACTION")).strip()
-    author = str(data.get("author_pubkey", STATE.node_id)).strip()
+    if origin_peer is None:
+        author = STATE.node_id   # local app: this node is the author, never trust a client-supplied name
+    else:
+        author = str(data.get("author_pubkey", "")).strip()
     payload_obj = data.get("payload", {})
     if not isinstance(payload_obj, dict):
         payload_obj = {}
@@ -152,6 +161,17 @@ def process_and_store_event(data: dict, origin_peer: str = None) -> tuple[dict, 
 
     event_id = computed_event_id
 
+    # --- Ed25519: remote events must be signed by their author; local events get signed by us ---
+    unsigned = {"action": action, "author_pubkey": author, "payload": payload_obj,
+                "previous_hash": prev_hash, "timestamp": timestamp}
+    if origin_peer is None:
+        signature = sign_event(STATE.signing_key, unsigned)
+    else:
+        signature = str(data.get("signature", ""))
+        if not verify_event(dict(unsigned, signature=signature)):
+            conn.close()
+            return {"status": "ERROR", "message": "Invalid or missing signature"}, 401
+
     # Deduplication check
     with STATE.lock:
         if event_id in STATE.seen_event_ids:
@@ -167,9 +187,9 @@ def process_and_store_event(data: dict, origin_peer: str = None) -> tuple[dict, 
 
     # Insert verified event
     c.execute("""
-        INSERT INTO events (event_id, action, author_pubkey, previous_hash, timestamp, payload_json)
-        VALUES (?, ?, ?, ?, ?, ?)
-    """, (event_id, action, author, prev_hash, timestamp, json.dumps(payload_obj)))
+        INSERT INTO events (event_id, action, author_pubkey, previous_hash, timestamp, payload_json, signature)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (event_id, action, author, prev_hash, timestamp, json.dumps(payload_obj), signature))
     conn.commit()
     conn.close()
 
@@ -182,7 +202,8 @@ def process_and_store_event(data: dict, origin_peer: str = None) -> tuple[dict, 
         "author_pubkey": author,
         "previous_hash": prev_hash,
         "timestamp": timestamp,
-        "payload": payload_obj
+        "payload": payload_obj,
+        "signature": signature
     }
 
     # Relay to active P2P peers (skipping origin sender)

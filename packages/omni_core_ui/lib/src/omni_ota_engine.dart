@@ -4,8 +4,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:ota_update/ota_update.dart';
 
+import 'canonical_json.dart';
+import 'stargate_identity.dart';
+
 /// ============================================================================
-/// OMNI OTA UPDATER
+/// OMNI OTA ENGINE (omni_core_ui)
 /// ============================================================================
 /// In-app over-the-air updates for every Omniverse APK.
 ///
@@ -18,6 +21,13 @@ import 'package:ota_update/ota_update.dart';
 /// compile time with --dart-define=OMNI_BUILD=...). If newer, it offers the
 /// update, downloads the APK, verifies its SHA-256 and opens Android's install
 /// prompt. Releases share one signing key, so the update installs over the top.
+///
+/// Signed manifests: when the release workflow has the OMNI_OTA_SIGNING_KEY
+/// secret, it signs the manifest (Ed25519 over the canonical JSON of the
+/// manifest minus "signature") and bakes the public key into every APK with
+/// --dart-define=OMNI_OTA_PUBKEY=<hex>. A build that has a public key refuses
+/// any manifest that isn't signed by it. That matters most once peers serve
+/// updates over OmniNet, since a peer is not trusted the way GitHub is.
 ///
 /// OmniNet: once the mesh transport is live, peers will serve the same manifest
 /// and APK bytes and become the primary source; GitHub stays as the fallback.
@@ -37,7 +47,20 @@ class OmniOta {
     'https://github.com/kiroba/The-Omniverse/releases/latest/download/update-manifest.json',
   ];
 
+  /// Ed25519 public key (64 hex) that must sign the manifest. Empty = unsigned
+  /// manifests accepted (HTTPS + SHA-256 only).
+  static const String otaPubkey = String.fromEnvironment('OMNI_OTA_PUBKEY', defaultValue: '');
+
   static bool _checkedThisSession = false;
+
+  /// True when the manifest's signature checks out, or no key is pinned.
+  static Future<bool> manifestTrusted(Map<String, dynamic> manifest) async {
+    if (otaPubkey.isEmpty) return true;
+    final sig = manifest['signature'];
+    if (sig is! String) return false;
+    final unsigned = Map<String, dynamic>.from(manifest)..remove('signature');
+    return StargateIdentity.verifyBytes(utf8.encode(canonicalJson(unsigned)), sig, otaPubkey);
+  }
 
   /// Fetches the first manifest that answers. Returns null if none do.
   static Future<Map<String, dynamic>?> fetchManifest() async {
@@ -49,7 +72,7 @@ class OmniOta {
         if (res.statusCode != 200) continue;
         final body = await res.transform(utf8.decoder).join();
         final decoded = jsonDecode(body);
-        if (decoded is Map<String, dynamic>) return decoded;
+        if (decoded is Map<String, dynamic> && await manifestTrusted(decoded)) return decoded;
       } catch (_) {
         // try the next source
       } finally {

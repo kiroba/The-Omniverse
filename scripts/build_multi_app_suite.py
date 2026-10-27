@@ -430,6 +430,8 @@ dependencies:
   cupertino_icons: ^1.0.6
   http: ^1.2.0
   ota_update: ^7.1.0
+  omni_core_ui:
+    path: ../../../packages/omni_core_ui
   cryptography: ^2.7.0
   crypto: ^3.0.3
   sqflite: ^2.3.0
@@ -513,7 +515,7 @@ def build_all_apps():
         "com.omniverse.mesh_monitor",
         "Omniverse Mesh Monitor",
         "omni_mobile_mesh_monitor_ui.dart",
-        ["omni_ota_updater.dart"],
+        [],
         search_paths
     )
 

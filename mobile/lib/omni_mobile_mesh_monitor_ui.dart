@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-import 'omni_ota_updater.dart';
+import 'package:omni_core_ui/omni_core_ui.dart';
 
 /// ============================================================================
 /// MOBILE MESH MONITOR (LIVE)
@@ -214,6 +214,11 @@ class _MeshMonitorMainScreenState extends State<MeshMonitorMainScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        Align(
+          alignment: Alignment.centerLeft,
+          child: MeshStatusBadge(online: online, peers: int.tryParse(_v(_node, 'active_peers')) ?? 0),
+        ),
+        const SizedBox(height: 12),
         _buildMetricHeaderCard('Daemon & P2P', 'GET :9100/api/v1/telemetry/node-health', Icons.hub, const Color(0xFFBB86FC)),
         const SizedBox(height: 12),
         _buildStatusRow('Status', online ? 'ONLINE' : 'OFFLINE${_nodeError.isEmpty ? '' : ' ($_nodeError)'}', online ? _teal : _red),

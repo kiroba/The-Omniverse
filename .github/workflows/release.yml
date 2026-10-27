@@ -1,0 +1,94 @@
+name: Publish Release (APKs + Windows)
+
+# Push a tag like v0.9.0 (or run manually) to build every app and publish
+# a GitHub Release. Releases are free hosting for binaries on public repos,
+# and the Pages site picks up new downloads automatically.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (e.g. v0.9.0)"
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  TAG: ${{ github.event.inputs.tag || github.ref_name }}
+
+jobs:
+  android:
+    name: Android · ${{ matrix.slug }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { folder: omniverse_superapp_master, slug: omniverse-superapp }
+          - { folder: kickback_main_standalone,  slug: kickback-social }
+          - { folder: idle_plaza_standalone,     slug: idle-plaza }
+          - { folder: mesh_monitor_standalone,   slug: mesh-monitor }
+          - { folder: phaser_studio_standalone,  slug: phaser-studio }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Generate app workspaces
+        run: |
+          python3 organize_project.py || true
+          python3 build_multi_app_suite.py || python3 scripts/build_multi_app_suite.py
+      - uses: actions/setup-java@v4
+        with: { java-version: "17", distribution: temurin }
+      - uses: subosito/flutter-action@v2
+        with: { channel: stable, cache: true }
+      - name: Build APK
+        working-directory: apps/${{ matrix.folder }}/mobile
+        run: |
+          flutter pub get
+          flutter build apk --release --target-platform android-arm64 --android-skip-build-dependency-validation
+          cp build/app/outputs/flutter-apk/app-release.apk "$GITHUB_WORKSPACE/${{ matrix.slug }}-android-arm64.apk"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.slug }}
+          path: ${{ matrix.slug }}-android-arm64.apk
+          retention-days: 3
+
+  windows:
+    name: Windows · desktop app
+    runs-on: windows-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with: { channel: stable, cache: true }
+      - name: Build Windows
+        working-directory: mobile
+        shell: pwsh
+        run: |
+          flutter config --enable-windows-desktop
+          flutter pub get
+          flutter build windows --release
+          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath "$env:GITHUB_WORKSPACE\omniverse-windows-x64.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: omniverse-windows-x64.zip
+          retention-days: 3
+
+  publish:
+    needs: [android, windows]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { path: dist, merge-multiple: true }
+      - name: List binaries
+        run: ls -la dist
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          name: The Omniverse ${{ env.TAG }}
+          generate_release_notes: true
+          files: dist/*

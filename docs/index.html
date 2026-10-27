@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Omniverse · Downloads & Hub</title>
+<meta name="description" content="The Omniverse & The KickBack: a serverless, peer-to-peer social ecosystem. Download the Android and Windows apps.">
+<meta property="og:title" content="The Omniverse">
+<meta property="og:description" content="Serverless P2P social hub. Download for Android and Windows.">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+<header class="nav">
+  <a class="brand" href="#">◎ The Omniverse</a>
+  <nav>
+    <a href="#apps">Apps</a>
+    <a href="#releases">Releases</a>
+    <a href="#roadmap">Roadmap</a>
+    <a href="#docs">Docs</a>
+    <a href="about.html">About</a>
+    <a href="https://github.com/kiroba/The-Omniverse" target="_blank" rel="noopener">GitHub</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <p class="eyebrow">Peer-to-peer · local-first · no servers</p>
+    <h1>The Omniverse<br><span>& The KickBack</span></h1>
+    <p class="lede">A social hub that runs on your devices, not someone's cloud. Every event is signed, chained, and synced directly between peers.</p>
+    <div class="cta">
+      <a id="primary-dl" class="btn primary" href="#apps">Get the app</a>
+      <a class="btn ghost" href="#releases">All downloads</a>
+    </div>
+    <p id="detect" class="muted small"></p>
+  </section>
+
+  <section id="apps">
+    <div class="section-head">
+      <h2>Apps</h2>
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-filter="all">All</button>
+        <button class="tab" data-filter="android">Android</button>
+        <button class="tab" data-filter="windows">Windows</button>
+        <button class="tab" data-filter="tools">Tools</button>
+      </div>
+    </div>
+    <div id="app-grid" class="grid"></div>
+    <p id="release-note" class="muted small"></p>
+  </section>
+
+  <section id="releases">
+    <h2>Release history</h2>
+    <div id="release-list" class="list"><p class="muted">Loading releases…</p></div>
+  </section>
+
+  <section id="roadmap">
+    <h2>Roadmap <span class="muted small">live from GitHub issues</span></h2>
+    <div id="issue-list" class="list"><p class="muted">Loading…</p></div>
+  </section>
+
+  <section id="docs">
+    <h2>Docs</h2>
+    <div class="grid small-cards">
+      <a class="card link" href="mobile_assembly_and_build_guide-v2.html"><h3>Mobile build guide</h3><p>Build the APKs yourself.</p></a>
+      <a class="card link" href="termux_and_desktop_cheatsheet.html"><h3>Termux & desktop cheatsheet</h3><p>Run the daemon on phone or PC.</p></a>
+      <a class="card link" href="SECURITY.html"><h3>Security</h3><p>How events are signed and verified.</p></a>
+      <a class="card link" href="launch_release_notes.html"><h3>Launch notes</h3><p>What shipped, and what's next.</p></a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>Open source on <a href="https://github.com/kiroba/The-Omniverse">GitHub</a>. Hosted free on GitHub Pages, and binaries are served from GitHub Releases.</p>
+</footer>
+
+<div id="modal" class="modal" hidden>
+  <div class="modal-box">
+    <button class="close" aria-label="Close">×</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

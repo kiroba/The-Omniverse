@@ -1,6 +1,6 @@
 ---
 layout: default
-title: The Omniverse & The KickBack | Sovereign P2P Social Ecosystem
+title: About The Omniverse & The KickBack | Sovereign P2P Social Ecosystem
 description: Zero-dependency serverless P2P mesh network, 100% human-verified social feed, and enterprise B2B syndication gateway.
 ---
 

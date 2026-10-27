@@ -231,7 +231,9 @@ class MainActivity: FlutterActivity()
     # 5. AndroidManifest.xml
     manifest_xml = f"""<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="{package_name}">
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
+        android:networkSecurityConfig="@xml/network_security_config"
         android:label="{app_label}"
         android:name="${{applicationName}}"
         android:icon="@mipmap/ic_launcher">
@@ -259,6 +261,21 @@ class MainActivity: FlutterActivity()
 """
     with open(app_android_dir / "src" / "main" / "AndroidManifest.xml", "w", encoding="utf-8") as f:
         f.write(manifest_xml)
+
+    # 5b. Network security: allow plain HTTP ONLY to the on-device daemon (loopback).
+    #     Everything else stays HTTPS-only (Android default since API 28).
+    res_xml = main_res / "xml"
+    res_xml.mkdir(parents=True, exist_ok=True)
+    network_security_xml = """<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">127.0.0.1</domain>
+        <domain includeSubdomains="false">localhost</domain>
+    </domain-config>
+</network-security-config>
+"""
+    with open(res_xml / "network_security_config.xml", "w", encoding="utf-8") as f:
+        f.write(network_security_xml)
         
     # 6. Mipmap AAPT Safe Icons
     mipmap_icon_xml = """<?xml version="1.0" encoding="utf-8"?>
@@ -365,6 +382,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.6
+  http: ^1.2.0
   cryptography: ^2.7.0
   crypto: ^3.0.3
   sqflite: ^2.3.0

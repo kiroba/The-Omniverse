@@ -4,6 +4,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import 'omni_ota_updater.dart';
+
 /// ============================================================================
 /// MOBILE MESH MONITOR (LIVE)
 /// ============================================================================
@@ -63,6 +65,9 @@ class _MeshMonitorMainScreenState extends State<MeshMonitorMainScreen> {
     super.initState();
     _poll();
     _timer = Timer.periodic(const Duration(seconds: 2), (_) => _poll());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) OmniOta.checkAndPrompt(context, silent: true);
+    });
   }
 
   @override
@@ -163,6 +168,11 @@ class _MeshMonitorMainScreenState extends State<MeshMonitorMainScreen> {
         actions: [
           IconButton(icon: const Icon(Icons.dns_outlined), tooltip: 'Change host', onPressed: _editHost),
           IconButton(icon: const Icon(Icons.refresh), tooltip: 'Refresh now', onPressed: _poll),
+          IconButton(
+            icon: const Icon(Icons.system_update),
+            tooltip: 'Check for updates',
+            onPressed: () => OmniOta.checkAndPrompt(context),
+          ),
         ],
       ),
       body: IndexedStack(
@@ -219,6 +229,7 @@ class _MeshMonitorMainScreenState extends State<MeshMonitorMainScreen> {
           _buildStatusRow('Peer IPs', _v(_node, 'peer_ips'), Colors.white),
           _buildStatusRow('Uptime', '${_v(_node, 'uptime_seconds')} s', Colors.white),
         ],
+        _buildStatusRow('App build', OmniOta.currentBuild == 0 ? 'dev' : '${OmniOta.currentBuild}', Colors.grey),
         _footer(),
       ],
     );

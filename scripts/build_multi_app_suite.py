@@ -200,13 +200,30 @@ android {{
         applicationId "{package_name}"
         minSdk 26
         targetSdk 36
-        versionCode 540
+        versionCode (1000 + (System.getenv("OMNI_VERSION_CODE") ?: "0").toInteger())
         versionName "5.4.0"
+    }}
+
+    // Stable signing: CI points OMNI_KEYSTORE at signing/omniverse-test.p12 so every
+    // release has the same signature and installs over the previous one.
+    // Local builds without the env var fall back to the debug key.
+    signingConfigs {{
+        release {{
+            def ks = System.getenv("OMNI_KEYSTORE")
+            if (ks != null && new File(ks).exists()) {{
+                storeFile file(ks)
+                storeType "pkcs12"
+                storePassword System.getenv("OMNI_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("OMNI_KEY_ALIAS")
+                keyPassword System.getenv("OMNI_KEY_PASSWORD")
+            }}
+        }}
     }}
 
     buildTypes {{
         release {{
-            signingConfig signingConfigs.debug
+            def ks = System.getenv("OMNI_KEYSTORE")
+            signingConfig ((ks != null && new File(ks).exists()) ? signingConfigs.release : signingConfigs.debug)
         }}
     }}
 }}

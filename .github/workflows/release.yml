@@ -50,12 +50,26 @@ jobs:
         with: { java-version: "17", distribution: temurin }
       - uses: subosito/flutter-action@v2
         with: { channel: stable, cache: true }
+      - name: OTA public key (pins signed update manifests when the secret exists)
+        env:
+          OMNI_OTA_SIGNING_KEY: ${{ secrets.OMNI_OTA_SIGNING_KEY }}
+        run: |
+          if [ -n "$OMNI_OTA_SIGNING_KEY" ]; then
+            pip install --quiet cryptography
+            PUB=$(python3 -c "import os;from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey as K;from cryptography.hazmat.primitives import serialization as s;k=K.from_private_bytes(bytes.fromhex(os.environ['OMNI_OTA_SIGNING_KEY'].strip()));print(k.public_key().public_bytes(s.Encoding.Raw,s.PublicFormat.Raw).hex())")
+            echo "OMNI_OTA_PUBKEY=$PUB" >> "$GITHUB_ENV"
+            echo "OTA manifests will be signature-pinned to $PUB"
+          else
+            echo "OMNI_OTA_PUBKEY=" >> "$GITHUB_ENV"
+            echo "::warning::OMNI_OTA_SIGNING_KEY not set: update manifests are unsigned (HTTPS + SHA-256 only)"
+          fi
       - name: Build APK
         working-directory: apps/${{ matrix.folder }}/mobile
         run: |
           flutter pub get
           flutter build apk --release --target-platform android-arm64 --android-skip-build-dependency-validation \
-            --dart-define=OMNI_APP=${{ matrix.slug }} --dart-define=OMNI_BUILD=$((1000 + ${{ github.run_number }}))
+            --dart-define=OMNI_APP=${{ matrix.slug }} --dart-define=OMNI_BUILD=$((1000 + ${{ github.run_number }})) \
+            --dart-define=OMNI_OTA_PUBKEY=$OMNI_OTA_PUBKEY
           cp build/app/outputs/flutter-apk/app-release.apk "$GITHUB_WORKSPACE/${{ matrix.slug }}-android-arm64.apk"
       - uses: actions/upload-artifact@v4
         with:
@@ -103,9 +117,12 @@ jobs:
       - name: List binaries
         run: ls -la dist
       - name: Write OTA update manifest
+        env:
+          OMNI_OTA_SIGNING_KEY: ${{ secrets.OMNI_OTA_SIGNING_KEY }}
         # Apps read releases/latest/download/update-manifest.json to self-update.
         # When OmniNet's mesh transport is live, peers serve this same manifest first.
         run: |
+          pip install --quiet cryptography
           python3 - <<'PY'
           import hashlib, json, os, glob
           tag = os.environ["TAG"]
@@ -118,6 +135,12 @@ jobs:
               sha = hashlib.sha256(open(apk, "rb").read()).hexdigest()
               apps[slug] = {"url": f"{base}/{name}", "sha256": sha}
           manifest = {"tag": tag, "build": build, "transport": "github", "apps": apps}
+          key_hex = os.environ.get("OMNI_OTA_SIGNING_KEY", "").strip()
+          if key_hex:
+              from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+              key = Ed25519PrivateKey.from_private_bytes(bytes.fromhex(key_hex))
+              canon = json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()
+              manifest["signature"] = key.sign(canon).hex()
           json.dump(manifest, open("dist/update-manifest.json", "w"), indent=2)
           print(json.dumps(manifest, indent=2))
           PY

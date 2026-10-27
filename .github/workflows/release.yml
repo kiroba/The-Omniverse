@@ -17,6 +17,13 @@ permissions:
 
 env:
   TAG: ${{ github.event.inputs.tag || github.ref_name }}
+  # Shared test signing key (committed on purpose, sideload testing only).
+  # Replace with a private key stored in GitHub Secrets before any public/Play release.
+  OMNI_KEYSTORE: ${{ github.workspace }}/signing/omniverse-test.p12
+  OMNI_KEYSTORE_PASSWORD: omniverse-test
+  OMNI_KEY_ALIAS: omniverse
+  OMNI_KEY_PASSWORD: omniverse-test
+  OMNI_VERSION_CODE: ${{ github.run_number }}
 
 jobs:
   android:

@@ -1,12 +1,19 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 /// ============================================================================
-/// MOBILE MESH MONITOR UI (ADMINISTRATIVE TELEMETRY OBSERVING APP)
+/// MOBILE MESH MONITOR (LIVE)
 /// ============================================================================
-/// - Dedicated administrative telemetry observer for The Omniverse network
-/// - Bound to raw local metrics (1 Active Node, 0 External Peers pre-launch)
-/// - 5 Core Dashboards: Core Systems, Network, Citizens, Component Health, OmniMind
-/// - Zero fake mock peer arrays or simulated network traffic
+/// Reads the real Omniverse daemon running on this phone (Termux) or on another
+/// host you type in. Polls every 2 seconds:
+///   GET :9100/api/v1/telemetry/node-health   (daemon + peers)
+///   GET :9100/api/omnimind/telemetry         (OmniMind agent, 404 = idle)
+///   GET :5000/api/events/stats               (Merkle DAG / SQLite WAL)
+/// Nothing on screen is hardcoded: a value the daemon does not report is shown
+/// as "not reported". Uses dart:io only (no extra packages).
 /// ============================================================================
 
 void main() => runApp(const MobileMeshMonitorApp());
@@ -37,128 +44,232 @@ class MeshMonitorMainScreen extends StatefulWidget {
 }
 
 class _MeshMonitorMainScreenState extends State<MeshMonitorMainScreen> {
+  static const Color _teal = Color(0xFF03DAC6);
+  static const Color _red = Color(0xFFFF5370);
+
   int _selectedTab = 0;
+  String _host = '127.0.0.1';
+  Timer? _timer;
+  bool _polling = false;
+
+  Map<String, dynamic>? _node;
+  Map<String, dynamic>? _omnimind;
+  Map<String, dynamic>? _stats;
+  String _nodeError = '';
+  DateTime? _lastPoll;
+
+  @override
+  void initState() {
+    super.initState();
+    _poll();
+    _timer = Timer.periodic(const Duration(seconds: 2), (_) => _poll());
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  Future<Map<String, dynamic>?> _getJson(int port, String path, {bool recordError = false}) async {
+    final client = HttpClient()..connectionTimeout = const Duration(milliseconds: 1500);
+    try {
+      final req = await client.getUrl(Uri.parse('http://$_host:$port$path'));
+      final res = await req.close().timeout(const Duration(milliseconds: 1500));
+      final body = await res.transform(utf8.decoder).join();
+      if (res.statusCode != 200) {
+        if (recordError) _nodeError = 'HTTP ${res.statusCode}';
+        return null;
+      }
+      final decoded = jsonDecode(body);
+      return decoded is Map<String, dynamic> ? decoded : null;
+    } catch (e) {
+      if (recordError) _nodeError = e.runtimeType.toString();
+      return null;
+    } finally {
+      client.close(force: true);
+    }
+  }
+
+  Future<void> _poll() async {
+    if (_polling) return;
+    _polling = true;
+    try {
+      final node = await _getJson(9100, '/api/v1/telemetry/node-health', recordError: true);
+      final omni = await _getJson(9100, '/api/omnimind/telemetry');
+      final stats = await _getJson(5000, '/api/events/stats');
+      if (!mounted) return;
+      setState(() {
+        _node = node;
+        if (node != null) _nodeError = '';
+        _omnimind = omni;
+        _stats = stats;
+        _lastPoll = DateTime.now();
+      });
+    } finally {
+      _polling = false;
+    }
+  }
+
+  String _v(Map<String, dynamic>? m, String key) {
+    if (m == null || m[key] == null) return 'not reported';
+    final value = m[key];
+    if (value is List) return value.isEmpty ? 'none' : value.join(', ');
+    return value.toString();
+  }
+
+  String _short(String s) => s.length > 22 ? '${s.substring(0, 22)}...' : s;
+
+  Future<void> _editHost() async {
+    final controller = TextEditingController(text: _host);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Daemon host'),
+        content: TextField(
+          controller: controller,
+          keyboardType: TextInputType.url,
+          decoration: const InputDecoration(hintText: '127.0.0.1 (same phone, Termux)'),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, controller.text.trim()), child: const Text('Save')),
+        ],
+      ),
+    );
+    if (result != null && result.isNotEmpty) {
+      setState(() => _host = result);
+      _poll();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final online = _node != null;
     return Scaffold(
       appBar: AppBar(
         title: Column(
-          crossAxisAlignment: CrossAlignment.start,
-          children: const [
-            Text('Omniverse Mesh Monitor', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-            Text('ADMINISTRATIVE TELEMETRY • 1 LOCAL NODE ONLINE', style: TextStyle(color: Color(0xFF03DAC6), fontSize: 10, letterSpacing: 0.5)),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Omniverse Mesh Monitor', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            Text(
+              online ? 'LIVE • $_host • daemon ${_v(_node, 'version')}' : 'OFFLINE • waiting for daemon on $_host',
+              style: TextStyle(color: online ? _teal : _red, fontSize: 10, letterSpacing: 0.5),
+            ),
           ],
         ),
         backgroundColor: const Color(0xFF161B22),
         elevation: 2,
+        actions: [
+          IconButton(icon: const Icon(Icons.dns_outlined), tooltip: 'Change host', onPressed: _editHost),
+          IconButton(icon: const Icon(Icons.refresh), tooltip: 'Refresh now', onPressed: _poll),
+        ],
       ),
       body: IndexedStack(
         index: _selectedTab,
         children: [
-          _buildCoreSystemsDashboard(),
-          _buildNetworkTelemetryDashboard(),
-          _buildCitizensDashboard(),
-          _buildComponentHealthDashboard(),
-          _buildOmniMindReportsDashboard(),
+          _buildDaemonTab(),
+          _buildOmniMindTab(),
+          _buildLedgerTab(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedTab,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: const Color(0xFF161B22),
-        selectedItemColor: const Color(0xFF03DAC6),
-        unselectedItemColor: Colors.grey,
-        selectedFontSize: 11,
-        unselectedFontSize: 10,
         onTap: (index) => setState(() => _selectedTab = index),
+        backgroundColor: const Color(0xFF161B22),
+        selectedItemColor: _teal,
+        unselectedItemColor: Colors.grey,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.memory), label: 'Core Sys'),
-          BottomNavigationBarItem(icon: Icon(Icons.hub), label: 'Network'),
-          BottomNavigationBarItem(icon: Icon(Icons.people_outline), label: 'Citizens'),
-          BottomNavigationBarItem(icon: Icon(Icons.bug_report_outlined), label: 'Bugs'),
+          BottomNavigationBarItem(icon: Icon(Icons.hub), label: 'Daemon'),
           BottomNavigationBarItem(icon: Icon(Icons.smart_toy_outlined), label: 'OmniMind'),
+          BottomNavigationBarItem(icon: Icon(Icons.account_tree_outlined), label: 'Ledger'),
         ],
       ),
     );
   }
 
-  // 1. Core Systems Dashboard
-  Widget _buildCoreSystemsDashboard() {
+  Widget _footer() {
+    final t = _lastPoll;
+    final stamp = t == null
+        ? 'never'
+        : '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}:${t.second.toString().padLeft(2, '0')}';
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Text('Last poll $stamp • every 2s', style: const TextStyle(color: Colors.grey, fontSize: 11)),
+    );
+  }
+
+  Widget _buildDaemonTab() {
+    final online = _node != null;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _buildMetricHeaderCard('Core Systems Status', 'Pre-launch local node running WAL engine', Icons.memory, const Color(0xFF03DAC6)),
+        _buildMetricHeaderCard('Daemon & P2P', 'GET :9100/api/v1/telemetry/node-health', Icons.hub, const Color(0xFFBB86FC)),
         const SizedBox(height: 12),
-        _buildStatusRow('SQLite WAL Commit Rate', '120 ops/sec', const Color(0xFF03DAC6)),
-        _buildStatusRow('Immutable DB File Size', '1.24 MB', Colors.white),
-        _buildStatusRow('Local Event Depth', '48 Transactions', Colors.white),
-        _buildStatusRow('LPE Compositor Frame Rate', '60.0 FPS', const Color(0xFF03DAC6)),
-        _buildStatusRow('Memory Utilization', '42.8 MB / 512 MB', Colors.white),
+        _buildStatusRow('Status', online ? 'ONLINE' : 'OFFLINE${_nodeError.isEmpty ? '' : ' ($_nodeError)'}', online ? _teal : _red),
+        if (!online)
+          _hint('Start it in Termux:  bash Admin/start_local_stack.sh\n'
+              'Ports 9100 and 5000 only listen on 127.0.0.1, so run the daemon on this same phone.'),
+        if (online) ...[
+          _buildStatusRow('Node ID', _short(_v(_node, 'node_id')), Colors.white),
+          _buildStatusRow('Daemon version', _v(_node, 'version'), Colors.white),
+          _buildStatusRow('Local IP', _v(_node, 'local_ip'), Colors.white),
+          _buildStatusRow('P2P sync port', _v(_node, 'p2p_sync_port'), Colors.white),
+          _buildStatusRow('Active peers', _v(_node, 'active_peers'), _teal),
+          _buildStatusRow('Peer IPs', _v(_node, 'peer_ips'), Colors.white),
+          _buildStatusRow('Uptime', '${_v(_node, 'uptime_seconds')} s', Colors.white),
+        ],
+        _footer(),
       ],
     );
   }
 
-  // 2. Network Telemetry Dashboard
-  Widget _buildNetworkTelemetryDashboard() {
+  Widget _buildOmniMindTab() {
+    final live = _omnimind != null;
+    final integrity = _v(_omnimind, 'chain_integrity');
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _buildMetricHeaderCard('P2P Network Telemetry', 'GossipSub Mesh Topology (1 Node Active)', Icons.hub, const Color(0xFFBB86FC)),
+        _buildMetricHeaderCard('OmniMind Agent', 'GET :9100/api/omnimind/telemetry', Icons.smart_toy_outlined, const Color(0xFFE91E63)),
         const SizedBox(height: 12),
-        _buildStatusRow('Active Mesh Peers', '1 Node (Self / Sovereign Local)', const Color(0xFF03DAC6)),
-        _buildStatusRow('External Peer Connections', '0 Peers (Pre-Launch Isolation)', Colors.grey),
-        _buildStatusRow('NAT Traversal State', 'Local Loopback (127.0.0.1)', Colors.white),
-        _buildStatusRow('mDNS / BLE Discovery Daemon', 'LISTENING', const Color(0xFF03DAC6)),
-        _buildStatusRow('Loopback Ping Latency', '0.1 ms', const Color(0xFF03DAC6)),
-        _buildStatusRow('Bandwidth Throughput', '0.00 KB/s in • 0.00 KB/s out', Colors.grey),
+        _buildStatusRow('Agent', live ? 'ACTIVE' : 'IDLE (no agent posting)', live ? _teal : Colors.grey),
+        if (live) ...[
+          _buildStatusRow('Agent ID', _v(_omnimind, 'agent_id'), Colors.white),
+          _buildStatusRow('Current action', _short(_v(_omnimind, 'action')), _teal),
+          _buildStatusRow('Events audited', _v(_omnimind, 'events_processed'), Colors.white),
+          _buildStatusRow('Chain integrity', integrity, integrity == 'VERIFIED' ? _teal : _red),
+          _buildStatusRow('Last verified', _short(_v(_omnimind, 'last_verified_event')), Colors.white),
+          _buildStatusRow('Report age', '${_v(_omnimind, 'age_seconds')} s', Colors.white),
+        ],
+        _footer(),
       ],
     );
   }
 
-  // 3. Citizens & Node Attestations Dashboard
-  Widget _buildCitizensDashboard() {
+  Widget _buildLedgerTab() {
+    final live = _stats != null;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _buildMetricHeaderCard('Citizens & Node Governance', 'Hardware Attestation & Human Signatures', Icons.people_outline, const Color(0xFF4CAF50)),
+        _buildMetricHeaderCard('Merkle DAG Ledger', 'GET :5000/api/events/stats', Icons.account_tree_outlined, _teal),
         const SizedBox(height: 12),
-        _buildStatusRow('Hardware Attestation Pass Rate', '100% (Android Play Integrity)', const Color(0xFF03DAC6)),
-        _buildStatusRow('Human Signature Check', 'VERIFIED (Gyro-Jitter Dynamics)', const Color(0xFF03DAC6)),
-        _buildStatusRow('Sovereign Node Score', '100 / 100 (Clean Record)', const Color(0xFF03DAC6)),
-        _buildStatusRow('Slashed Node Count', '0 Slashed Nodes', Colors.grey),
-        _buildStatusRow('Active Human Identity', 'Sovereign Node Owner (You)', Colors.white),
+        _buildStatusRow('Ledger', live ? 'REACHABLE' : 'UNAVAILABLE', live ? _teal : _red),
+        if (live) ...[
+          _buildStatusRow('Total events', _v(_stats, 'total_events'), Colors.white),
+          _buildStatusRow('Storage mode', _v(_stats, 'db_mode'), Colors.white),
+          _buildStatusRow('Latest Merkle hash', _short(_v(_stats, 'last_merkle_hash')), _teal),
+        ],
+        _footer(),
       ],
     );
   }
 
-  // 4. Component Health & Bug Reports Dashboard
-  Widget _buildComponentHealthDashboard() {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        _buildMetricHeaderCard('Component Health & Crash Envelopes', 'Exception Traces & Socket Monitor', Icons.bug_report_outlined, const Color(0xFFFF9800)),
-        const SizedBox(height: 12),
-        _buildStatusRow('Unhandled Exceptions', '0 Fatal Exceptions', const Color(0xFF03DAC6)),
-        _buildStatusRow('IPC Socket Rate-Limit Drops', '0 Drops', const Color(0xFF03DAC6)),
-        _buildStatusRow('Continuity-Engine Health', 'OPTIMAL', const Color(0xFF03DAC6)),
-        _buildStatusRow('Local Send Transport Daemon', 'READY', const Color(0xFF03DAC6)),
-      ],
-    );
-  }
-
-  // 5. OmniMind Reports Dashboard
-  Widget _buildOmniMindReportsDashboard() {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        _buildMetricHeaderCard('OmniMind Autonomous Reports', 'World State Maintenance & Audits', Icons.smart_toy_outlined, const Color(0xFFE91E63)),
-        const SizedBox(height: 12),
-        _buildStatusRow('OmniMind Execution Loop', 'IDLE (Monitoring Invariants)', const Color(0xFF03DAC6)),
-        _buildStatusRow('Merkle Root Synchronization', '0x7f8a...3b21 (Synced)', const Color(0xFF03DAC6)),
-        _buildStatusRow('Self-Patching Candidate Log', '0 Pending Patches', Colors.grey),
-        _buildStatusRow('Autonomous Security Audit', 'PASSED (0 System Violations)', const Color(0xFF03DAC6)),
-      ],
+  Widget _hint(String text) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(color: const Color(0xFF21262D), borderRadius: BorderRadius.circular(8)),
+      child: Text(text, style: const TextStyle(fontSize: 12, color: Colors.white70)),
     );
   }
 
@@ -176,7 +287,7 @@ class _MeshMonitorMainScreenState extends State<MeshMonitorMainScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white)),
                 const SizedBox(height: 4),
@@ -200,7 +311,15 @@ class _MeshMonitorMainScreenState extends State<MeshMonitorMainScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-            Text(value, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: valueColor)),
+            const SizedBox(width: 12),
+            Flexible(
+              child: Text(
+                value,
+                textAlign: TextAlign.right,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: valueColor),
+              ),
+            ),
           ],
         ),
       ),

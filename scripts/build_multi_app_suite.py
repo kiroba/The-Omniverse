@@ -188,6 +188,7 @@ android {{
     ndkVersion "27.0.12077973"
 
     compileOptions {{
+        coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }}
@@ -228,6 +229,11 @@ android {{
     }}
 }}
 
+dependencies {{
+    // Required by ota_update 7.x
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.1.4"
+}}
+
 flutter {{
     source "../.."
 }}
@@ -249,6 +255,7 @@ class MainActivity: FlutterActivity()
     manifest_xml = f"""<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="{package_name}">
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <application
         android:networkSecurityConfig="@xml/network_security_config"
         android:label="{app_label}"
@@ -273,6 +280,21 @@ class MainActivity: FlutterActivity()
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- In-app OTA updates (ota_update plugin) -->
+        <provider
+            android:name="sk.fourq.otaupdate.OtaUpdateFileProvider"
+            android:authorities="${{applicationId}}.ota_update_provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepaths" />
+        </provider>
+        <receiver android:name="sk.fourq.otaupdate.InstallResultReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="${{applicationId}}.ACTION_INSTALL_COMPLETE"/>
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>
 """
@@ -293,6 +315,13 @@ class MainActivity: FlutterActivity()
 """
     with open(res_xml / "network_security_config.xml", "w", encoding="utf-8") as f:
         f.write(network_security_xml)
+    filepaths_xml = """<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <files-path name="internal_apk_storage" path="ota_update/"/>
+</paths>
+"""
+    with open(res_xml / "filepaths.xml", "w", encoding="utf-8") as f:
+        f.write(filepaths_xml)
         
     # 6. Mipmap AAPT Safe Icons
     mipmap_icon_xml = """<?xml version="1.0" encoding="utf-8"?>
@@ -400,6 +429,7 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.6
   http: ^1.2.0
+  ota_update: ^7.1.0
   cryptography: ^2.7.0
   crypto: ^3.0.3
   sqflite: ^2.3.0
@@ -483,7 +513,7 @@ def build_all_apps():
         "com.omniverse.mesh_monitor",
         "Omniverse Mesh Monitor",
         "omni_mobile_mesh_monitor_ui.dart",
-        [],
+        ["omni_ota_updater.dart"],
         search_paths
     )
 

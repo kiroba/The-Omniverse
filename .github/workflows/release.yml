@@ -61,13 +61,21 @@ jobs:
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Generate app workspaces
+        shell: pwsh
+        env: { PYTHONIOENCODING: utf-8 }
+        run: python build_multi_app_suite.py
       - uses: subosito/flutter-action@v2
         with: { channel: stable, cache: true }
       - name: Build Windows
-        working-directory: mobile
+        # mobile/ has no pubspec.yaml; build the generated superapp and add a Windows runner to it.
+        working-directory: apps/omniverse_superapp_master/mobile
         shell: pwsh
         run: |
           flutter config --enable-windows-desktop
+          flutter create --platforms=windows --project-name omniverse_superapp_master .
           flutter pub get
           flutter build windows --release
           Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath "$env:GITHUB_WORKSPACE\omniverse-windows-x64.zip"

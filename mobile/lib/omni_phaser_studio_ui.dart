@@ -155,7 +155,7 @@ class _PhaserStudioShellState extends State<PhaserStudioShell> {
                     tooltip: 'Back (Esc / Alt+Left)',
                     onPressed: _handleBackNavigation,
                   )
-                : const Icon(Icons.handcraft_outlined, color: Color(0xFF00FFCC)),
+                : const Icon(Icons.build_outlined, color: Color(0xFF00FFCC)),
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

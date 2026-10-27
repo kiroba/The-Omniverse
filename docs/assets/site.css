@@ -1,0 +1,53 @@
+:root{--bg:#07070f;--panel:#11111d;--line:#23233a;--txt:#e9e9f5;--mut:#9393b0;--acc:#7c5cff;--acc2:#22d3ee;--ok:#34d399}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+#stars{position:fixed;inset:0;z-index:-1}
+a{color:var(--acc2);text-decoration:none}a:hover{text-decoration:underline}
+.nav{position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;padding:14px 5vw;background:rgba(7,7,15,.75);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);z-index:5}
+.brand{font-weight:800;color:var(--txt);letter-spacing:.3px}
+.nav nav a{margin-left:18px;color:var(--mut);font-size:14px}
+.nav nav a:hover{color:var(--txt)}
+main{max-width:1100px;margin:0 auto;padding:0 5vw}
+section{padding:56px 0}
+.hero{padding:90px 0 60px;text-align:center}
+.eyebrow{color:var(--acc2);text-transform:uppercase;letter-spacing:2px;font-size:12px;font-weight:700}
+h1{font-size:clamp(40px,7vw,76px);line-height:1.02;margin:.2em 0}
+h1 span{background:linear-gradient(90deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lede{max-width:620px;margin:0 auto 28px;color:var(--mut);font-size:18px}
+.cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn{display:inline-block;padding:13px 22px;border-radius:12px;font-weight:700;border:1px solid var(--line);color:var(--txt)}
+.btn:hover{text-decoration:none;transform:translateY(-1px)}
+.btn.primary{background:linear-gradient(90deg,var(--acc),#5b8cff);border:0}
+.btn.ghost{background:transparent}
+.btn.sm{padding:8px 14px;font-size:14px;border-radius:9px}
+.btn[aria-disabled=true]{opacity:.45;pointer-events:none}
+.muted{color:var(--mut)}.small{font-size:13px}
+.section-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+h2{font-size:28px;margin:0 0 18px}
+.tabs{display:flex;gap:6px;background:var(--panel);border:1px solid var(--line);padding:4px;border-radius:12px}
+.tab{background:none;border:0;color:var(--mut);padding:7px 14px;border-radius:9px;cursor:pointer;font:inherit;font-size:14px}
+.tab.active{background:var(--acc);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:10px;transition:border-color .2s,transform .2s}
+.card:hover{border-color:var(--acc);transform:translateY(-2px)}
+.card h3{margin:0;font-size:18px}.card p{margin:0;color:var(--mut);font-size:14px}
+.card .icon{font-size:30px}
+.card .meta{display:flex;gap:8px;flex-wrap:wrap}
+.pill{font-size:11px;padding:3px 8px;border-radius:99px;border:1px solid var(--line);color:var(--mut)}
+.pill.ok{color:var(--ok);border-color:#1f5f4a}
+.card .actions{margin-top:auto;display:flex;gap:8px;flex-wrap:wrap}
+.card.link{color:var(--txt)}.card.link:hover{text-decoration:none}
+.list{display:flex;flex-direction:column;gap:10px}
+.row{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+.row summary{cursor:pointer;display:flex;justify-content:space-between;gap:10px;font-weight:600}
+.row .body{color:var(--mut);font-size:14px;white-space:pre-wrap;margin-top:10px}
+.row .assets a{display:inline-block;margin:8px 12px 0 0;font-size:14px}
+.issue{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.issue a{color:var(--txt)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:10;padding:20px}
+.modal[hidden]{display:none}
+.modal-box{background:var(--panel);border:1px solid var(--line);border-radius:16px;max-width:520px;width:100%;padding:26px;position:relative}
+.modal-box ol{padding-left:20px;color:var(--mut)}
+.close{position:absolute;top:10px;right:14px;background:none;border:0;color:var(--mut);font-size:26px;cursor:pointer}
+footer{text-align:center;color:var(--mut);font-size:13px;padding:40px 5vw;border-top:1px solid var(--line)}
+@media(max-width:640px){.nav nav a:not(:last-child){display:none}}

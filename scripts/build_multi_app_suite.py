@@ -323,18 +323,50 @@ class MainActivity: FlutterActivity()
     with open(res_xml / "filepaths.xml", "w", encoding="utf-8") as f:
         f.write(filepaths_xml)
         
-    # 6. Mipmap AAPT Safe Icons
+    # 6. Launcher icon.
+    # Every layer MUST have an intrinsic size. The old icon was an <adaptive-icon> made of
+    # bare @android:color layers (and a <shape> with no <size> as fallback), so the icon
+    # drawable reported width/height <= 0. Android's PackageInstaller turns the icon into a
+    # Bitmap (PackageUtil.AppSnippet.getBitmapFromDrawable) and crashed with
+    # "IllegalArgumentException: width and height must be > 0" when Install was tapped
+    # (reproduced on API 35 emulators); on phones this showed up as
+    # "There was a problem parsing the package". adb install never draws the icon, which
+    # is why it still worked. Sized vector drawables fix it.
+    icon_bg_xml = """<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#FF0B0F1A" android:pathData="M0,0h108v108h-108z" />
+</vector>
+"""
+    icon_fg_xml = """<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="7" android:fillColor="#00000000"
+        android:pathData="M54,32a22,22 0,1 1,0 44a22,22 0,1 1,0 -44z" />
+</vector>
+"""
+    # Fallback for the plain mipmap/ qualifier (only used below API 26), also sized.
     mipmap_icon_xml = """<?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <solid android:color="@android:color/black" />
-</shape>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp" android:height="48dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#FF0B0F1A" android:pathData="M0,0h108v108h-108z" />
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="7" android:fillColor="#00000000"
+        android:pathData="M54,32a22,22 0,1 1,0 44a22,22 0,1 1,0 -44z" />
+</vector>
 """
     anydpi_icon_xml = """<?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@android:color/black" />
-    <foreground android:drawable="@android:color/white" />
+    <background android:drawable="@drawable/ic_launcher_background" />
+    <foreground android:drawable="@drawable/ic_launcher_foreground" />
 </adaptive-icon>
 """
+    with open(res_draw / "ic_launcher_background.xml", "w", encoding="utf-8") as f:
+        f.write(icon_bg_xml)
+    with open(res_draw / "ic_launcher_foreground.xml", "w", encoding="utf-8") as f:
+        f.write(icon_fg_xml)
     with open(res_mipmap / "ic_launcher.xml", "w", encoding="utf-8") as f:
         f.write(mipmap_icon_xml)
     with open(res_mipmap_anydpi / "ic_launcher.xml", "w", encoding="utf-8") as f:

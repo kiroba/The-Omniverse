@@ -102,7 +102,8 @@ def sanitize_dart_code(file_path: Path):
         print(f"  [!] Warning sanitizing {file_path.name}: {e}")
 
 def generate_android_scaffolding(app_dir: Path, package_name: str, app_label: str,
-                                 fragment_activity: bool = False, extra_permissions: list = None):
+                                 fragment_activity: bool = False, extra_permissions: list = None,
+                                 remote_hub_cleartext: bool = False):
     """fragment_activity: MainActivity extends FlutterFragmentActivity (required by local_auth's
     BiometricPrompt). extra_permissions: additional <uses-permission> names for this app only."""
     android_dir = app_dir / "mobile" / "android"
@@ -320,6 +321,16 @@ class MainActivity: {activity_class}()
     </domain-config>
 </network-security-config>
 """
+    if remote_hub_cleartext:
+        # KickBack "Remote hub" setting: plain HTTP to another phone's daemon, usually its
+        # Tailscale 100.x IP (Tailscale encrypts the link; the daemon also requires a bearer
+        # token). IP ranges can't be listed in a domain-config, so cleartext is allowed app-wide
+        # for this app only. Its other traffic (OTA updates) uses https URLs.
+        network_security_xml = """<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>
+"""
     with open(res_xml / "network_security_config.xml", "w", encoding="utf-8") as f:
         f.write(network_security_xml)
     filepaths_xml = """<?xml version="1.0" encoding="utf-8"?>
@@ -427,7 +438,8 @@ distributionUrl=https\://services.gradle.org/distributions/gradle-8.14-bin.zip
         f.write(wrapper_props)
 
 def create_standalone_project(base_dir: Path, app_folder_name: str, package_name: str, app_label: str, main_dart_src: str, auxiliary_files: list, search_paths: list,
-                              extra_dependencies: dict = None, fragment_activity: bool = False, extra_permissions: list = None):
+                              extra_dependencies: dict = None, fragment_activity: bool = False, extra_permissions: list = None,
+                              remote_hub_cleartext: bool = False):
     """extra_dependencies: {pub_package: version_constraint} added to this app's pubspec only."""
     app_dir = base_dir / "apps" / app_folder_name
     safe_rmtree(app_dir)
@@ -491,7 +503,8 @@ flutter:
         f.write(pubspec)
         
     generate_android_scaffolding(app_dir, package_name, app_label,
-                                 fragment_activity=fragment_activity, extra_permissions=extra_permissions)
+                                 fragment_activity=fragment_activity, extra_permissions=extra_permissions,
+                                 remote_hub_cleartext=remote_hub_cleartext)
     print(f"[✓] Project generated: apps/{app_folder_name}/mobile (AGP 8.11.1, CompileSDK 36, NDK 27.0.12077973, Kotlin 2.2.20, Gradle 8.14 Ready)")
 
 def build_all_apps():
@@ -547,13 +560,14 @@ def build_all_apps():
         "The KickBack Social Network",
         "kickback_main_app_ui.dart",
         ["kickback_seamless_stripe_checkout.dart", "continuity_token_service.dart",
-         "kickback_app_lock.dart", "kickback_secure_identity.dart"],
+         "kickback_app_lock.dart", "kickback_secure_identity.dart", "kickback_hub_settings.dart"],
         search_paths,
         # Biometric / device-credential app lock + Keystore-encrypted identity seed.
         # local_auth 2.x needs FlutterFragmentActivity and minSdk >= 23 (we use 26).
         extra_dependencies={"local_auth": "^2.3.0", "flutter_secure_storage": "^9.2.4"},
         fragment_activity=True,
         extra_permissions=["android.permission.USE_BIOMETRIC"],
+        remote_hub_cleartext=True,  # Settings > Hub > Remote hub (http://100.x.y.z:5000)
     )
 
     # 4. Mobile Mesh Monitor App

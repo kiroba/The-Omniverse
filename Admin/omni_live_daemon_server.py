@@ -5,7 +5,7 @@ OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.5.0 - Hardened Mesh Spine]
 ==============================================================================
 Architecture:
 - Port 9100 (127.0.0.1): Node Health Telemetry & Agent Cache
-- Port 5000 (127.0.0.1): Local IPC Event Gateway (Bearer Token & Host Sanitized)
+- Port 5000 (127.0.0.1): Local IPC Event Gateway (loopback-only bind; GET /api/events/feed lists events)
 - Port 5005 (0.0.0.0): P2P Network Sync Gateway (Signed Envelopes, Hash Verified)
 - Port 9101 (0.0.0.0): UDP Subnet Discovery Broadcaster/Listener (Advertises 5005)
 Mesh name (OMNI_MESH_ID, default "dev"): beacons and /p2p/sync requests carry it; other meshes are ignored/403.
@@ -26,10 +26,11 @@ import threading
 import socket
 import urllib.request
 import urllib.error
+import urllib.parse
 from pathlib import Path
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
-VERSION = "8.5.1"
+VERSION = "8.6.0"
 TELEMETRY_PORT = 9100
 CONTINUITY_IPC_PORT = 5000
 P2P_SYNC_PORT = 5005
@@ -368,6 +369,112 @@ def udp_discovery_listener():
         except Exception:
             pass
 
+# --- Event feed (GET :5000/api/events/feed) -------------------------------------------------------
+FEED_DEFAULT_LIMIT = 50
+FEED_MAX_LIMIT = 200
+_FEED_TYPE_RE = re.compile(r"[A-Za-z0-9_.:-]{1,64}")
+_FEED_ARGS = {"limit", "before", "since", "type"}
+
+def _feed_int(params: dict, name: str):
+    vals = params.get(name)
+    if not vals:
+        return None
+    v = vals[-1].strip()
+    if not re.fullmatch(r"\d{1,18}", v):
+        raise ValueError(f"'{name}' must be a non-negative integer")
+    return int(v)
+
+def parse_feed_query(query: str) -> dict:
+    """Parses ?limit=&before=&since=&type= . Raises ValueError on bad input.
+    limit: default 50, clamped to 1..200. before/since: event row ids (the cursor). type: action name."""
+    params = urllib.parse.parse_qs(query or "", keep_blank_values=True)
+    unknown = set(params) - _FEED_ARGS
+    if unknown:
+        raise ValueError(f"unknown parameter(s): {', '.join(sorted(unknown))}")
+    limit = _feed_int(params, "limit")
+    limit = FEED_DEFAULT_LIMIT if limit is None else max(1, min(limit, FEED_MAX_LIMIT))
+    before = _feed_int(params, "before")
+    since = _feed_int(params, "since")
+    etype = None
+    if params.get("type"):
+        etype = params["type"][-1].strip()
+        if etype and not _FEED_TYPE_RE.fullmatch(etype):
+            raise ValueError("'type' must be 1-64 chars of A-Z a-z 0-9 _ . : -")
+        etype = etype or None
+    return {"limit": limit, "before": before, "since": since, "type": etype}
+
+def _row_to_feed_event(row) -> dict:
+    rowid, event_id, action, author, prev_hash, timestamp, payload_json, signature, ts_ms = row
+    try:
+        payload = json.loads(payload_json or "{}")
+        if not isinstance(payload, dict):
+            payload = {}
+    except ValueError:
+        payload = {}
+    # Exactly the time field that was signed: int-ms "ts" for new events, float "timestamp" for legacy.
+    time_fields = {"ts": int(ts_ms)} if ts_ms is not None else {"timestamp": timestamp}
+    verified = False
+    if signature:
+        try:
+            verified = bool(verify_event({"action": action, "author_pubkey": author, "payload": payload,
+                                          "previous_hash": prev_hash, **time_fields, "signature": signature}))
+        except Exception:
+            verified = False
+    return {
+        "id": rowid,
+        "event_id": event_id,
+        "type": action,
+        "action": action,
+        "author_pubkey": author,
+        "origin": "local" if author == STATE.node_id else "remote",
+        **time_fields,
+        "ts_ms": int(ts_ms) if ts_ms is not None else int(round(float(timestamp) * 1000)),
+        "payload": payload,           # includes app_* fields (the app's own signed envelope) when present
+        "previous_hash": prev_hash,
+        "signature": signature,
+        "verified": verified,         # node/author Ed25519 signature re-checked at read time
+    }
+
+def list_feed_events(limit: int = FEED_DEFAULT_LIMIT, before: int = None, since: int = None,
+                     etype: str = None, db_path: Path = None) -> dict:
+    """Newest-first page of stored events (local and those received via /p2p/sync).
+    Ordered by row id (arrival order on this node), so the cursor is stable while new events arrive.
+    Next page: ?before=<next_before>. Poll for new events: ?since=<latest_id>."""
+    limit = max(1, min(int(limit), FEED_MAX_LIMIT))
+    db_path = db_path or (Path.cwd() / "continuity_events.db")
+    base = {"status": "OK", "node_id": STATE.node_id, "mesh_id": STATE.mesh_id, "version": VERSION,
+            "limit": limit, "events": [], "count": 0, "has_more": False, "next_before": None, "latest_id": 0}
+    if not db_path.exists():
+        return base
+    where, args = [], []
+    if before is not None:
+        where.append("id < ?"); args.append(before)
+    if since is not None:
+        where.append("id > ?"); args.append(since)
+    if etype:
+        where.append("action = ?"); args.append(etype)
+    sql = ("SELECT id, event_id, action, author_pubkey, previous_hash, timestamp, payload_json, signature, ts_ms "
+           "FROM events" + (" WHERE " + " AND ".join(where) if where else "") + " ORDER BY id DESC LIMIT ?")
+    conn = sqlite3.connect(str(db_path))
+    try:
+        c = conn.cursor()
+        c.execute(sql, (*args, limit + 1))
+        rows = c.fetchall()
+        c.execute("SELECT COALESCE(MAX(id), 0) FROM events;")
+        latest_id = c.fetchone()[0]
+    finally:
+        conn.close()
+    has_more = len(rows) > limit
+    rows = rows[:limit]
+    events = [_row_to_feed_event(r) for r in rows]
+    base.update(events=events, count=len(events), has_more=has_more, latest_id=latest_id,
+                next_before=(events[-1]["id"] if has_more and events else None))
+    return base
+
+def _is_loopback(ip: str) -> bool:
+    return ip in ("127.0.0.1", "::1", "::ffff:127.0.0.1") or ip.startswith("127.")
+
+
 class TelemetryHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         return
@@ -460,7 +567,36 @@ class ContinuityIPCHandler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
         self.end_headers()
 
+    def _send_json(self, status_code: int, obj: dict):
+        body = json.dumps(obj).encode("utf-8")
+        self.send_response(status_code)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Access-Control-Allow-Origin", "http://127.0.0.1")
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
     def do_GET(self):
+        path, _, query = self.path.partition("?")
+        if path == "/api/events/feed":
+            # The IPC server only binds 127.0.0.1; this check keeps the feed loopback-only even if
+            # someone rebinds IPC_HOST.
+            if not _is_loopback(self.client_address[0]):
+                self._send_json(403, {"status": "ERROR", "message": "loopback only"})
+                return
+            try:
+                q = parse_feed_query(query)
+            except ValueError as e:
+                self._send_json(400, {"status": "ERROR", "message": str(e)})
+                return
+            try:
+                resp = list_feed_events(q["limit"], q["before"], q["since"], q["type"])
+            except Exception as e:
+                self._send_json(500, {"status": "ERROR", "message": f"feed read failed: {e}"})
+                return
+            self._send_json(200, resp)
+            return
         if self.path in ["/api/events/stats", "/api/events/list"]:
             db_path = Path.cwd() / "continuity_events.db"
             count = 0
@@ -583,6 +719,7 @@ def main():
     print(f"[✓] SQLite WAL Event DB:  {db_file}")
     print(f"[✓] Telemetry API Bound:  http://{IPC_HOST}:{TELEMETRY_PORT}/api/v1/telemetry/node-health")
     print(f"[✓] Local IPC Event API:  http://{IPC_HOST}:{CONTINUITY_IPC_PORT}/api/events/append")
+    print(f"[✓] Local IPC Event Feed: http://{IPC_HOST}:{CONTINUITY_IPC_PORT}/api/events/feed?limit=50")
     print(f"[✓] P2P Sync Server Bound: http://{P2P_HOST}:{P2P_SYNC_PORT}/p2p/sync")
     print(f"[✓] UDP Subnet Discovery: Listening on port {UDP_DISCOVERY_PORT}...")
     if STATE.trusted_keys is None:

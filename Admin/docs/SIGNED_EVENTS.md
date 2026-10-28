@@ -4,6 +4,9 @@
 
 Order of checks on `POST /p2p/sync`:
 
+0. Missing or different `X-Omni-Mesh` header (mesh name, `OMNI_MESH_ID`): **403** before the body is
+   read. See [MESH_ID.md](MESH_ID.md); production should set `OMNI_MESH_ID=prod` together with
+   `OMNI_TRUSTED_KEYS_FILE`.
 1. Bad or missing Ed25519 signature: **401**.
 2. Valid signature but the author key is not on the allowlist: **403**.
 3. Otherwise the event is stored and relayed.

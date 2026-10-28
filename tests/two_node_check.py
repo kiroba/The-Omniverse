@@ -3,11 +3,12 @@ from pathlib import Path as _P
 _sys.path.insert(0, str(_P(__file__).resolve().parent.parent / 'Admin'))
 """Run against a daemon with the signing patch: python two_node_check.py [NODE_B_IP]
 Check 5 only works when run on the same machine as the daemon."""
-import json, urllib.request, sys
+import json, os, urllib.request, sys
 from pathlib import Path
 from omni_signing import load_or_create_key, pubkey_hex, sign_event
 def post(url, obj):
-    req=urllib.request.Request(url, json.dumps(obj).encode(), {"Content-Type":"application/json"})
+    req=urllib.request.Request(url, json.dumps(obj).encode(), {"Content-Type":"application/json",
+        "X-Omni-Mesh": os.environ.get("OMNI_MESH_ID", "dev")})  # must match the daemon's mesh or /p2p/sync 403s
     try:
         r=urllib.request.urlopen(req, timeout=3); return r.status, r.read().decode()
     except urllib.error.HTTPError as e: return e.code, e.read().decode()[:120]

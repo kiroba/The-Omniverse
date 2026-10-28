@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ==============================================================================
-OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.5.0 - Hardened Mesh Spine]
+OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.7.0 - Hardened Mesh Spine]
 ==============================================================================
 Architecture:
 - Port 9100 (127.0.0.1): Node Health Telemetry & Agent Cache
@@ -9,6 +9,10 @@ Architecture:
 - Port 5005 (0.0.0.0): P2P Network Sync Gateway (Signed Envelopes, Hash Verified)
 - Port 9101 (0.0.0.0): UDP Subnet Discovery Broadcaster/Listener (Advertises 5005)
 Mesh name (OMNI_MESH_ID, default "dev"): beacons and /p2p/sync requests carry it; other meshes are ignored/403.
+Remote hub (opt-in, v8.7.0): OMNI_HUB_REMOTE=1 + OMNI_HUB_BIND=<ip> also serves the app endpoints
+(feed, append, stats, node-health) on that address. Non-loopback requests need
+"Authorization: Bearer <token>" (token in ~/.omni/hub_token) and remote posts must carry the phone's
+own Ed25519 signature. See Admin/docs/REMOTE_HUB.md.
 ==============================================================================
 """
 
@@ -19,6 +23,8 @@ import time
 import json
 import sqlite3
 import hashlib
+import hmac
+import secrets
 from omni_signing import (load_or_create_key, pubkey_hex, sign_event, verify_event,
                           canonical_event_bytes, now_ms, load_trusted_keys, is_trusted,
                           TRUSTED_KEYS_ENV)
@@ -30,7 +36,7 @@ import urllib.parse
 from pathlib import Path
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
-VERSION = "8.6.0"
+VERSION = "8.7.0"
 TELEMETRY_PORT = 9100
 CONTINUITY_IPC_PORT = 5000
 P2P_SYNC_PORT = 5005
@@ -65,6 +71,99 @@ def load_mesh_id(value=None) -> str:
         raise ValueError(f"{MESH_ID_ENV}={value!r} is invalid: use 1-32 chars of a-z, 0-9 and '-'")
     return value
 
+# --- Remote hub (opt-in) --------------------------------------------------------------------------
+# Off by default: :9100 and :5000 stay on 127.0.0.1 exactly as before. With OMNI_HUB_REMOTE=1 the app
+# endpoints also listen on OMNI_HUB_BIND (e.g. the phone's Tailscale 100.x IP, or 0.0.0.0), and every
+# non-loopback request must send "Authorization: Bearer <token>".
+HUB_REMOTE_ENV = "OMNI_HUB_REMOTE"
+HUB_BIND_ENV = "OMNI_HUB_BIND"
+HUB_TOKEN_FILE_ENV = "OMNI_HUB_TOKEN_FILE"
+HUB_REMOTE = os.environ.get(HUB_REMOTE_ENV, "").strip().lower() in ("1", "true", "yes")
+HUB_BIND = os.environ.get(HUB_BIND_ENV, "").strip() or "127.0.0.1"
+# Paths a remote (authenticated) app may use. Everything else stays loopback-only
+# (e.g. POST /api/omnimind/telemetry, the local agent's cache).
+REMOTE_GET_PATHS = {"/api/events/feed", "/api/events/stats", "/api/events/list", "/api/v1/telemetry/node-health"}
+REMOTE_POST_PATHS = {"/api/events/append"}
+_APP_ENVELOPE_KEYS = ("app_event_id", "app_author_pubkey", "app_signature", "app_previous_hash",
+                      "app_ts", "app_timestamp")
+
+def hub_token_path() -> Path:
+    override = os.environ.get(HUB_TOKEN_FILE_ENV, "").strip()
+    return Path(override) if override else Path.home() / ".omni" / "hub_token"
+
+def load_or_create_hub_token(path: Path = None) -> str:
+    """Returns the persisted remote-hub token, creating it (chmod 600) on first use."""
+    path = path or hub_token_path()
+    if path.exists():
+        tok = path.read_text(encoding="utf-8").strip()
+        if len(tok) >= 32:
+            return tok
+    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        os.chmod(path.parent, 0o700)
+    except OSError:
+        pass
+    tok = secrets.token_urlsafe(32)
+    fd = os.open(str(path), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w", encoding="utf-8") as f:
+        f.write(tok + "\n")
+    os.chmod(path, 0o600)
+    return tok
+
+def check_bearer(header_value, token) -> bool:
+    """Constant-time check of an "Authorization: Bearer <token>" header."""
+    if not token or not header_value:
+        return False
+    scheme, _, presented = str(header_value).strip().partition(" ")
+    if scheme.lower() != "bearer":
+        return False
+    return hmac.compare_digest(presented.strip().encode("utf-8"), token.encode("utf-8"))
+
+def unwrap_remote_event(data: dict) -> dict:
+    """A remote app's post as the event the PHONE signed. Accepts either the signed event itself
+    (author_pubkey + signature at top level) or the shape OmniHubClient.appendEvent sends today
+    (the app's envelope inside payload as app_*). The daemon never signs on the remote app's behalf."""
+    if not isinstance(data, dict):
+        raise ValueError("body must be a JSON object")
+    if data.get("author_pubkey") and data.get("signature"):
+        return data
+    payload = data.get("payload")
+    if not isinstance(payload, dict) or not payload.get("app_author_pubkey") or not payload.get("app_signature"):
+        raise ValueError("remote posts must carry the phone's own signature "
+                         "(author_pubkey + signature, or payload.app_author_pubkey + payload.app_signature)")
+    inner = {k: v for k, v in payload.items() if k not in _APP_ENVELOPE_KEYS}
+    event = {"action": data.get("action", "USER_ACTION"), "author_pubkey": payload["app_author_pubkey"],
+             "payload": inner, "previous_hash": payload.get("app_previous_hash"),
+             "signature": payload["app_signature"]}
+    if "app_ts" in payload:
+        event["ts"] = payload["app_ts"]
+    elif "app_timestamp" in payload:
+        event["timestamp"] = payload["app_timestamp"]
+    if payload.get("app_event_id"):
+        event["event_id"] = payload["app_event_id"]
+    return event
+
+def hub_listen_hosts(remote: bool = None, bind: str = None) -> list:
+    """Addresses :9100/:5000 bind to. Default: loopback only. 0.0.0.0 already covers loopback."""
+    remote = HUB_REMOTE if remote is None else remote
+    bind = HUB_BIND if bind is None else bind
+    if not remote or bind in ("127.0.0.1", "localhost", ""):
+        return ["127.0.0.1"]
+    if bind == "0.0.0.0":
+        return ["0.0.0.0"]
+    return ["127.0.0.1", bind]
+
+def tailscale_ip():
+    """This device's Tailscale 100.x address if Tailscale is up (no packet is sent)."""
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("100.100.100.100", 53))   # Tailscale's MagicDNS address routes via the tailnet
+        ip = s.getsockname()[0]
+        s.close()
+        return ip if ip.startswith("100.") else None
+    except Exception:
+        return None
+
 class EngineState:
     def __init__(self):
         try:
@@ -87,6 +186,7 @@ class EngineState:
         self.trusted_keys = load_trusted_keys()
         if self.trusted_keys is not None:
             self.trusted_keys = self.trusted_keys | {self.node_id}  # our own relayed events
+        self.hub_token = load_or_create_hub_token() if HUB_REMOTE else None
 
 STATE = EngineState()
 
@@ -474,6 +574,39 @@ def list_feed_events(limit: int = FEED_DEFAULT_LIMIT, before: int = None, since:
 def _is_loopback(ip: str) -> bool:
     return ip in ("127.0.0.1", "::1", "::ffff:127.0.0.1") or ip.startswith("127.")
 
+def remote_gate(handler, method: str, path: str) -> bool:
+    """True if the request may proceed. Loopback: always (unchanged behavior). Non-loopback: only
+    with remote hub enabled, an allowed path and a valid bearer token; otherwise sends 403/401."""
+    if _is_loopback(handler.client_address[0]):
+        return True
+    allowed = REMOTE_POST_PATHS if method == "POST" else REMOTE_GET_PATHS
+    if not HUB_REMOTE or STATE.hub_token is None or path not in allowed:
+        _deny(handler, 403, "loopback only")
+        return False
+    if not check_bearer(handler.headers.get("Authorization"), STATE.hub_token):
+        _deny(handler, 401, "missing or invalid bearer token")
+        return False
+    return True
+
+def _deny(handler, code: int, message: str):
+    try:  # drain a small body so the client reads the answer instead of a reset
+        n = min(int(handler.headers.get("Content-Length", 0) or 0), 65536)
+        if n > 0:
+            handler.rfile.read(n)
+    except Exception:
+        pass
+    body = json.dumps({"status": "ERROR", "message": message}).encode("utf-8")
+    handler.send_response(code)
+    handler.send_header("Content-Type", "application/json")
+    if code == 401:
+        handler.send_header("WWW-Authenticate", 'Bearer realm="omni-hub"')
+    handler.send_header("Content-Length", str(len(body)))
+    handler.end_headers()
+    try:
+        handler.wfile.write(body)
+    except Exception:
+        pass
+
 
 class TelemetryHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
@@ -487,6 +620,8 @@ class TelemetryHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
+        if not remote_gate(self, "GET", self.path.partition("?")[0]):
+            return
         if self.path == "/api/v1/telemetry/node-health":
             with STATE.lock:
                 now = time.time()
@@ -536,6 +671,8 @@ class TelemetryHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         # Loopback-only cache for the decoupled OmniMind agent (omnimind_agent_telemetry_engine.py).
+        if not remote_gate(self, "POST", self.path):
+            return
         if self.path != "/api/omnimind/telemetry":
             self.send_error(404, "Endpoint Not Found")
             return
@@ -583,12 +720,10 @@ class ContinuityIPCHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         path, _, query = self.path.partition("?")
+        # Loopback: open as before. Non-loopback: remote hub on + bearer token, else 403/401.
+        if not remote_gate(self, "GET", path):
+            return
         if path == "/api/events/feed":
-            # The IPC server only binds 127.0.0.1; this check keeps the feed loopback-only even if
-            # someone rebinds IPC_HOST.
-            if not _is_loopback(self.client_address[0]):
-                self._send_json(403, {"status": "ERROR", "message": "loopback only"})
-                return
             try:
                 q = parse_feed_query(query)
             except ValueError as e:
@@ -640,6 +775,8 @@ class ContinuityIPCHandler(BaseHTTPRequestHandler):
             self.send_error(404, "Endpoint Not Found")
 
     def do_POST(self):
+        if not remote_gate(self, "POST", self.path):
+            return
         if self.path == "/api/events/append":
             content_len = int(self.headers.get("Content-Length", 0))
             if content_len > MAX_PAYLOAD_SIZE:
@@ -649,7 +786,17 @@ class ContinuityIPCHandler(BaseHTTPRequestHandler):
             post_body = self.rfile.read(content_len).decode("utf-8") if content_len > 0 else "{}"
             try:
                 data = json.loads(post_body)
-                resp_data, status_code = process_and_store_event(data, origin_peer=None)
+                if _is_loopback(self.client_address[0]):
+                    resp_data, status_code = process_and_store_event(data, origin_peer=None)
+                else:
+                    # Remote app (token already checked): store the event the PHONE signed, verified
+                    # exactly like a peer event. The node key never signs for a remote app.
+                    try:
+                        event = unwrap_remote_event(data)
+                    except ValueError as e:
+                        resp_data, status_code = {"status": "ERROR", "message": str(e)}, 400
+                    else:
+                        resp_data, status_code = process_and_store_event(event, origin_peer=self.client_address[0])
                 body = json.dumps(resp_data).encode("utf-8")
                 self.send_response(status_code)
                 self.send_header("Content-Type", "application/json")
@@ -739,20 +886,33 @@ def main():
         print(f"[!] WARNING: {TRUSTED_KEYS_ENV} not set: ANY validly signed peer event is accepted.")
     else:
         print(f"[✓] Trusted-keys allowlist: {len(STATE.trusted_keys)} key(s); others get 403")
+    if HUB_REMOTE:
+        hosts = hub_listen_hosts()
+        addrs = [HUB_BIND] if HUB_BIND != "0.0.0.0" else [a for a in (tailscale_ip(), LOCAL_IP) if a and a != "127.0.0.1"]
+        print(f"[✓] REMOTE HUB ON ({HUB_REMOTE_ENV}=1): app endpoints listen on {', '.join(hosts)}")
+        for a in dict.fromkeys(addrs):
+            tag = "  (Tailscale)" if a.startswith("100.") else ""
+            print(f"    -> http://{a}:{CONTINUITY_IPC_PORT}/api/events/feed  +  http://{a}:{TELEMETRY_PORT}/api/v1/telemetry/node-health{tag}")
+        print(f"[✓] Remote hub token ({hub_token_path()}): {STATE.hub_token}")
+        print("    Remote requests need 'Authorization: Bearer <token>'; remote posts must be signed by the phone.")
+    else:
+        print(f"[✓] Remote hub: off (set {HUB_REMOTE_ENV}=1 and {HUB_BIND_ENV}=<ip> to serve another phone)")
     print(f"[✓] Event time format: {'legacy float timestamp' if LEGACY_FLOAT_TS else 'int-ms ts'} for events this node stamps")
-    print("------------------------------------------------------------------")
+    print("------------------------------------------------------------------", flush=True)  # show in daemon.log now
 
     t1 = threading.Thread(target=udp_discovery_broadcaster, daemon=True)
     t2 = threading.Thread(target=udp_discovery_listener, daemon=True)
-    t3 = threading.Thread(target=lambda: ThreadingHTTPServer((IPC_HOST, TELEMETRY_PORT), TelemetryHandler).serve_forever(), daemon=True)
-    t4 = threading.Thread(target=lambda: ThreadingHTTPServer((IPC_HOST, CONTINUITY_IPC_PORT), ContinuityIPCHandler).serve_forever(), daemon=True)
-    t5 = threading.Thread(target=lambda: ThreadingHTTPServer((P2P_HOST, P2P_SYNC_PORT), P2PSyncHandler).serve_forever(), daemon=True)
+    # Bind in the main thread so a bad OMNI_HUB_BIND fails loudly instead of in a dead thread.
+    servers = []
+    for host in hub_listen_hosts():
+        servers.append(ThreadingHTTPServer((host, TELEMETRY_PORT), TelemetryHandler))
+        servers.append(ThreadingHTTPServer((host, CONTINUITY_IPC_PORT), ContinuityIPCHandler))
+    servers.append(ThreadingHTTPServer((P2P_HOST, P2P_SYNC_PORT), P2PSyncHandler))
 
     t1.start()
     t2.start()
-    t3.start()
-    t4.start()
-    t5.start()
+    for srv in servers:
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
 
     try:
         while True:

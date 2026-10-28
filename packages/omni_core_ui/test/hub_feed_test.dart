@@ -155,6 +155,26 @@ void main() {
     List<int> seed(int b) => List<int>.filled(32, b);
     var rowId = 100;
 
+    // A node-signed row around [payload] with a correct node event id.
+    Future<Map<String, dynamic>> relay(Map<String, dynamic> payload, {int nodeSeed = 2, int ts = 1793163301000}) async {
+      final node = await StargateIdentity.fromSeed(seed(nodeSeed));
+      final struct = eventStruct(
+          action: 'KICKBACK_POST', authorPubkey: node.pubkeyHex, payload: payload, previousHash: nodePrev, tsMs: ts);
+      return {
+        'id': rowId++,
+        'event_id': canonicalEventId(
+            action: 'KICKBACK_POST', authorPubkey: node.pubkeyHex, payload: payload, previousHash: nodePrev, tsMs: ts),
+        'action': 'KICKBACK_POST',
+        'author_pubkey': node.pubkeyHex,
+        'origin': 'remote',
+        'ts': ts,
+        'payload': payload,
+        'previous_hash': nodePrev,
+        'signature': await node.sign(struct),
+        'verified': true,
+      };
+    }
+
     // A real KickBack post: signed by an app key, relayed (re-signed) by a node.
     // [claimId] replaces app_event_id after signing (app_event_id is not part of
     // what the app signs, so the app signature still checks out).
@@ -181,26 +201,6 @@ void main() {
         'app_previous_hash': genesis,
         'app_ts': appTs,
       }, nodeSeed: nodeSeed, ts: appTs + 1000);
-    }
-
-    // A node-signed row around [payload] with a correct node event id.
-    Future<Map<String, dynamic>> relay(Map<String, dynamic> payload, {int nodeSeed = 2, int ts = 1793163301000}) async {
-      final node = await StargateIdentity.fromSeed(seed(nodeSeed));
-      final struct = eventStruct(
-          action: 'KICKBACK_POST', authorPubkey: node.pubkeyHex, payload: payload, previousHash: nodePrev, tsMs: ts);
-      return {
-        'id': rowId++,
-        'event_id': canonicalEventId(
-            action: 'KICKBACK_POST', authorPubkey: node.pubkeyHex, payload: payload, previousHash: nodePrev, tsMs: ts),
-        'action': 'KICKBACK_POST',
-        'author_pubkey': node.pubkeyHex,
-        'origin': 'remote',
-        'ts': ts,
-        'payload': payload,
-        'previous_hash': nodePrev,
-        'signature': await node.sign(struct),
-        'verified': true,
-      };
     }
 
     HubFeedEvent ev(Map<String, dynamic> row) => HubFeedEvent.fromJson(row)!;

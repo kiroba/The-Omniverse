@@ -1,0 +1,136 @@
+name: Android tap-to-install test
+
+# Reproduces what a phone does when you tap a downloaded APK: the file sits in
+# Download/, is opened from its content:// URI with ACTION_VIEW, and the system
+# PackageInstaller parses it and shows its dialog. Also tries adb --no-streaming and a
+# pm session install for comparison. Captures screenshots, the dialog text
+# (uiautomator) and PackageInstaller logcat for each path and APK.
+
+on:
+  workflow_dispatch:
+    inputs:
+      apk_urls:
+        description: Space-separated APK URLs
+        required: true
+        default: >-
+          https://github.com/kiroba/The-Omniverse/releases/download/v0.1.3/mesh-monitor-android-arm64.apk
+          https://github.com/kiroba/The-Omniverse/releases/download/v0.1.3/kickback-social-android-arm64.apk
+      artifact_run_id:
+        description: Optional Actions run id whose APK artifacts are tested too (e.g. a "Build Omniverse Mobile APK Suite" run)
+        required: false
+        default: ''
+      artifact_names:
+        description: Space-separated artifact names from that run
+        required: false
+        default: mesh_monitor_standalone-release-apk kickback_main_standalone-release-apk
+  pull_request:
+    paths:
+      - .github/workflows/android-tap-install-test.yml
+      - scripts/ci/emulator_tap_install_test.sh
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: emu-tap-install-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tap-install:
+    name: API ${{ matrix.api-level }} ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { api-level: 35, target: google_apis }
+          - { api-level: 34, target: google_apis }
+          - { api-level: 35, target: google_apis_playstore }
+    env:
+      APK_URLS: >-
+        ${{ inputs.apk_urls || 'https://github.com/kiroba/The-Omniverse/releases/download/v0.1.3/mesh-monitor-android-arm64.apk https://github.com/kiroba/The-Omniverse/releases/download/v0.1.3/kickback-social-android-arm64.apk' }}
+      ARTIFACT_RUN_ID: ${{ inputs.artifact_run_id || '' }}
+      ARTIFACT_NAMES: ${{ inputs.artifact_names || 'mesh_monitor_standalone-release-apk kickback_main_standalone-release-apk' }}
+      OUT_DIR: emu-out
+      APK_DIR: apks
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Download APKs, read package names and signatures
+        run: |
+          mkdir -p "$APK_DIR" "$OUT_DIR"
+          BT="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -n1)"
+          for url in $APK_URLS; do
+            f="$(basename "$url")"; slug="${f%-android-arm64.apk}"; slug="${slug%.apk}"
+            curl -fsSL --retry 3 -o "$APK_DIR/$slug.apk" "$url"
+            echo "$slug url=$url size=$(stat -c %s "$APK_DIR/$slug.apk") sha256=$(sha256sum "$APK_DIR/$slug.apk" | cut -d' ' -f1)" | tee -a "$OUT_DIR/apk-download.txt"
+            "$BT/aapt2" dump badging "$APK_DIR/$slug.apk" > "$OUT_DIR/$slug-badging.txt" 2>&1 || true
+            sed -n "s/^package: name='\([^']*\)'.*/\1/p" "$OUT_DIR/$slug-badging.txt" | head -n1 > "$APK_DIR/$slug.pkg"
+            "$BT/apksigner" verify --verbose --print-certs "$APK_DIR/$slug.apk" > "$OUT_DIR/$slug-apksigner.txt" 2>&1 || true
+            echo "  package: $(cat "$APK_DIR/$slug.pkg")"; head -n 8 "$OUT_DIR/$slug-apksigner.txt"
+          done
+
+      - name: Add APKs from a workflow run's artifacts (optional)
+        if: env.ARTIFACT_RUN_ID != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          BT="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -n1)"
+          for name in $ARTIFACT_NAMES; do
+            d="art-$name"; mkdir -p "$d"
+            gh run download "$ARTIFACT_RUN_ID" -R "$GITHUB_REPOSITORY" -n "$name" -D "$d"
+            f="$(ls "$d"/*.apk | head -n1)"
+            slug="run$ARTIFACT_RUN_ID-${name%-release-apk}"
+            cp "$f" "$APK_DIR/$slug.apk"
+            echo "$slug artifact=$name run=$ARTIFACT_RUN_ID size=$(stat -c %s "$APK_DIR/$slug.apk") sha256=$(sha256sum "$APK_DIR/$slug.apk" | cut -d' ' -f1)" | tee -a "$OUT_DIR/apk-download.txt"
+            "$BT/aapt2" dump badging "$APK_DIR/$slug.apk" > "$OUT_DIR/$slug-badging.txt" 2>&1 || true
+            sed -n "s/^package: name='\([^']*\)'.*/\1/p" "$OUT_DIR/$slug-badging.txt" | head -n1 > "$APK_DIR/$slug.pkg"
+            "$BT/apksigner" verify --verbose --print-certs "$APK_DIR/$slug.apk" > "$OUT_DIR/$slug-apksigner.txt" 2>&1 || true
+            echo "  package: $(cat "$APK_DIR/$slug.pkg")"; grep -m1 'icon' "$OUT_DIR/$slug-badging.txt" || true
+          done
+
+      - name: Boot emulator and run install paths
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          target: ${{ matrix.target }}
+          arch: x86_64
+          profile: pixel_6
+          force-avd-creation: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot
+          disable-animations: true
+          emulator-boot-timeout: 900
+          script: bash scripts/ci/emulator_tap_install_test.sh
+
+      - name: Write summary
+        if: always()
+        run: |
+          {
+            echo "### API ${{ matrix.api-level }} ${{ matrix.target }} x86_64"
+            echo ""
+            if [ -f "$OUT_DIR/results.tsv" ]; then
+              echo "| apk | path | result | detail |"
+              echo "|---|---|---|---|"
+              tail -n +2 "$OUT_DIR/results.tsv" | while IFS=$'\t' read -r a p r d; do
+                echo "| $a | $p | **$r** | ${d//|//} |"
+              done
+            else
+              echo "No results: the emulator step did not finish."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tap-install-api${{ matrix.api-level }}-${{ matrix.target }}
+          path: emu-out/
+          if-no-files-found: warn

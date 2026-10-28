@@ -10,7 +10,7 @@ class OmniCoreDb {
     final dir = await getDatabasesPath();
     _db = await openDatabase(
       p.join(dir, 'omni_core.db'),
-      version: 1,
+      version: 2,
       onCreate: (db, _) async {
         await db.execute('CREATE TABLE kv (k TEXT PRIMARY KEY, v TEXT NOT NULL)');
         await db.execute('''
@@ -24,8 +24,15 @@ class OmniCoreDb {
             payload_json TEXT NOT NULL,
             signature TEXT NOT NULL,
             synced INTEGER NOT NULL DEFAULT 0,
-            hub_event_id TEXT
+            hub_event_id TEXT,
+            ts_ms INTEGER
           )''');
+      },
+      // v2: ts_ms = exact signed integer-ms time (NULL for legacy float events).
+      onUpgrade: (db, oldVersion, _) async {
+        if (oldVersion < 2) {
+          await db.execute('ALTER TABLE events ADD COLUMN ts_ms INTEGER');
+        }
       },
     );
     return _db!;

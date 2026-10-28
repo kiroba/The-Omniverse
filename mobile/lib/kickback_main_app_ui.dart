@@ -1,16 +1,43 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:omni_core_ui/omni_core_ui.dart';
+
+import 'kickback_app_lock.dart';
+import 'kickback_secure_identity.dart';
 
 /// ============================================================================
-/// THE KICKBACK SOCIAL NETWORK UI (CANONICAL - REAL-TIME SQLITE & PRE-LAUNCH)
+/// THE KICKBACK SOCIAL NETWORK UI
 /// ============================================================================
-/// - Zero hardcoded mock data (all fake posts, fake peers, and mock lists removed)
-/// - Bound directly to local SQLite event_log stream
-/// - Pre-launch zero-state UI when database tables are empty
-/// - Single sovereign node indicator ("1 Local Node Active")
+/// What is real here:
+/// - Posts are signed with this install's Ed25519 identity (omni_core_ui
+///   StargateIdentity, canonical int-ms "ts" form that matches the daemon's
+///   Admin/omni_signing.py byte for byte) and stored in the on-device SQLite log
+///   (LocalEventStore). The feed is loaded from that log on every start.
+/// - Each post is then handed to the local Omni-Hub daemon over loopback
+///   (POST 127.0.0.1:5000/api/events/append). The daemon re-signs it as the node
+///   and relays it to peers; the app's own signature travels inside the payload.
+/// - The header reads the daemon's real node-health telemetry
+///   (GET 127.0.0.1:9100/api/v1/telemetry/node-health): reachable or not, peers.
+/// - The app is locked behind fingerprint / face / device PIN (kickback_app_lock.dart).
+///
+/// Not here yet (shown honestly instead of faked):
+/// - Other people's posts: the daemon has no endpoint that lists events
+///   (/api/events/list returns the same counts as /api/events/stats), so the feed
+///   shows this device's posts plus the daemon's event count.
+/// - Payments: "Payments coming soon". No purchase, no coin balance.
+/// - Hardware attestation / Play Integrity: not implemented.
 /// ============================================================================
 
-void main() => runApp(const KickBackApp());
+const String kPostAction = 'KICKBACK_POST';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Must be set before the identity is first loaded.
+  StargateIdentity.seedStore = SecureStorageSeedStore();
+  runApp(const KickBackApp());
+}
 
 class KickBackApp extends StatelessWidget {
   const KickBackApp({super.key});
@@ -30,7 +57,7 @@ class KickBackApp extends StatelessWidget {
           surface: Color(0xFF1E1E1E),
         ),
       ),
-      home: const KickBackMainScreen(),
+      home: const KickBackLockGate(child: KickBackMainScreen()),
     );
   }
 }
@@ -43,66 +70,177 @@ class KickBackMainScreen extends StatefulWidget {
 }
 
 class _KickBackMainScreenState extends State<KickBackMainScreen> {
+  static const Color _teal = Color(0xFF03DAC6);
+  static const Color _purple = Color(0xFFBB86FC);
+  static const Color _amber = Color(0xFFFFC107);
+  static const Color _red = Color(0xFFFF5370);
+
   final TextEditingController _postController = TextEditingController();
-  final List<Map<String, dynamic>> _localEvents = [];
+  final LocalEventStore _store = LocalEventStore();
+  final OmniHubClient _hub = const OmniHubClient();
+
+  List<OmniEvent> _posts = [];
+  final Map<String, bool> _sigOk = {};
+  bool _loading = true;
+  String? _loadError;
   bool _isPublishing = false;
+
+  StargateIdentity? _identity;
+  HubStatus? _hubStatus; // null = not checked yet
+  int? _daemonEventCount;
+  HubSyncResult? _lastSync;
+  int _pending = 0;
+  Timer? _timer;
+  bool _polling = false;
 
   @override
   void initState() {
     super.initState();
-    // In production, _localEvents is loaded directly from local SQLite WAL database
+    _init();
   }
 
   @override
   void dispose() {
+    _timer?.cancel();
     _postController.dispose();
     super.dispose();
   }
 
-  void _publishLocalPost() {
-    final text = _postController.text.trim();
-    if (text.isEmpty) return;
+  Future<void> _init() async {
+    try {
+      _identity = await StargateIdentity.load();
+      await _loadFeed();
+    } catch (e) {
+      if (mounted) setState(() => _loadError = '$e');
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+    await _pollHub();
+    _timer = Timer.periodic(const Duration(seconds: 5), (_) => _pollHub());
+  }
 
+  Future<void> _loadFeed() async {
+    final posts = await _store.recent(limit: 200, action: kPostAction);
+    final pending = await _store.pendingCount();
+    for (final p in posts) {
+      if (!_sigOk.containsKey(p.eventId)) {
+        _sigOk[p.eventId] = await StargateIdentity.verify(p.toEnvelope());
+      }
+    }
+    if (!mounted) return;
     setState(() {
-      _isPublishing = true;
+      _posts = posts;
+      _pending = pending;
     });
+  }
 
-    // Simulate local SQLite write delay
-    Future.delayed(const Duration(milliseconds: 150), () {
+  /// Reads daemon health, then pushes any posts still waiting.
+  Future<void> _pollHub() async {
+    if (_polling) return;
+    _polling = true;
+    try {
+      final status = await _hub.status();
+      int? count;
+      HubSyncResult? sync;
+      if (status.online) {
+        final stats = await _hub.eventStats();
+        final n = stats?['total_events'];
+        count = n is int ? n : int.tryParse('${n ?? ''}');
+        if (await _store.pendingCount() > 0) {
+          sync = await _store.syncToHubDetailed(_hub);
+        }
+      }
       if (!mounted) return;
       setState(() {
-        _localEvents.insert(0, {
-          'id': DateTime.now().millisecondsSinceEpoch.toString(),
-          'content': text,
-          'timestamp': DateTime.now().toIso8601String().substring(11, 16),
-          'author': 'Sovereign Node (You)',
-          'isHumanVerified': true,
-          'hash': '0x${DateTime.now().millisecondsSinceEpoch.toRadixString(16)}...',
-        });
-        _postController.clear();
-        _isPublishing = false;
+        _hubStatus = status;
+        _daemonEventCount = count;
+        if (sync != null) _lastSync = sync;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Event committed to local SQLite WAL database.'),
-          backgroundColor: Color(0xFF03DAC6),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    });
+      if (sync != null && sync.sent > 0) await _loadFeed();
+      if (mounted) {
+        final pending = await _store.pendingCount();
+        if (mounted) setState(() => _pending = pending);
+      }
+    } finally {
+      _polling = false;
+    }
+  }
+
+  Future<void> _publishLocalPost() async {
+    final text = _postController.text.trim();
+    if (text.isEmpty || _isPublishing) return;
+
+    // Signing uses the identity key, so require a recent unlock first.
+    final auth = await AppLock.ensureRecentUnlock('Confirm it\'s you to sign this post');
+    if (!auth.ok) {
+      _snack(auth.message ?? 'Post not signed: not unlocked', _red);
+      return;
+    }
+
+    setState(() => _isPublishing = true);
+    try {
+      final ev = await _store.append(kPostAction, {'text': text, 'app': 'kickback'});
+      _postController.clear();
+      await _loadFeed();
+
+      final sync = await _store.syncToHubDetailed(_hub);
+      final status = sync.hubReachable ? await _hub.status() : const HubStatus(online: false, peers: 0);
+      if (!mounted) return;
+      setState(() {
+        _lastSync = sync;
+        _hubStatus = status;
+      });
+      await _loadFeed();
+      final sent = _posts.any((p) => p.eventId == ev.eventId && p.synced);
+      if (sent) {
+        _snack('Signed, saved on this device and sent to the local daemon.', _teal);
+      } else if (!sync.hubReachable) {
+        _snack('Signed and saved on this device. Daemon offline: it will be sent when the daemon is running.', _amber);
+      } else {
+        _snack('Signed and saved on this device. The daemon refused it: ${sync.error ?? 'unknown error'}', _red);
+      }
+    } catch (e) {
+      _snack('Could not save the post: $e', _red);
+    } finally {
+      if (mounted) setState(() => _isPublishing = false);
+    }
+  }
+
+  void _snack(String msg, Color color) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(msg, style: const TextStyle(color: Colors.black)),
+      backgroundColor: color,
+      duration: const Duration(seconds: 3),
+    ));
+  }
+
+  // ---------------------------------------------------------------------------
+  // Header status (from node-health telemetry, never hardcoded)
+  // ---------------------------------------------------------------------------
+  ({String text, Color color}) _headerStatus() {
+    final s = _hubStatus;
+    if (s == null) return (text: 'Checking local daemon…', color: Colors.grey);
+    if (!s.online) {
+      return (text: 'Daemon offline • posts stay on this device', color: _amber);
+    }
+    final peers = s.peers == 0 ? 'no peers yet' : '${s.peers} peer${s.peers == 1 ? '' : 's'}';
+    final v = s.version != null ? ' v${s.version}' : '';
+    return (text: 'Daemon$v online • $peers', color: _teal);
   }
 
   @override
   Widget build(BuildContext context) {
+    final header = _headerStatus();
     return Scaffold(
       appBar: AppBar(
         title: Column(
-          crossAxisAlignment: CrossAlignment.start,
-          children: const [
-            Text('The KickBack', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('The KickBack', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             Text(
-              '1 Local Node Active • Mesh Listening',
-              style: TextStyle(color: Color(0xFF03DAC6), fontSize: 11, fontWeight: FontWeight.w500),
+              _pending > 0 ? '${header.text} • $_pending waiting' : header.text,
+              style: TextStyle(color: header.color, fontSize: 11, fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -110,24 +248,19 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
         elevation: 2,
         actions: [
           IconButton(
-            icon: const Icon(Icons.account_balance_wallet_outlined, color: Color(0xFFBB86FC)),
-            tooltip: 'Sovereign Wallet',
-            onPressed: () {
-              _showWalletModal(context);
-            },
+            icon: const Icon(Icons.account_balance_wallet_outlined, color: _purple),
+            tooltip: 'Wallet',
+            onPressed: () => _showWalletModal(context),
           ),
           IconButton(
-            icon: const Icon(Icons.security, color: Color(0xFF03DAC6)),
-            tooltip: 'Node Attestation',
-            onPressed: () {
-              _showNodeAttestationModal(context);
-            },
+            icon: const Icon(Icons.info_outline, color: _teal),
+            tooltip: 'Identity & node',
+            onPressed: () => _showNodeInfoModal(context),
           ),
         ],
       ),
       body: Column(
         children: [
-          // Post Creation Input
           Container(
             padding: const EdgeInsets.all(12),
             color: const Color(0xFF1E1E1E),
@@ -139,7 +272,7 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
                     maxLines: null,
                     style: const TextStyle(color: Colors.white, fontSize: 14),
                     decoration: InputDecoration(
-                      hintText: 'Share a sovereign event or moment...',
+                      hintText: 'Share something…',
                       hintStyle: const TextStyle(color: Colors.grey),
                       filled: true,
                       fillColor: const Color(0xFF2C2C2C),
@@ -156,36 +289,56 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
                     ? const SizedBox(
                         width: 24,
                         height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFBB86FC)),
+                        child: CircularProgressIndicator(strokeWidth: 2, color: _purple),
                       )
                     : IconButton(
-                        icon: const Icon(Icons.send_rounded, color: Color(0xFFBB86FC)),
+                        icon: const Icon(Icons.send_rounded, color: _purple),
+                        tooltip: 'Sign & post',
                         onPressed: _publishLocalPost,
                       ),
               ],
             ),
           ),
           const Divider(height: 1, color: Color(0xFF333333)),
-
-          // Feed Stream View
-          Expanded(
-            child: _localEvents.isEmpty
-                ? _buildPreLaunchZeroStateView()
-                : ListView.builder(
-                    padding: const EdgeInsets.all(12),
-                    itemCount: _localEvents.length,
-                    itemBuilder: (context, index) {
-                      final item = _localEvents[index];
-                      return _buildEventCard(item);
-                    },
-                  ),
-          ),
+          Expanded(child: _buildFeed()),
         ],
       ),
     );
   }
 
-  Widget _buildPreLaunchZeroStateView() {
+  Widget _buildFeed() {
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator(color: _purple));
+    }
+    if (_loadError != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Text('Could not open the on-device feed:\n$_loadError',
+              textAlign: TextAlign.center, style: const TextStyle(color: _red)),
+        ),
+      );
+    }
+    if (_posts.isEmpty) return _buildZeroStateView();
+    return RefreshIndicator(
+      onRefresh: () async {
+        await _pollHub();
+        await _loadFeed();
+      },
+      child: ListView.builder(
+        padding: const EdgeInsets.all(12),
+        itemCount: _posts.length,
+        itemBuilder: (context, index) => _buildEventCard(_posts[index]),
+      ),
+    );
+  }
+
+  Widget _buildZeroStateView() {
+    final daemonLine = _hubStatus == null
+        ? 'Checking for the local daemon…'
+        : _hubStatus!.online
+            ? 'Local daemon is running${_daemonEventCount != null ? ' ($_daemonEventCount events in its log)' : ''}.'
+            : 'Local daemon is not running. Posts will be saved on this device and sent when it starts.';
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -197,32 +350,20 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
               decoration: BoxDecoration(
                 color: const Color(0xFF1E1E1E),
                 shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFF03DAC6).withOpacity(0.4), width: 2),
+                border: Border.all(color: _teal.withOpacity(0.4), width: 2),
               ),
-              child: const Icon(Icons.router_outlined, size: 48, color: Color(0xFF03DAC6)),
+              child: const Icon(Icons.edit_note, size: 48, color: _teal),
             ),
             const SizedBox(height: 20),
             const Text(
-              'Pre-Launch Mainnet Active',
+              'No posts on this device yet',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
             ),
             const SizedBox(height: 8),
-            const Text(
-              '1 Local Sovereign Node Online.\nZero external mesh peers discovered.\nYour feed is clean and backed by local SQLite WAL event logging.',
+            Text(
+              'Posts you write are signed with this phone\'s key and kept in its local log.\n$daemonLine',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13, color: Colors.grey, height: 1.4),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: _publishLocalPost,
-              icon: const Icon(Icons.add_comment, size: 18),
-              label: const Text('Create First Sovereign Event'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF6200EE),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              ),
+              style: const TextStyle(fontSize: 13, color: Colors.grey, height: 1.4),
             ),
           ],
         ),
@@ -230,70 +371,93 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
     );
   }
 
-  Widget _buildEventCard(Map<String, dynamic> item) {
+  ({String text, Color color, IconData icon}) _postStatus(OmniEvent e) {
+    if (e.synced) return (text: 'Sent to daemon', color: _teal, icon: Icons.cloud_done_outlined);
+    if (_hubStatus != null && !_hubStatus!.online) {
+      return (text: 'Saved on device • Daemon offline', color: _amber, icon: Icons.cloud_off);
+    }
+    if (_lastSync?.error != null) {
+      return (text: 'Saved on device • daemon refused', color: _red, icon: Icons.error_outline);
+    }
+    return (text: 'Saved on device', color: Colors.grey, icon: Icons.phone_android);
+  }
+
+  String _shortHash(String h) => h.length > 18 ? '${h.substring(0, 10)}…${h.substring(h.length - 6)}' : h;
+
+  String _formatTime(DateTime t) {
+    String two(int n) => n.toString().padLeft(2, '0');
+    return '${t.year}-${two(t.month)}-${two(t.day)} ${two(t.hour)}:${two(t.minute)}';
+  }
+
+  Widget _buildEventCard(OmniEvent e) {
+    final mine = _identity != null && e.authorPubkey == _identity!.pubkeyHex;
+    final author = mine
+        ? 'You (${_identity!.shortId})'
+        : '${e.authorPubkey.substring(0, 4)}…${e.authorPubkey.substring(e.authorPubkey.length - 4)}';
+    final sigOk = _sigOk[e.eventId];
+    final status = _postStatus(e);
+    final text = '${e.payload['text'] ?? ''}';
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(
-          crossAxisAlignment: CrossAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 const CircleAvatar(
                   radius: 16,
-                  backgroundColor: Color(0xFFBB86FC),
+                  backgroundColor: _purple,
                   child: Icon(Icons.person, size: 18, color: Colors.black),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Text(
-                            item['author'],
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                          ),
-                          const SizedBox(width: 6),
-                          const Icon(Icons.verified, size: 14, color: Color(0xFF03DAC6)),
-                        ],
-                      ),
-                      Text(
-                        'Time: ${item['timestamp']} • Local WAL Signed',
-                        style: const TextStyle(fontSize: 10, color: Colors.grey),
-                      ),
+                      Text(author, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                      Text(_formatTime(e.time), style: const TextStyle(fontSize: 10, color: Colors.grey)),
                     ],
                   ),
                 ),
+                // Backed by a real Ed25519 check of the stored envelope.
+                if (sigOk != null)
+                  Tooltip(
+                    message: sigOk
+                        ? 'Ed25519 signature checks out for this author key'
+                        : 'Signature does not match the content',
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      Icon(sigOk ? Icons.verified_user_outlined : Icons.gpp_bad_outlined,
+                          size: 14, color: sigOk ? _teal : _red),
+                      const SizedBox(width: 4),
+                      Text(sigOk ? 'Signed' : 'Bad signature',
+                          style: TextStyle(fontSize: 10, color: sigOk ? _teal : _red)),
+                    ]),
+                  ),
               ],
             ),
             const SizedBox(height: 10),
-            Text(
-              item['content'],
-              style: const TextStyle(fontSize: 14, color: Colors.white, height: 1.3),
-            ),
+            Text(text, style: const TextStyle(fontSize: 14, color: Colors.white, height: 1.3)),
             const SizedBox(height: 10),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Hash: ${item['hash']}',
-                  style: const TextStyle(fontSize: 10, color: Colors.grey, fontFamily: 'monospace'),
+                Icon(status.icon, size: 13, color: status.color),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(status.text, style: TextStyle(fontSize: 11, color: status.color)),
                 ),
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.favorite_border, size: 18, color: Colors.grey),
-                      onPressed: () {},
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.share_outlined, size: 18, color: Colors.grey),
-                      onPressed: () {},
-                    ),
-                  ],
+                InkWell(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: e.eventId));
+                    _snack('Event hash copied', _teal);
+                  },
+                  child: Text(
+                    _shortHash(e.eventId),
+                    style: const TextStyle(fontSize: 10, color: Colors.grey, fontFamily: 'monospace'),
+                  ),
                 ),
               ],
             ),
@@ -315,10 +479,10 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
           padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Sovereign Wallet & Dual Payments',
+                'Wallet',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
               ),
               const SizedBox(height: 16),
@@ -328,36 +492,33 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
                   color: const Color(0xFF2C2C2C),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Text('Shadow Off-Chain Balance', style: TextStyle(color: Colors.grey)),
-                    Text('0.00 OMNI', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF03DAC6))),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2C2C2C),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Text('Stripe Fiat Checkout', style: TextStyle(color: Colors.grey)),
-                    Text('Ready (1-Tap)', style: TextStyle(fontSize: 14, color: Color(0xFFBB86FC))),
+                child: const Row(
+                  children: [
+                    Icon(Icons.schedule, color: _amber),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Payments coming soon. Coins can\'t be bought yet and there is no coin balance.',
+                        style: TextStyle(color: Colors.grey, fontSize: 13),
+                      ),
+                    ),
                   ],
                 ),
               ),
               const SizedBox(height: 20),
-              SizedBox(
+              const SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
+                  onPressed: null, // disabled until real checkout exists
+                  child: Text('Buy coins (coming soon)'),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: TextButton(
                   onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6200EE)),
-                  child: const Text('Close Wallet'),
+                  child: const Text('Close'),
                 ),
               ),
             ],
@@ -367,7 +528,24 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
     );
   }
 
-  void _showNodeAttestationModal(BuildContext context) {
+  void _showNodeInfoModal(BuildContext context) {
+    final s = _hubStatus;
+    String daemon;
+    if (s == null) {
+      daemon = 'checking…';
+    } else if (!s.online) {
+      daemon = 'offline (nothing answering on 127.0.0.1:9100)';
+    } else {
+      daemon = 'online${s.version != null ? ' v${s.version}' : ''}, ${s.peers} peer(s)'
+          '${s.meshId != null ? ', mesh "${s.meshId}"' : ''}';
+    }
+    Widget row(String k, String v, {Color color = Colors.grey}) => Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            SizedBox(width: 110, child: Text(k, style: const TextStyle(color: Colors.white70, fontSize: 12))),
+            Expanded(child: SelectableText(v, style: TextStyle(color: color, fontSize: 12))),
+          ]),
+        );
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF1E1E1E),
@@ -379,16 +557,24 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
           padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAlignment.start,
-            children: const [
-              Text('Hardware Attestation', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
-              SizedBox(height: 12),
-              Text('• Local Node ID: 127.0.0.1 (Sovereign Self-Node)', style: TextStyle(color: Colors.grey, fontSize: 13)),
-              SizedBox(height: 6),
-              Text('• Play Integrity / Keystore: VERIFIED', style: TextStyle(color: Color(0xFF03DAC6), fontSize: 13)),
-              SizedBox(height: 6),
-              Text('• P2P Peers Connected: 0 (Pre-Launch Isolation)', style: TextStyle(color: Colors.grey, fontSize: 13)),
-              SizedBox(height: 20),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Identity & node',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+              const SizedBox(height: 12),
+              row('Your key', _identity?.pubkeyHex ?? 'loading…'),
+              row('Key storage', 'Android Keystore-encrypted storage (flutter_secure_storage)'),
+              row('App lock', AppLock.unprotected
+                  ? 'No screen lock on this phone: app can\'t be locked'
+                  : 'Fingerprint / face / device PIN',
+                  color: AppLock.unprotected ? _amber : _teal),
+              row('Local daemon', daemon, color: s?.online == true ? _teal : _amber),
+              if (s?.nodeId != null) row('Daemon node', s!.nodeId!),
+              if (_daemonEventCount != null) row('Daemon log', '$_daemonEventCount events'),
+              row('Waiting to send', '$_pending post(s)'),
+              if (_lastSync?.error != null) row('Last refusal', _lastSync!.error!, color: _red),
+              row('Attestation', 'Not implemented (no Play Integrity / hardware attestation yet)'),
+              const SizedBox(height: 8),
             ],
           ),
         );

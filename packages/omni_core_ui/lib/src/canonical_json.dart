@@ -16,12 +16,18 @@ String canonicalJson(Object? value) {
 
 /// "0x" + sha256 of the canonical event struct, exactly like the daemon's
 /// compute_canonical_event_id().
+///
+/// Pass exactly one time field:
+///   [tsMs]      integer milliseconds -> key "ts"        (daemon 8.5.1+, preferred:
+///               integers serialise identically in Python and Dart)
+///   [timestamp] float seconds        -> key "timestamp" (legacy, kept byte-for-byte)
 String canonicalEventId({
   required String action,
   required String authorPubkey,
   required Map<String, dynamic> payload,
   required String previousHash,
-  required double timestamp,
+  double? timestamp,
+  int? tsMs,
 }) {
   final bytes = utf8.encode(canonicalJson(eventStruct(
     action: action,
@@ -29,24 +35,35 @@ String canonicalEventId({
     payload: payload,
     previousHash: previousHash,
     timestamp: timestamp,
+    tsMs: tsMs,
   )));
   return '0x${sha256.convert(bytes)}';
 }
 
+/// The dict that gets hashed and signed (mirrors omni_signing.canonical_event_struct).
+/// Throws [ArgumentError] unless exactly one of [timestamp] / [tsMs] is given.
 Map<String, dynamic> eventStruct({
   required String action,
   required String authorPubkey,
   required Map<String, dynamic> payload,
   required String previousHash,
-  required double timestamp,
-}) =>
-    {
-      'action': action,
-      'author_pubkey': authorPubkey,
-      'payload': payload,
-      'previous_hash': previousHash,
-      'timestamp': timestamp,
-    };
+  double? timestamp,
+  int? tsMs,
+}) {
+  if ((timestamp == null) == (tsMs == null)) {
+    throw ArgumentError("send exactly one of 'ts' (int ms) or 'timestamp' (float s)");
+  }
+  if (tsMs != null && tsMs < 0) {
+    throw ArgumentError("'ts' must be a non-negative integer (milliseconds since epoch)");
+  }
+  return {
+    'action': action,
+    'author_pubkey': authorPubkey,
+    'payload': payload,
+    'previous_hash': previousHash,
+    if (tsMs != null) 'ts': tsMs else 'timestamp': timestamp,
+  };
+}
 
 void _write(Object? v, StringBuffer out) {
   if (v == null) {

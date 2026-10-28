@@ -30,8 +30,15 @@ class OmniHubClient {
   Future<Map<String, dynamic>?> eventStats() => _get(ipcPort, '/api/events/stats');
 
   /// Hands an event to the hub. The hub sets itself as author and signs it.
-  Future<Map<String, dynamic>?> appendEvent(String action, Map<String, dynamic> payload) =>
-      _post(ipcPort, '/api/events/append', {'action': action, 'payload': payload});
+  /// [tsMs] (integer ms) becomes the event's signed "ts"; leave it null and the
+  /// daemon stamps its own time. Returns null only when the hub is unreachable;
+  /// a refusal comes back as {"status": "ERROR", "message": ...}.
+  Future<Map<String, dynamic>?> appendEvent(String action, Map<String, dynamic> payload, {int? tsMs}) =>
+      _post(ipcPort, '/api/events/append', {
+        'action': action,
+        'payload': payload,
+        if (tsMs != null) 'ts': tsMs,
+      });
 
   /// Simple, human-readable status for badges.
   Future<HubStatus> status() async {
@@ -43,6 +50,7 @@ class OmniHubClient {
       peers: peers is int ? peers : int.tryParse('$peers') ?? 0,
       nodeId: h['node_id']?.toString(),
       version: h['version']?.toString(),
+      meshId: h['mesh_id']?.toString(),
     );
   }
 
@@ -67,7 +75,13 @@ class OmniHubClient {
       req.headers.contentType = ContentType.json;
       req.write(jsonEncode(body));
       final res = await req.close().timeout(timeout);
-      return _decode(await res.transform(utf8.decoder).join().timeout(timeout));
+      final text = await res.transform(utf8.decoder).join().timeout(timeout);
+      try {
+        final decoded = _decode(text);
+        if (decoded != null) return decoded;
+      } catch (_) {}
+      // Reached the hub, but it answered with a non-JSON error page.
+      return {'status': 'ERROR', 'message': 'HTTP ${res.statusCode}'};
     } catch (_) {
       return null;
     } finally {
@@ -86,5 +100,6 @@ class HubStatus {
   final int peers;
   final String? nodeId;
   final String? version;
-  const HubStatus({required this.online, required this.peers, this.nodeId, this.version});
+  final String? meshId;
+  const HubStatus({required this.online, required this.peers, this.nodeId, this.version, this.meshId});
 }

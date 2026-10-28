@@ -92,3 +92,11 @@ omni_core_engines_standalone/
 omni_mobile_mesh_monitor_app/
 scratch/
 out/
+
+# Local runtime databases: every device creates its own on first run. Never commit them.
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+*.sqlite
+*.sqlite3

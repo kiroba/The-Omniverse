@@ -17,7 +17,9 @@ import time
 import json
 import sqlite3
 import hashlib
-from omni_signing import load_or_create_key, pubkey_hex, sign_event, verify_event
+from omni_signing import (load_or_create_key, pubkey_hex, sign_event, verify_event,
+                          canonical_event_bytes, now_ms, load_trusted_keys, is_trusted,
+                          TRUSTED_KEYS_ENV)
 import threading
 import socket
 import urllib.request
@@ -25,7 +27,7 @@ import urllib.error
 from pathlib import Path
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
-VERSION = "8.5.0"
+VERSION = "8.5.1"
 TELEMETRY_PORT = 9100
 CONTINUITY_IPC_PORT = 5000
 P2P_SYNC_PORT = 5005
@@ -36,6 +38,9 @@ OMNIMIND_STALE_SECONDS = 15.0
 IPC_HOST = "127.0.0.1"
 P2P_HOST = "0.0.0.0"
 MAX_PAYLOAD_SIZE = 5 * 1024 * 1024  # 5 MB Strict Cap
+# Set OMNI_LEGACY_FLOAT_TS=1 while any peer still runs a pre-8.5.1 daemon: those peers only
+# understand float "timestamp", so events this node stamps itself would 401 there.
+LEGACY_FLOAT_TS = os.environ.get("OMNI_LEGACY_FLOAT_TS", "").strip() in ("1", "true", "yes")
 
 class EngineState:
     def __init__(self):
@@ -49,6 +54,10 @@ class EngineState:
         self.rx_bytes = 0
         self.tx_bytes = 0
         self.lock = threading.Lock()
+        # None = no allowlist (any valid signature accepted). Raises on a bad/missing file.
+        self.trusted_keys = load_trusted_keys()
+        if self.trusted_keys is not None:
+            self.trusted_keys = self.trusted_keys | {self.node_id}  # our own relayed events
 
 STATE = EngineState()
 
@@ -90,6 +99,9 @@ def init_db() -> Path:
     if "signature" not in columns:
         c.execute("ALTER TABLE events ADD COLUMN signature TEXT;")
         conn.commit()
+    if "ts_ms" not in columns:  # exact signed int-ms time; NULL for legacy float events
+        c.execute("ALTER TABLE events ADD COLUMN ts_ms INTEGER;")
+        conn.commit()
 
     # Load seen event_ids into memory for fast deduplication
     c.execute("SELECT event_id FROM events;")
@@ -111,16 +123,46 @@ def init_db() -> Path:
     conn.close()
     return db_path
 
-def compute_canonical_event_id(action: str, author_pubkey: str, payload_obj: dict, previous_hash: str, timestamp: float) -> str:
-    canonical_struct = {
-        "action": action,
-        "author_pubkey": author_pubkey,
-        "payload": payload_obj,
-        "previous_hash": previous_hash,
-        "timestamp": timestamp
-    }
-    canonical_bytes = json.dumps(canonical_struct, sort_keys=True, separators=(',', ':')).encode('utf-8')
-    return "0x" + hashlib.sha256(canonical_bytes).hexdigest()
+def compute_canonical_event_id(action: str, author_pubkey: str, payload_obj: dict, previous_hash: str, timestamp: float = None, ts_ms: int = None) -> str:
+    """Legacy events hash with float "timestamp"; new events hash with int-ms "ts" (see omni_signing)."""
+    struct = {"action": action, "author_pubkey": author_pubkey, "payload": payload_obj,
+              "previous_hash": previous_hash}
+    if ts_ms is not None:
+        struct["ts"] = ts_ms
+    else:
+        struct["timestamp"] = timestamp
+    return "0x" + hashlib.sha256(canonical_event_bytes(struct)).hexdigest()
+
+def resolve_event_time(data: dict, is_local: bool) -> tuple:
+    """Returns (time_fields, timestamp_seconds_for_db, ts_ms_or_None). Raises ValueError on bad input.
+
+    - "ts" present: must be an integer (ms). Kept as-is, it is part of the signed bytes.
+    - "timestamp" present: legacy float seconds, kept as before.
+    - neither: remote events are rejected; local events get a fresh int-ms ts
+      (float seconds instead when OMNI_LEGACY_FLOAT_TS=1).
+    """
+    if "ts" in data and "timestamp" in data:
+        raise ValueError("send exactly one of 'ts' (int ms) or 'timestamp' (float s)")
+    if "ts" in data:
+        ts = data["ts"]
+        if not isinstance(ts, int) or isinstance(ts, bool) or ts < 0:
+            raise ValueError("'ts' must be a non-negative integer number of milliseconds")
+        return {"ts": ts}, ts / 1000.0, ts
+    if "timestamp" in data:
+        try:
+            timestamp = float(data["timestamp"])
+        except (ValueError, TypeError):
+            if not is_local:
+                raise ValueError("'timestamp' is not a number")
+            timestamp = time.time()
+        return {"timestamp": timestamp}, timestamp, None
+    if not is_local:
+        raise ValueError("peer event has no 'ts' or 'timestamp'")
+    if LEGACY_FLOAT_TS:
+        timestamp = time.time()
+        return {"timestamp": timestamp}, timestamp, None
+    ts = now_ms()
+    return {"ts": ts}, ts / 1000.0, ts
 
 def process_and_store_event(data: dict, origin_peer: str = None) -> tuple[dict, int]:
     action = str(data.get("action", "USER_ACTION")).strip()
@@ -132,11 +174,11 @@ def process_and_store_event(data: dict, origin_peer: str = None) -> tuple[dict, 
     if not isinstance(payload_obj, dict):
         payload_obj = {}
 
-    # Extract exact timestamp float
+    # Time field: int-ms "ts" (new) or float "timestamp" (legacy); exactly what was signed
     try:
-        timestamp = float(data.get("timestamp", time.time()))
-    except (ValueError, TypeError):
-        timestamp = time.time()
+        time_fields, timestamp, ts_ms = resolve_event_time(data, is_local=origin_peer is None)
+    except ValueError as e:
+        return {"status": "ERROR", "message": str(e)}, 400
 
     db_path = Path.cwd() / "continuity_events.db"
     conn = sqlite3.connect(str(db_path))
@@ -151,7 +193,7 @@ def process_and_store_event(data: dict, origin_peer: str = None) -> tuple[dict, 
     prev_hash = provided_prev_hash if provided_prev_hash else expected_prev_hash
 
     # Compute deterministic canonical hash ID
-    computed_event_id = compute_canonical_event_id(action, author, payload_obj, prev_hash, timestamp)
+    computed_event_id = compute_canonical_event_id(action, author, payload_obj, prev_hash, timestamp, ts_ms)
     provided_event_id = data.get("event_id")
 
     # Hash re-verification check
@@ -163,7 +205,7 @@ def process_and_store_event(data: dict, origin_peer: str = None) -> tuple[dict, 
 
     # --- Ed25519: remote events must be signed by their author; local events get signed by us ---
     unsigned = {"action": action, "author_pubkey": author, "payload": payload_obj,
-                "previous_hash": prev_hash, "timestamp": timestamp}
+                "previous_hash": prev_hash, **time_fields}
     if origin_peer is None:
         signature = sign_event(STATE.signing_key, unsigned)
     else:
@@ -171,6 +213,10 @@ def process_and_store_event(data: dict, origin_peer: str = None) -> tuple[dict, 
         if not verify_event(dict(unsigned, signature=signature)):
             conn.close()
             return {"status": "ERROR", "message": "Invalid or missing signature"}, 401
+        # Valid signature is not enough when an allowlist is configured: the key must be on it.
+        if not is_trusted(author, STATE.trusted_keys):
+            conn.close()
+            return {"status": "ERROR", "message": "Author key is not in this node's trusted-keys allowlist"}, 403
 
     # Deduplication check
     with STATE.lock:
@@ -187,9 +233,9 @@ def process_and_store_event(data: dict, origin_peer: str = None) -> tuple[dict, 
 
     # Insert verified event
     c.execute("""
-        INSERT INTO events (event_id, action, author_pubkey, previous_hash, timestamp, payload_json, signature)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    """, (event_id, action, author, prev_hash, timestamp, json.dumps(payload_obj), signature))
+        INSERT INTO events (event_id, action, author_pubkey, previous_hash, timestamp, payload_json, signature, ts_ms)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """, (event_id, action, author, prev_hash, timestamp, json.dumps(payload_obj), signature, ts_ms))
     conn.commit()
     conn.close()
 
@@ -201,7 +247,7 @@ def process_and_store_event(data: dict, origin_peer: str = None) -> tuple[dict, 
         "action": action,
         "author_pubkey": author,
         "previous_hash": prev_hash,
-        "timestamp": timestamp,
+        **time_fields,  # "ts" or "timestamp", never both: peers verify exactly what was signed
         "payload": payload_obj,
         "signature": signature
     }
@@ -209,7 +255,7 @@ def process_and_store_event(data: dict, origin_peer: str = None) -> tuple[dict, 
     # Relay to active P2P peers (skipping origin sender)
     threading.Thread(target=relay_event_to_peers, args=(event_envelope, origin_peer), daemon=True).start()
 
-    return {"status": "SUCCESS", "event_id": event_id, "merkle_hash": prev_hash}, 200
+    return {"status": "SUCCESS", "event_id": event_id, "merkle_hash": prev_hash, **time_fields}, 200
 
 def relay_event_to_peers(event_envelope: dict, origin_peer: str = None):
     with STATE.lock:
@@ -460,6 +506,11 @@ def main():
     print(f"[✓] Local IPC Event API:  http://{IPC_HOST}:{CONTINUITY_IPC_PORT}/api/events/append")
     print(f"[✓] P2P Sync Server Bound: http://{P2P_HOST}:{P2P_SYNC_PORT}/p2p/sync")
     print(f"[✓] UDP Subnet Discovery: Listening on port {UDP_DISCOVERY_PORT}...")
+    if STATE.trusted_keys is None:
+        print(f"[!] WARNING: {TRUSTED_KEYS_ENV} not set: ANY validly signed peer event is accepted.")
+    else:
+        print(f"[✓] Trusted-keys allowlist: {len(STATE.trusted_keys)} key(s); others get 403")
+    print(f"[✓] Event time format: {'legacy float timestamp' if LEGACY_FLOAT_TS else 'int-ms ts'} for events this node stamps")
     print("------------------------------------------------------------------")
 
     t1 = threading.Thread(target=udp_discovery_broadcaster, daemon=True)

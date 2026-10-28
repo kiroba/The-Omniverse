@@ -1,5 +1,8 @@
 import 'dart:convert';
 
+import 'package:crypto/crypto.dart';
+
+import 'canonical_json.dart';
 import 'local_event_store.dart';
 import 'stargate_identity.dart';
 
@@ -100,17 +103,88 @@ class HubFeedEvent {
 
   DateTime get time => DateTime.fromMillisecondsSinceEpoch(tsMs);
 
-  /// The app's own event id when the post came from an app, else the node event id.
-  String get dedupeKey {
-    final a = payload['app_event_id'];
-    return a is String && a.isNotEmpty ? a : eventId;
+  /// Which post this is, for dedupe and for the UI's caches. Only ever an id
+  /// that is bound to the content: the app event id when it equals the hash
+  /// of the app envelope, else the node event id when it equals the hash of
+  /// the node envelope, else a fingerprint of the whole row. A peer can put
+  /// any id it likes in a row, so an id that does not hash out is never used
+  /// (it could shadow someone else's post or inherit its Verified badge).
+  late final String dedupeKey = appIdMatches
+      ? payload['app_event_id'] as String
+      : nodeIdMatches
+          ? eventId
+          : 'unbound:$fingerprint';
+
+  /// sha256 over everything the card shows and every signature on it (not the
+  /// daemon row id). Two rows with the same fingerprint are the same content.
+  late final String fingerprint = _fingerprint();
+
+  String _fingerprint() {
+    final m = <String, dynamic>{
+      'event_id': eventId,
+      'action': action,
+      'author_pubkey': authorPubkey,
+      'previous_hash': previousHash,
+      'ts': ts,
+      'timestamp': timestamp,
+      'payload': payload,
+      'signature': signature,
+    };
+    String text;
+    try {
+      text = canonicalJson(m);
+    } catch (_) {
+      text = jsonEncode(m);
+    }
+    return sha256.convert(utf8.encode(text)).toString();
   }
 
-  /// The person's (app) key when present, else the node key.
-  String get displayAuthor {
-    final a = payload['app_author_pubkey'];
-    return a is String && a.isNotEmpty ? a : authorPubkey;
+  /// True when payload.app_event_id is the canonical hash of the app envelope.
+  late final bool appIdMatches = _appIdMatches();
+
+  bool _appIdMatches() {
+    final claimed = payload['app_event_id'];
+    if (claimed is! String || claimed.isEmpty || !hasAppEnvelope) return false;
+    try {
+      final appTs = payload['app_ts'];
+      return canonicalEventId(
+            action: action,
+            authorPubkey: payload['app_author_pubkey'] as String,
+            payload: appPayload,
+            previousHash: payload['app_previous_hash'] as String,
+            tsMs: appTs is int ? appTs : null,
+            timestamp: appTs is int ? null : (payload['app_timestamp'] as num).toDouble(),
+          ) ==
+          claimed;
+    } catch (_) {
+      return false;
+    }
   }
+
+  /// True when [eventId] is the canonical hash of the node envelope (the
+  /// daemon enforces the same rule on /p2p/sync).
+  late final bool nodeIdMatches = _nodeIdMatches();
+
+  bool _nodeIdMatches() {
+    try {
+      return canonicalEventId(
+            action: action,
+            authorPubkey: authorPubkey,
+            payload: payload,
+            previousHash: previousHash,
+            tsMs: ts,
+            timestamp: ts == null ? timestamp : null,
+          ) ==
+          eventId;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// The person's (app) key when the post carries an app envelope (whose
+  /// signature [verifyHubEvent] then checks), else the node key. A bare
+  /// app_author_pubkey without an envelope is ignored: nothing signs it.
+  String get displayAuthor => hasAppEnvelope ? payload['app_author_pubkey'] as String : authorPubkey;
 
   /// Payload as the app signed it (app_* keys removed).
   Map<String, dynamic> get appPayload =>
@@ -168,17 +242,72 @@ enum FeedVerification {
 
 /// Re-checks a daemon feed event on the device (never trusts the daemon's
 /// `verified` flag). If an app envelope is present it must verify: a node
-/// signature over a forged app envelope does not count.
+/// signature over a forged app envelope does not count. Either way the
+/// advertised id must be the hash of the signed content, so a valid signature
+/// cannot be paired with someone else's post id.
 Future<FeedVerification> verifyHubEvent(HubFeedEvent e) async {
   try {
     final app = e.appEnvelope();
     if (app != null) {
+      if (!e.appIdMatches) return FeedVerification.unverified;
       return await StargateIdentity.verify(app) ? FeedVerification.appSigned : FeedVerification.unverified;
     }
     final node = e.nodeEnvelope();
-    if (node != null && await StargateIdentity.verify(node)) return FeedVerification.nodeSigned;
+    if (node != null && e.nodeIdMatches && await StargateIdentity.verify(node)) {
+      return FeedVerification.nodeSigned;
+    }
   } catch (_) {}
   return FeedVerification.unverified;
+}
+
+int _rank(FeedVerification? v) => switch (v) {
+      FeedVerification.appSigned => 2,
+      FeedVerification.nodeSigned => 1,
+      _ => 0,
+    };
+
+/// The app's copy of the daemon feed: one event per [HubFeedEvent.dedupeKey],
+/// with the on-device verification result cached per content
+/// ([HubFeedEvent.fingerprint]), never per id. A row whose content differs
+/// from the one already held is verified on its own, and it only replaces the
+/// held one when it verifies at least as strongly (ties keep the first).
+class HubFeedCache {
+  final int maxEvents;
+  final Future<FeedVerification> Function(HubFeedEvent) _verify;
+  final Map<String, HubFeedEvent> _events = {};
+  final Map<String, FeedVerification> _verified = {};
+
+  HubFeedCache({this.maxEvents = 500, Future<FeedVerification> Function(HubFeedEvent)? verify})
+      : _verify = verify ?? verifyHubEvent;
+
+  Iterable<HubFeedEvent> get events => _events.values;
+  int get length => _events.length;
+  bool get isEmpty => _events.isEmpty;
+
+  /// The cached result for exactly this content, or null if not checked yet.
+  FeedVerification? verificationOf(HubFeedEvent e) => _verified[e.fingerprint];
+
+  Future<void> addAll(Iterable<HubFeedEvent> incoming) async {
+    for (final e in incoming) {
+      final v = _verified[e.fingerprint] ??= await _verify(e);
+      final held = _events[e.dedupeKey];
+      if (held == null || held.fingerprint == e.fingerprint || _rank(v) > _rank(_verified[held.fingerprint])) {
+        _events[e.dedupeKey] = e;
+      }
+    }
+    _prune();
+  }
+
+  void _prune() {
+    if (_events.length > maxEvents) {
+      final byAge = _events.values.toList()..sort((a, b) => a.tsMs.compareTo(b.tsMs));
+      for (final e in byAge.take(_events.length - maxEvents)) {
+        _events.remove(e.dedupeKey);
+      }
+    }
+    final live = {for (final e in _events.values) e.fingerprint};
+    _verified.removeWhere((k, _) => !live.contains(k));
+  }
 }
 
 enum HubFeedState {
@@ -295,10 +424,12 @@ List<FeedEntry> mergeFeed(List<OmniEvent> local, Iterable<HubFeedEvent> hub) {
     if (e.hubEventId != null) seen.add(e.hubEventId!);
   }
   for (final h in hub) {
-    if (seen.contains(h.eventId) || seen.contains(h.dedupeKey)) continue;
-    seen
-      ..add(h.eventId)
-      ..add(h.dedupeKey);
+    // Only ids bound to content take part: a forged row cannot hide a real
+    // post by claiming its id (it gets its own card, marked Unverified).
+    final boundNodeId = h.nodeIdMatches ? h.eventId : null;
+    if (seen.contains(h.dedupeKey) || (boundNodeId != null && seen.contains(boundNodeId))) continue;
+    seen.add(h.dedupeKey);
+    if (boundNodeId != null) seen.add(boundNodeId);
     out.add(FeedEntry.hub(h));
   }
   out.sort((a, b) => b.time.compareTo(a.time));

@@ -148,4 +148,180 @@ void main() {
       expect(r.state, HubFeedState.unreachable);
     });
   });
+
+  group('verification is bound to content, not to the post id', () {
+    const genesis = '0x0000000000000000000000000000000000000000000000000000000000000000';
+    const nodePrev = '0x4444444444444444444444444444444444444444444444444444444444444444';
+    List<int> seed(int b) => List<int>.filled(32, b);
+    var rowId = 100;
+
+    // A node-signed row around [payload] with a correct node event id.
+    Future<Map<String, dynamic>> relay(Map<String, dynamic> payload, {int nodeSeed = 2, int ts = 1793163301000}) async {
+      final node = await StargateIdentity.fromSeed(seed(nodeSeed));
+      final struct = eventStruct(
+          action: 'KICKBACK_POST', authorPubkey: node.pubkeyHex, payload: payload, previousHash: nodePrev, tsMs: ts);
+      return {
+        'id': rowId++,
+        'event_id': canonicalEventId(
+            action: 'KICKBACK_POST', authorPubkey: node.pubkeyHex, payload: payload, previousHash: nodePrev, tsMs: ts),
+        'action': 'KICKBACK_POST',
+        'author_pubkey': node.pubkeyHex,
+        'origin': 'remote',
+        'ts': ts,
+        'payload': payload,
+        'previous_hash': nodePrev,
+        'signature': await node.sign(struct),
+        'verified': true,
+      };
+    }
+
+    // A real KickBack post: signed by an app key, relayed (re-signed) by a node.
+    // [claimId] replaces app_event_id after signing (app_event_id is not part of
+    // what the app signs, so the app signature still checks out).
+    Future<Map<String, dynamic>> post({
+      required String text,
+      int appSeed = 1,
+      int nodeSeed = 2,
+      String? claimId,
+      String? appSigOverride,
+      int appTs = 1793163300000,
+    }) async {
+      final app = await StargateIdentity.fromSeed(seed(appSeed));
+      final appPayload = <String, dynamic>{'text': text, 'app': 'kickback'};
+      final appStruct = eventStruct(
+          action: 'KICKBACK_POST', authorPubkey: app.pubkeyHex, payload: appPayload, previousHash: genesis, tsMs: appTs);
+      final appId = canonicalEventId(
+          action: 'KICKBACK_POST', authorPubkey: app.pubkeyHex, payload: appPayload, previousHash: genesis, tsMs: appTs);
+      final appSig = await app.sign(appStruct);
+      return relay({
+        ...appPayload,
+        'app_event_id': claimId ?? appId,
+        'app_author_pubkey': app.pubkeyHex,
+        'app_signature': appSigOverride ?? appSig,
+        'app_previous_hash': genesis,
+        'app_ts': appTs,
+      }, nodeSeed: nodeSeed, ts: appTs + 1000);
+    }
+
+    HubFeedEvent ev(Map<String, dynamic> row) => HubFeedEvent.fromJson(row)!;
+
+    test('the daemon vector ids are bound to their content', () {
+      final e = HubFeedResult.fromResponse(200, kFeedVector).events.first;
+      expect(e.appIdMatches, isTrue);
+      expect(e.nodeIdMatches, isTrue);
+    });
+
+    test('reusing a post id with tampered text never inherits Verified', () async {
+      final realRow = await post(text: 'real post');
+      final real = ev(realRow);
+      // Hostile peer: same app_event_id and app signature, different text, and
+      // a perfectly valid node signature from its own key.
+      final forgedPayload = {...(realRow['payload'] as Map<String, dynamic>), 'text': 'fake post'};
+      final forged = ev(await relay(forgedPayload, nodeSeed: 9));
+
+      expect(await verifyHubEvent(real), FeedVerification.appSigned);
+      expect(await verifyHubEvent(forged), FeedVerification.unverified);
+      expect(forged.payload['app_event_id'], real.dedupeKey);
+      expect(forged.appIdMatches, isFalse);
+      expect(forged.dedupeKey, isNot(real.dedupeKey));
+
+      for (final order in [
+        [real, forged],
+        [forged, real],
+      ]) {
+        final cache = HubFeedCache();
+        for (final e in order) {
+          await cache.addAll([e]);
+        }
+        expect(cache.length, 2);
+        final byText = {for (final e in cache.events) e.text: cache.verificationOf(e)};
+        expect(byText['real post'], FeedVerification.appSigned);
+        expect(byText['fake post'], FeedVerification.unverified);
+        // The forged row cannot hide the real one in the merged feed either.
+        final merged = mergeFeed([], cache.events);
+        expect(merged.map((m) => m.text).toSet(), {'real post', 'fake post'});
+      }
+    });
+
+    test('a valid signature paired with someone else\'s post id is unverified', () async {
+      final real = ev(await post(text: 'real post'));
+      // Attacker signs its own post with its own app key, then claims the
+      // victim's app_event_id (which the app signature does not cover).
+      final claimed = ev(await post(text: 'shadow', appSeed: 7, nodeSeed: 9, claimId: real.dedupeKey));
+      expect(await StargateIdentity.verify(claimed.appEnvelope()!), isTrue);
+      expect(await verifyHubEvent(claimed), FeedVerification.unverified);
+      expect(claimed.dedupeKey, isNot(real.dedupeKey));
+      final cache = HubFeedCache();
+      await cache.addAll([real, claimed]);
+      expect(cache.verificationOf(real), FeedVerification.appSigned);
+      expect(cache.verificationOf(claimed), FeedVerification.unverified);
+      expect(mergeFeed([], cache.events).length, 2);
+    });
+
+    test('same post id, different content: the verified copy is kept, the other is not marked', () async {
+      final good = ev(await post(text: 'real post'));
+      // Same content (so the id hashes out) but a bad author signature.
+      final bad = ev(await post(text: 'real post', nodeSeed: 9, appSigOverride: 'ab' * 64));
+      expect(bad.dedupeKey, good.dedupeKey);
+      expect(bad.fingerprint, isNot(good.fingerprint));
+      expect(await verifyHubEvent(bad), FeedVerification.unverified);
+
+      final c1 = HubFeedCache();
+      await c1.addAll([good]);
+      await c1.addAll([bad]);
+      expect(c1.length, 1);
+      expect(c1.events.single.fingerprint, good.fingerprint);
+      expect(c1.verificationOf(c1.events.single), FeedVerification.appSigned);
+      expect(c1.verificationOf(bad), isNot(FeedVerification.appSigned));
+
+      final c2 = HubFeedCache();
+      await c2.addAll([bad]);
+      expect(c2.verificationOf(c2.events.single), FeedVerification.unverified);
+      await c2.addAll([good]);
+      expect(c2.events.single.fingerprint, good.fingerprint);
+      expect(c2.verificationOf(c2.events.single), FeedVerification.appSigned);
+    });
+
+    test('Verified (relay): a reused node event id with new content is unverified', () async {
+      final realRow = await relay({'text': 'relay only', 'app': 'kickback'});
+      final real = ev(realRow);
+      expect(await verifyHubEvent(real), FeedVerification.nodeSigned);
+      expect(real.displayAuthor, real.authorPubkey);
+
+      // Hostile node signs new content with its own key but reuses the id.
+      final fake = await relay({'text': 'fake relay', 'app': 'kickback'}, nodeSeed: 9);
+      fake['event_id'] = realRow['event_id'];
+      final forged = ev(fake);
+      expect(await StargateIdentity.verify(forged.nodeEnvelope()!), isTrue);
+      expect(forged.nodeIdMatches, isFalse);
+      expect(await verifyHubEvent(forged), FeedVerification.unverified);
+      expect(forged.dedupeKey, isNot(real.dedupeKey));
+
+      final cache = HubFeedCache();
+      await cache.addAll([real, forged]);
+      expect(cache.length, 2);
+      expect(cache.verificationOf(real), FeedVerification.nodeSigned);
+      expect(cache.verificationOf(forged), FeedVerification.unverified);
+      expect(mergeFeed([], cache.events).length, 2);
+    });
+
+    test('a bare app_author_pubkey without an envelope is not shown as the author', () async {
+      final row = await relay({'text': 'hi', 'app': 'kickback', 'app_author_pubkey': 'ff' * 32});
+      final e = ev(row);
+      expect(e.hasAppEnvelope, isFalse);
+      expect(e.displayAuthor, e.authorPubkey);
+      expect(await verifyHubEvent(e), FeedVerification.nodeSigned);
+    });
+
+    test('cache pruning keeps at most maxEvents and drops their results', () async {
+      final cache = HubFeedCache(maxEvents: 2);
+      final rows = [
+        for (var i = 0; i < 3; i++) ev(await post(text: 'p$i', appTs: 1793163300000 + i)),
+      ];
+      await cache.addAll(rows);
+      expect(cache.length, 2);
+      expect(cache.events.map((e) => e.text).toSet(), {'p1', 'p2'});
+      expect(cache.verificationOf(rows.first), isNull);
+    });
+  });
 }

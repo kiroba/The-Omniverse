@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'hub_feed.dart';
+
 /// The app's single door to the outside world: the Omni-Hub.
 ///
 /// The Omni-Hub is the local daemon (Admin/start_local_stack.sh, in Termux on
@@ -39,6 +41,43 @@ class OmniHubClient {
         'payload': payload,
         if (tsMs != null) 'ts': tsMs,
       });
+
+  /// Reads the daemon's event feed (`GET :5000/api/events/feed`, daemon v8.6.0+),
+  /// newest first. [before] pages back in history; [since] returns only rows
+  /// newer than that row id (polling). [type] filters by action.
+  /// Never throws: the result's state says whether the daemon answered
+  /// ([HubFeedState.ok]), is too old ([HubFeedState.unsupported], HTTP 404),
+  /// is not running ([HubFeedState.unreachable]) or failed ([HubFeedState.error]).
+  Future<HubFeedResult> eventsFeed({int limit = 50, int? before, int? since, String? type}) async {
+    final uri = Uri(
+      scheme: 'http',
+      host: host,
+      port: ipcPort,
+      path: '/api/events/feed',
+      queryParameters: <String, String>{
+        'limit': '$limit',
+        if (before != null) 'before': '$before',
+        if (since != null) 'since': '$since',
+        if (type != null) 'type': type,
+      },
+    );
+    final client = HttpClient()..connectionTimeout = timeout;
+    int? code;
+    try {
+      final req = await client.getUrl(uri).timeout(timeout);
+      final res = await req.close().timeout(timeout);
+      code = res.statusCode;
+      final body = await res.transform(utf8.decoder).join().timeout(timeout);
+      return HubFeedResult.fromResponse(code, body);
+    } catch (e) {
+      if (code != null) {
+        return HubFeedResult(state: HubFeedState.error, error: 'HTTP $code: $e');
+      }
+      return HubFeedResult(state: HubFeedState.unreachable, error: '$e');
+    } finally {
+      client.close(force: true);
+    }
+  }
 
   /// Simple, human-readable status for badges.
   Future<HubStatus> status() async {

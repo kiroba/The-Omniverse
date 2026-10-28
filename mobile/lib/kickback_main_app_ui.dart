@@ -22,10 +22,20 @@ import 'kickback_secure_identity.dart';
 ///   (GET 127.0.0.1:9100/api/v1/telemetry/node-health): reachable or not, peers.
 /// - The app is locked behind fingerprint / face / device PIN (kickback_app_lock.dart).
 ///
+/// - Other people's posts come from the daemon's event feed
+///   (GET 127.0.0.1:5000/api/events/feed, daemon v8.6.0+): posts its peers sent
+///   over P2P sync. They are merged with this device's log (deduped by the app
+///   event id), refreshed every 5 s with ?since=<last row id> and on
+///   pull-to-refresh. Each one is re-verified on this phone (Ed25519 over the
+///   author's app envelope, or the relaying node's signature if there is none)
+///   and marked Verified / Unverified; the daemon's own "verified" flag is not
+///   trusted.
+/// - If the daemon is offline or older than v8.6.0 (no feed endpoint, HTTP 404),
+///   the app keeps showing this device's own posts and says why.
+///
 /// Not here yet (shown honestly instead of faked):
-/// - Other people's posts: the daemon has no endpoint that lists events
-///   (/api/events/list returns the same counts as /api/events/stats), so the feed
-///   shows this device's posts plus the daemon's event count.
+/// - Peers are only whoever the daemon syncs with; there is no account,
+///   follow list or discovery in the app.
 /// - Payments: "Payments coming soon". No purchase, no coin balance.
 /// - Hardware attestation / Play Integrity: not implemented.
 /// ============================================================================
@@ -81,6 +91,14 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
 
   List<OmniEvent> _posts = [];
   final Map<String, bool> _sigOk = {};
+
+  // Daemon feed (other phones' posts). Keyed by HubFeedEvent.dedupeKey.
+  static const int _maxHubEvents = 500;
+  final Map<String, HubFeedEvent> _hubEvents = {};
+  final Map<String, FeedVerification> _hubVerified = {};
+  int _hubCursor = 0; // highest daemon row id seen; 0 = not loaded yet
+  HubFeedState? _feedState; // null = not checked yet
+  String? _feedError;
   bool _loading = true;
   String? _loadError;
   bool _isPublishing = false;
@@ -134,7 +152,44 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
     });
   }
 
-  /// Reads daemon health, then pushes any posts still waiting.
+  /// Pulls new posts from the daemon feed. Keeps what it already has when the
+  /// daemon is offline, too old, or errors, so the local feed always shows.
+  Future<void> _refreshHubFeed() async {
+    final first = _hubCursor == 0;
+    final r = first
+        ? await _hub.eventsFeed(limit: 100, type: kPostAction)
+        : await _hub.eventsFeed(limit: 200, since: _hubCursor, type: kPostAction);
+    if (r.state == HubFeedState.ok) {
+      for (final e in r.events) {
+        if (!_hubVerified.containsKey(e.dedupeKey)) {
+          _hubVerified[e.dedupeKey] = await verifyHubEvent(e);
+        }
+        _hubEvents[e.dedupeKey] = e;
+      }
+      final top = r.maxEventId;
+      if (top > _hubCursor) _hubCursor = top;
+      if (first && _hubCursor == 0 && r.latestId > 0) _hubCursor = r.latestId;
+      if (_hubEvents.length > _maxHubEvents) {
+        final byAge = _hubEvents.values.toList()..sort((a, b) => a.tsMs.compareTo(b.tsMs));
+        for (final e in byAge.take(_hubEvents.length - _maxHubEvents)) {
+          _hubEvents.remove(e.dedupeKey);
+          _hubVerified.remove(e.dedupeKey);
+        }
+      }
+    }
+    if (!mounted) return;
+    setState(() {
+      _feedState = r.state;
+      _feedError = r.error;
+    });
+  }
+
+  Future<void> _refreshAll() async {
+    await _pollHub();
+    await _loadFeed();
+  }
+
+  /// Reads daemon health, pushes any posts still waiting, then pulls the feed.
   Future<void> _pollHub() async {
     if (_polling) return;
     _polling = true;
@@ -161,6 +216,10 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
         final pending = await _store.pendingCount();
         if (mounted) setState(() => _pending = pending);
       }
+      // Tried even when :9100 telemetry is down: the feed lives on :5000.
+      await _refreshHubFeed();
+    } catch (_) {
+      // Never let one failed poll stop the timer from trying again.
     } finally {
       _polling = false;
     }
@@ -319,16 +378,158 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
         ),
       );
     }
-    if (_posts.isEmpty) return _buildZeroStateView();
+    final entries = mergeFeed(_posts, _hubEvents.values);
+    final notice = _feedNotice();
+    if (entries.isEmpty) {
+      // Pull-to-refresh works on the empty screen too.
+      return RefreshIndicator(
+        onRefresh: _refreshAll,
+        child: LayoutBuilder(
+          builder: (context, constraints) => ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: [
+              ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: _buildZeroStateView(),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    final offset = notice == null ? 0 : 1;
     return RefreshIndicator(
-      onRefresh: () async {
-        await _pollHub();
-        await _loadFeed();
-      },
+      onRefresh: _refreshAll,
       child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(12),
-        itemCount: _posts.length,
-        itemBuilder: (context, index) => _buildEventCard(_posts[index]),
+        itemCount: entries.length + offset,
+        itemBuilder: (context, index) {
+          if (notice != null && index == 0) return _buildNotice(notice);
+          final entry = entries[index - offset];
+          final local = entry.local;
+          if (local != null) return _buildEventCard(local);
+          return _buildHubCard(entry.hub!);
+        },
+      ),
+    );
+  }
+
+  /// Why other people's posts may be missing, or null when the feed is fine.
+  ({String text, Color color})? _feedNotice() {
+    switch (_feedState) {
+      case HubFeedState.unsupported:
+        return (
+          text: 'The local daemon is too old to share posts (needs v8.6.0+). Showing this device\'s posts only.',
+          color: _amber,
+        );
+      case HubFeedState.unreachable:
+        return (
+          text: 'Local daemon not reachable. Showing this device\'s posts${_hubEvents.isEmpty ? '' : ' and posts already received'}.',
+          color: _amber,
+        );
+      case HubFeedState.error:
+        return (text: 'Could not read the shared feed: ${_feedError ?? 'unknown error'}', color: _red);
+      default:
+        return null;
+    }
+  }
+
+  Widget _buildNotice(({String text, Color color}) n) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          Icon(Icons.info_outline, size: 14, color: n.color),
+          const SizedBox(width: 6),
+          Expanded(child: Text(n.text, style: TextStyle(fontSize: 11, color: n.color))),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHubCard(HubFeedEvent e) {
+    final key = e.displayAuthor;
+    final mine = _identity != null && key == _identity!.pubkeyHex;
+    final author = mine
+        ? 'You (${_identity!.shortId})'
+        : key.length > 8
+            ? '${key.substring(0, 4)}…${key.substring(key.length - 4)}'
+            : key;
+    final v = _hubVerified[e.dedupeKey];
+    final bool ok = v == FeedVerification.appSigned || v == FeedVerification.nodeSigned;
+    final String markText = v == null
+        ? 'Checking…'
+        : v == FeedVerification.appSigned
+            ? 'Verified'
+            : v == FeedVerification.nodeSigned
+                ? 'Verified (relay)'
+                : 'Unverified';
+    final String markTip = v == FeedVerification.appSigned
+        ? 'This phone checked the author\'s Ed25519 signature over this exact post'
+        : v == FeedVerification.nodeSigned
+            ? 'No author signature; the relaying daemon\'s Ed25519 signature checks out'
+            : 'No valid signature for this content: it may have been altered';
+    final Color markColor = v == null ? Colors.grey : (ok ? _teal : _red);
+    final String origin = e.origin == 'local' ? 'Via this phone\'s daemon' : 'From a peer';
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const CircleAvatar(
+                  radius: 16,
+                  backgroundColor: _teal,
+                  child: Icon(Icons.person_outline, size: 18, color: Colors.black),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(author, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                      Text(_formatTime(e.time), style: const TextStyle(fontSize: 10, color: Colors.grey)),
+                    ],
+                  ),
+                ),
+                Tooltip(
+                  message: markTip,
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    Icon(ok ? Icons.verified_user_outlined : Icons.gpp_bad_outlined, size: 14, color: markColor),
+                    const SizedBox(width: 4),
+                    Text(markText, style: TextStyle(fontSize: 10, color: markColor)),
+                  ]),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(e.text, style: const TextStyle(fontSize: 14, color: Colors.white, height: 1.3)),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                const Icon(Icons.hub_outlined, size: 13, color: Colors.grey),
+                const SizedBox(width: 4),
+                Expanded(child: Text(origin, style: const TextStyle(fontSize: 11, color: Colors.grey))),
+                InkWell(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: e.dedupeKey));
+                    _snack('Event hash copied', _teal);
+                  },
+                  child: Text(
+                    _shortHash(e.dedupeKey),
+                    style: const TextStyle(fontSize: 10, color: Colors.grey, fontFamily: 'monospace'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -339,6 +540,12 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
         : _hubStatus!.online
             ? 'Local daemon is running${_daemonEventCount != null ? ' ($_daemonEventCount events in its log)' : ''}.'
             : 'Local daemon is not running. Posts will be saved on this device and sent when it starts.';
+    final feedLine = switch (_feedState) {
+      HubFeedState.ok => 'Posts from other phones on the mesh will show up here.',
+      HubFeedState.unsupported => 'This daemon is too old to share posts (needs v8.6.0+).',
+      HubFeedState.error => 'Could not read the shared feed: ${_feedError ?? 'unknown error'}',
+      _ => '',
+    };
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -356,12 +563,13 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
             ),
             const SizedBox(height: 20),
             const Text(
-              'No posts on this device yet',
+              'No posts yet',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
             ),
             const SizedBox(height: 8),
             Text(
-              'Posts you write are signed with this phone\'s key and kept in its local log.\n$daemonLine',
+              'Posts you write are signed with this phone\'s key and kept in its local log.\n$daemonLine'
+              '${feedLine.isEmpty ? '' : '\n$feedLine'}\nPull down to refresh.',
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 13, color: Colors.grey, height: 1.4),
             ),
@@ -571,6 +779,17 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
               row('Local daemon', daemon, color: s?.online == true ? _teal : _amber),
               if (s?.nodeId != null) row('Daemon node', s!.nodeId!),
               if (_daemonEventCount != null) row('Daemon log', '$_daemonEventCount events'),
+              row(
+                'Shared feed',
+                switch (_feedState) {
+                  null => 'checking…',
+                  HubFeedState.ok => '${_hubEvents.length} post(s) from the daemon feed',
+                  HubFeedState.unsupported => 'daemon too old (needs v8.6.0+ for /api/events/feed)',
+                  HubFeedState.unreachable => 'offline (nothing answering on 127.0.0.1:5000)',
+                  HubFeedState.error => 'error: ${_feedError ?? 'unknown'}',
+                },
+                color: _feedState == HubFeedState.ok ? _teal : _amber,
+              ),
               row('Waiting to send', '$_pending post(s)'),
               if (_lastSync?.error != null) row('Last refusal', _lastSync!.error!, color: _red),
               row('Attestation', 'Not implemented (no Play Integrity / hardware attestation yet)'),

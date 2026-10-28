@@ -101,7 +101,10 @@ def sanitize_dart_code(file_path: Path):
     except Exception as e:
         print(f"  [!] Warning sanitizing {file_path.name}: {e}")
 
-def generate_android_scaffolding(app_dir: Path, package_name: str, app_label: str):
+def generate_android_scaffolding(app_dir: Path, package_name: str, app_label: str,
+                                 fragment_activity: bool = False, extra_permissions: list = None):
+    """fragment_activity: MainActivity extends FlutterFragmentActivity (required by local_auth's
+    BiometricPrompt). extra_permissions: additional <uses-permission> names for this app only."""
     android_dir = app_dir / "mobile" / "android"
     app_android_dir = android_dir / "app"
     
@@ -242,21 +245,25 @@ flutter {{
         f.write(app_build_gradle)
         
     # 4. MainActivity.kt
+    activity_class = "FlutterFragmentActivity" if fragment_activity else "FlutterActivity"
     main_activity = f"""package {package_name}
 
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.{activity_class}
 
-class MainActivity: FlutterActivity()
+class MainActivity: {activity_class}()
 """
     with open(kotlin_dir / "MainActivity.kt", "w", encoding="utf-8") as f:
         f.write(main_activity)
         
     # 5. AndroidManifest.xml
+    extra_perm_xml = "".join(
+        f'    <uses-permission android:name="{perm}" />\n' for perm in (extra_permissions or [])
+    )
     manifest_xml = f"""<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="{package_name}">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-    <application
+{extra_perm_xml}    <application
         android:networkSecurityConfig="@xml/network_security_config"
         android:label="{app_label}"
         android:name="${{applicationName}}"
@@ -419,7 +426,9 @@ distributionUrl=https\://services.gradle.org/distributions/gradle-8.14-bin.zip
     with open(wrapper_dir / "gradle-wrapper.properties", "w", encoding="utf-8") as f:
         f.write(wrapper_props)
 
-def create_standalone_project(base_dir: Path, app_folder_name: str, package_name: str, app_label: str, main_dart_src: str, auxiliary_files: list, search_paths: list):
+def create_standalone_project(base_dir: Path, app_folder_name: str, package_name: str, app_label: str, main_dart_src: str, auxiliary_files: list, search_paths: list,
+                              extra_dependencies: dict = None, fragment_activity: bool = False, extra_permissions: list = None):
+    """extra_dependencies: {pub_package: version_constraint} added to this app's pubspec only."""
     app_dir = base_dir / "apps" / app_folder_name
     safe_rmtree(app_dir)
         
@@ -448,6 +457,7 @@ def create_standalone_project(base_dir: Path, app_folder_name: str, package_name
             print(f"  [✓] Linked dependency: {aux_file.name}")
             
     # pubspec.yaml
+    extra_deps_yaml = "".join(f"  {name}: {ver}\n" for name, ver in (extra_dependencies or {}).items())
     pubspec = f"""name: {app_folder_name}
 description: "{app_label} Standalone Subsystem APK"
 publish_to: 'none'
@@ -468,7 +478,7 @@ dependencies:
   crypto: ^3.0.3
   sqflite: ^2.3.0
   path: ^1.9.0
-
+{extra_deps_yaml}
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -480,7 +490,8 @@ flutter:
     with open(app_dir / "mobile" / "pubspec.yaml", "w", encoding="utf-8") as f:
         f.write(pubspec)
         
-    generate_android_scaffolding(app_dir, package_name, app_label)
+    generate_android_scaffolding(app_dir, package_name, app_label,
+                                 fragment_activity=fragment_activity, extra_permissions=extra_permissions)
     print(f"[✓] Project generated: apps/{app_folder_name}/mobile (AGP 8.11.1, CompileSDK 36, NDK 27.0.12077973, Kotlin 2.2.20, Gradle 8.14 Ready)")
 
 def build_all_apps():
@@ -535,8 +546,14 @@ def build_all_apps():
         "com.omniverse.kickback",
         "The KickBack Social Network",
         "kickback_main_app_ui.dart",
-        ["kickback_seamless_stripe_checkout.dart", "continuity_token_service.dart"],
-        search_paths
+        ["kickback_seamless_stripe_checkout.dart", "continuity_token_service.dart",
+         "kickback_app_lock.dart", "kickback_secure_identity.dart"],
+        search_paths,
+        # Biometric / device-credential app lock + Keystore-encrypted identity seed.
+        # local_auth 2.x needs FlutterFragmentActivity and minSdk >= 23 (we use 26).
+        extra_dependencies={"local_auth": "^2.3.0", "flutter_secure_storage": "^9.2.4"},
+        fragment_activity=True,
+        extra_permissions=["android.permission.USE_BIOMETRIC"],
     )
 
     # 4. Mobile Mesh Monitor App

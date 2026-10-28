@@ -133,6 +133,14 @@ view_install() { # $1 slug, $2 pkg, $3 path label, $4 uri
     if installed "$pkg"; then result="INSTALLED_NO_TAP"; else result="NO_INSTALL_BUTTON"; fi
   fi
   grab_log "$p-logcat.txt"
+  local crash; crash="$(grep -A2 'FATAL EXCEPTION' "$p-logcat.txt.full.txt" | grep -m1 -E 'Exception|Error:' | sed 's/^.*): //')"
+  local crashat; crashat="$(grep -A12 'FATAL EXCEPTION' "$p-logcat.txt.full.txt" | grep -m1 'com.android.packageinstaller' | sed 's/^.*): *//')"
+  if [ -n "$crash" ] && ! installed "$pkg"; then
+    result="INSTALLER_CRASH"; detail="$detail || crash: $crash $crashat"
+  fi
+  if grep -q 'needs to declare permission android.permission.REQUEST_INSTALL_PACKAGES' "$p-logcat.txt.full.txt" && [ "$result" = NO_INSTALL_BUTTON ]; then
+    result="SOURCE_REJECTED"; detail="installer refused the shell as install source (shell does not declare REQUEST_INSTALL_PACKAGES on this image); not an APK problem"
+  fi
   local exc; exc="$(grep -m3 -E 'Exception|INSTALL_|Failed to parse|problem parsing' "$p-logcat.txt" | sed 's/^.\{0,30\}//' | paste -sd ' ' -)"
   [ -n "$exc" ] && detail="$detail || logcat: $exc"
   echo "[$slug] $label => $result"
@@ -156,7 +164,7 @@ for APK in "$APK_DIR"/*.apk; do
 
   # B: session install from stdin
   uninstall "$pkg"; adb logcat -c || true
-  adb exec-in pm install -r -S "$size" < "$APK" > "$OUT/$slug-B-pm-session.txt" 2>&1
+  adb shell pm install -r -S "$size" < "$APK" > "$OUT/$slug-B-pm-session.txt" 2>&1
   line="$(grep -E 'Success|Failure|failed|Error' "$OUT/$slug-B-pm-session.txt" | head -n1)"
   installed "$pkg" && r=INSTALLED || r=FAILED
   grab_log "$OUT/$slug-B-logcat.txt"
@@ -168,7 +176,8 @@ for APK in "$APK_DIR"/*.apk; do
   adb push "$APK" "/sdcard/Download/$name" > "$OUT/$slug-push.txt" 2>&1
   adb shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d "file:///sdcard/Download/$name" >/dev/null 2>&1 || true
   id=""
-  for i in $(seq 1 15); do
+  for i in $(seq 1 30); do
+    [ $((i % 5)) -eq 0 ] && adb shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d "file:///sdcard/Download/$name" >/dev/null 2>&1
     adb shell content query --uri content://media/external/downloads --projection _id:_display_name:mime_type:_size:owner_package_name \
         2>/dev/null | tr -d '\r' > "$OUT/$slug-mediastore.txt"
     id="$(grep -F "_display_name=$name," "$OUT/$slug-mediastore.txt" | sed -n 's/.*_id=\([0-9]*\),.*/\1/p' | tail -n1)"

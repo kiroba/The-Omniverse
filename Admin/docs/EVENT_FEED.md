@@ -8,7 +8,7 @@ endpoint: `/api/events/list` returns only counts (it still does, unchanged).
 ## Access
 
 - Served by the local IPC gateway, which binds `127.0.0.1` only, like every other `:5000` route.
-  The handler also refuses any non-loopback client with 403, in case `IPC_HOST` is ever rebound.
+  Non-loopback clients get 403, unless remote hub mode is on (v8.7.0, `OMNI_HUB_REMOTE=1`): then they need `Authorization: Bearer <token>` (401 without). See REMOTE_HUB.md.
 - No bearer token (none of the IPC routes check one today). Anything running on the same phone can
   read the feed. Peers on the LAN cannot: they only reach `:5005`.
 - Read-only. Never relays, never writes.

@@ -8,10 +8,12 @@ Architecture:
 - Port 5000 (127.0.0.1): Local IPC Event Gateway (Bearer Token & Host Sanitized)
 - Port 5005 (0.0.0.0): P2P Network Sync Gateway (Signed Envelopes, Hash Verified)
 - Port 9101 (0.0.0.0): UDP Subnet Discovery Broadcaster/Listener (Advertises 5005)
+Mesh name (OMNI_MESH_ID, default "dev"): beacons and /p2p/sync requests carry it; other meshes are ignored/403.
 ==============================================================================
 """
 
 import os
+import re
 import sys
 import time
 import json
@@ -42,8 +44,34 @@ MAX_PAYLOAD_SIZE = 5 * 1024 * 1024  # 5 MB Strict Cap
 # understand float "timestamp", so events this node stamps itself would 401 there.
 LEGACY_FLOAT_TS = os.environ.get("OMNI_LEGACY_FLOAT_TS", "").strip() in ("1", "true", "yes")
 
+# Mesh name: keeps dev and production meshes apart (defense in depth next to the trusted-keys
+# allowlist). It travels in UDP beacons and in the X-Omni-Mesh header on /p2p/sync. It is NOT part
+# of the signed canonical event, so signatures and the Dart interop vectors are unchanged.
+MESH_ID_ENV = "OMNI_MESH_ID"
+MESH_HEADER = "X-Omni-Mesh"
+DEFAULT_MESH_ID = "dev"
+_MESH_ID_RE = re.compile(r"[a-z0-9-]{1,32}")
+
+def load_mesh_id(value=None) -> str:
+    """Returns the mesh id from `value` or $OMNI_MESH_ID (unset/empty -> "dev").
+    Raises ValueError unless it is 1-32 chars of [a-z0-9-]."""
+    if value is None:
+        value = os.environ.get(MESH_ID_ENV, "")
+    value = value.strip()
+    if not value:
+        return DEFAULT_MESH_ID
+    if not _MESH_ID_RE.fullmatch(value):
+        raise ValueError(f"{MESH_ID_ENV}={value!r} is invalid: use 1-32 chars of a-z, 0-9 and '-'")
+    return value
+
 class EngineState:
     def __init__(self):
+        try:
+            self.mesh_id = load_mesh_id()   # refuse to start on a bad value, never fall back silently
+        except ValueError as e:
+            sys.stderr.write(f"[x] FATAL: {e}\n")
+            raise SystemExit(2)
+        self.mesh_logged = set()  # (peer_ip, their_mesh) pairs already logged as rejected
         self.signing_key = load_or_create_key()          # same key every restart
         self.node_id = pubkey_hex(self.signing_key)       # node id = public key
         self.start_time = time.time()
@@ -271,7 +299,8 @@ def relay_event_to_peers(event_envelope: dict, origin_peer: str = None):
 
         url = f"http://{peer_ip}:{P2P_SYNC_PORT}/p2p/sync"
         try:
-            req = urllib.request.Request(url, data=json_bytes, headers={'Content-Type': 'application/json'}, method='POST')
+            req = urllib.request.Request(url, data=json_bytes, method='POST',
+                                         headers={'Content-Type': 'application/json', MESH_HEADER: STATE.mesh_id})
             with urllib.request.urlopen(req, timeout=2.0) as resp:
                 pass
         except Exception:
@@ -287,6 +316,7 @@ def udp_discovery_broadcaster():
             payload = json.dumps({
                 "type": "OMNI_P2P_BEACON",
                 "node_id": STATE.node_id,
+                "mesh_id": STATE.mesh_id,
                 "ip": LOCAL_IP,
                 "port": P2P_SYNC_PORT,  # Advertises 5005
                 "transport": "UDP_LAN"
@@ -295,6 +325,32 @@ def udp_discovery_broadcaster():
         except Exception:
             pass
         time.sleep(3.0)
+
+def log_mesh_reject_once(peer_ip: str, their_mesh, where: str):
+    key = (peer_ip, their_mesh)
+    with STATE.lock:
+        if key in STATE.mesh_logged:
+            return
+        if len(STATE.mesh_logged) >= 1024:  # bound memory if a LAN host sprays random mesh ids
+            STATE.mesh_logged.clear()
+        STATE.mesh_logged.add(key)
+    shown = repr(their_mesh)[:40] if their_mesh is not None else "missing"
+    print(f"[!] {where}: ignoring {peer_ip}: mesh {shown} != ours ({STATE.mesh_id})", flush=True)
+
+def handle_discovery_packet(msg: dict, peer_ip: str) -> bool:
+    """Adds the sender to active_peers if it is a beacon from another node on our mesh. Returns True if added."""
+    if not isinstance(msg, dict) or msg.get("type") != "OMNI_P2P_BEACON" or msg.get("node_id") == STATE.node_id:
+        return False
+    their_mesh = msg.get("mesh_id")
+    if their_mesh != STATE.mesh_id:
+        with STATE.lock:
+            STATE.active_peers.pop(peer_ip, None)  # a peer that moved to another mesh is dropped
+        log_mesh_reject_once(peer_ip, their_mesh, "UDP discovery")
+        return False
+    peer_port = int(msg.get("port", P2P_SYNC_PORT))
+    with STATE.lock:
+        STATE.active_peers[peer_ip] = {"ip": peer_ip, "port": peer_port, "last_seen": time.time()}
+    return True
 
 def udp_discovery_listener():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -308,11 +364,7 @@ def udp_discovery_listener():
         try:
             data, addr = sock.recvfrom(1024)
             msg = json.loads(data.decode('utf-8'))
-            if msg.get("type") == "OMNI_P2P_BEACON" and msg.get("node_id") != STATE.node_id:
-                peer_ip = addr[0]
-                peer_port = int(msg.get("port", P2P_SYNC_PORT))
-                with STATE.lock:
-                    STATE.active_peers[peer_ip] = {"ip": peer_ip, "port": peer_port, "last_seen": time.time()}
+            handle_discovery_packet(msg, addr[0])
         except Exception:
             pass
 
@@ -340,6 +392,7 @@ class TelemetryHandler(BaseHTTPRequestHandler):
                 "status": "ONLINE",
                 "version": VERSION,
                 "node_id": STATE.node_id,
+                "mesh_id": STATE.mesh_id,
                 "local_ip": LOCAL_IP,
                 "p2p_sync_port": P2P_SYNC_PORT,
                 "active_peers": active_count,
@@ -470,8 +523,33 @@ class P2PSyncHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         return
 
+    def reject_mesh(self, their_mesh):
+        """403 before any parsing/verification/storage. The body is drained unread (capped) so the
+        client gets the response instead of a connection reset."""
+        log_mesh_reject_once(self.client_address[0], their_mesh, "P2P sync")
+        try:
+            remaining = min(int(self.headers.get("Content-Length", 0) or 0), MAX_PAYLOAD_SIZE)
+        except ValueError:
+            remaining = 0
+        while remaining > 0:
+            chunk = self.rfile.read(min(remaining, 65536))
+            if not chunk:
+                break
+            remaining -= len(chunk)
+        body = json.dumps({"status": "ERROR",
+                           "message": f"Mesh mismatch or missing {MESH_HEADER} header"}).encode("utf-8")
+        self.send_response(403)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
     def do_POST(self):
         if self.path == "/p2p/sync":
+            their_mesh = self.headers.get(MESH_HEADER)
+            if their_mesh is None or their_mesh.strip() != STATE.mesh_id:
+                self.reject_mesh(their_mesh)
+                return
             content_len = int(self.headers.get("Content-Length", 0))
             if content_len > MAX_PAYLOAD_SIZE:
                 self.send_error(413, "Payload Too Large (Max 5MB)")
@@ -500,6 +578,7 @@ def main():
     print(f"OMNIVERSE LIVE LOCAL DAEMON ENGINE [v{VERSION} - Hardened Spine]")
     print("==================================================================")
     print(f"[✓] Node ID Initialized:  {STATE.node_id}")
+    print(f"[✓] Mesh ID ({MESH_ID_ENV}):  {STATE.mesh_id}  (peers on other meshes are ignored / 403)")
     print(f"[✓] Local Subnet IP:      {LOCAL_IP}")
     print(f"[✓] SQLite WAL Event DB:  {db_file}")
     print(f"[✓] Telemetry API Bound:  http://{IPC_HOST}:{TELEMETRY_PORT}/api/v1/telemetry/node-health")

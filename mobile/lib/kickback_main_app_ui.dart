@@ -92,10 +92,10 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
   List<OmniEvent> _posts = [];
   final Map<String, bool> _sigOk = {};
 
-  // Daemon feed (other phones' posts). Keyed by HubFeedEvent.dedupeKey.
-  static const int _maxHubEvents = 500;
-  final Map<String, HubFeedEvent> _hubEvents = {};
-  final Map<String, FeedVerification> _hubVerified = {};
+  // Daemon feed (other phones' posts). One event per content-bound
+  // HubFeedEvent.dedupeKey; Verified results are cached per content
+  // fingerprint, so a reused post id never inherits another post's badge.
+  final HubFeedCache _hubFeed = HubFeedCache(maxEvents: 500);
   int _hubCursor = 0; // highest daemon row id seen; 0 = not loaded yet
   HubFeedState? _feedState; // null = not checked yet
   String? _feedError;
@@ -160,22 +160,10 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
         ? await _hub.eventsFeed(limit: 100, type: kPostAction)
         : await _hub.eventsFeed(limit: 200, since: _hubCursor, type: kPostAction);
     if (r.state == HubFeedState.ok) {
-      for (final e in r.events) {
-        if (!_hubVerified.containsKey(e.dedupeKey)) {
-          _hubVerified[e.dedupeKey] = await verifyHubEvent(e);
-        }
-        _hubEvents[e.dedupeKey] = e;
-      }
+      await _hubFeed.addAll(r.events);
       final top = r.maxEventId;
       if (top > _hubCursor) _hubCursor = top;
       if (first && _hubCursor == 0 && r.latestId > 0) _hubCursor = r.latestId;
-      if (_hubEvents.length > _maxHubEvents) {
-        final byAge = _hubEvents.values.toList()..sort((a, b) => a.tsMs.compareTo(b.tsMs));
-        for (final e in byAge.take(_hubEvents.length - _maxHubEvents)) {
-          _hubEvents.remove(e.dedupeKey);
-          _hubVerified.remove(e.dedupeKey);
-        }
-      }
     }
     if (!mounted) return;
     setState(() {
@@ -378,7 +366,7 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
         ),
       );
     }
-    final entries = mergeFeed(_posts, _hubEvents.values);
+    final entries = mergeFeed(_posts, _hubFeed.events);
     final notice = _feedNotice();
     if (entries.isEmpty) {
       // Pull-to-refresh works on the empty screen too.
@@ -425,7 +413,7 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
         );
       case HubFeedState.unreachable:
         return (
-          text: 'Local daemon not reachable. Showing this device\'s posts${_hubEvents.isEmpty ? '' : ' and posts already received'}.',
+          text: 'Local daemon not reachable. Showing this device\'s posts${_hubFeed.isEmpty ? '' : ' and posts already received'}.',
           color: _amber,
         );
       case HubFeedState.error:
@@ -456,7 +444,7 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
         : key.length > 8
             ? '${key.substring(0, 4)}…${key.substring(key.length - 4)}'
             : key;
-    final v = _hubVerified[e.dedupeKey];
+    final v = _hubFeed.verificationOf(e);
     final bool ok = v == FeedVerification.appSigned || v == FeedVerification.nodeSigned;
     final String markText = v == null
         ? 'Checking…'
@@ -783,7 +771,7 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
                 'Shared feed',
                 switch (_feedState) {
                   null => 'checking…',
-                  HubFeedState.ok => '${_hubEvents.length} post(s) from the daemon feed',
+                  HubFeedState.ok => '${_hubFeed.length} post(s) from the daemon feed',
                   HubFeedState.unsupported => 'daemon too old (needs v8.6.0+ for /api/events/feed)',
                   HubFeedState.unreachable => 'offline (nothing answering on 127.0.0.1:5000)',
                   HubFeedState.error => 'error: ${_feedError ?? 'unknown'}',

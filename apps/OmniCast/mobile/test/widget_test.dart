@@ -1,30 +1,28 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:omnicast/main.dart';
+import 'package:omni_hub_core/views/omnicast_video_chat_ui.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('OmniCast P2P UI Smoke Test', (WidgetTester tester) async {
+    // Build OmniCast App and trigger a frame.
+    await tester.pumpWidget(const OmniCastApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Verify title and main action button are rendered.
+    expect(find.text('OmniCast P2P'), findsOneWidget);
+    expect(find.text('Authenticate & Connect Stargate Key'), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+    // Tap button to initiate Stargate Enclave authentication.
+    await tester.tap(find.byType(ElevatedButton));
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verify progress indicator appears during attestation.
+    expect(find.text('Attesting Stargate Hardware Enclave Key...'), findsOneWidget);
+
+    // Advance fake timer to complete the delayed attestation and transition to lobby
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
+
+    // Verify navigation to OmniCast Dialer Lobby
+    expect(find.text('OmniCast Dialer'), findsOneWidget);
   });
 }

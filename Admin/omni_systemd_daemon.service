@@ -1,0 +1,26 @@
+[Unit]
+Description=Omniverse Live P2P Local Daemon Engine
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=omni
+Group=omni
+WorkingDirectory=/opt/omniverse/daemon
+ExecStart=/usr/bin/python3 /opt/omniverse/daemon/omni_live_daemon_server.py
+Restart=always
+RestartSec=3s
+
+# Security Sandboxing & Process Hardening Directives
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+
+# Resource Limitations
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

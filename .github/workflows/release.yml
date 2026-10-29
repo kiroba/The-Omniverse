@@ -74,7 +74,26 @@ jobs:
             echo "$v=$val" >> "$GITHUB_ENV"
           done
           KS="$RUNNER_TEMP/omniverse-release.p12"
-          B64="$(printf '%s' "$OMNI_RELEASE_KEYSTORE_B64" | tr -d ' \t\r\n"'"'"'')"
+          # Keep only the base64 runs (40+ chars each), so a label or note pasted
+          # along with the key, or line wrapping, doesn't break decoding.
+          B64="$(python3 -c '
+          import os, re
+          t = re.findall(r"[A-Za-z0-9+/]+={0,2}", os.environ["OMNI_RELEASE_KEYSTORE_B64"])
+          idx = [i for i, x in enumerate(t) if len(x) >= 40]
+          if not idx:
+              print(""); raise SystemExit
+          import base64
+          def complete(c):  # PKCS12 is DER: 0x30 0x82 + 2-byte length
+              try:
+                  d = base64.b64decode(c, validate=True)
+              except Exception:
+                  return False
+              return len(d) > 4 and d[0] == 0x30 and d[1] == 0x82 and len(d) == 4 + int.from_bytes(d[2:4], "big")
+          core = "".join(t[idx[0]:idx[-1] + 1])
+          if not complete(core) and idx[-1] + 1 < len(t):
+              core += t[idx[-1] + 1]  # short last line of a wrapped value
+          print(core)
+          ')"
           if ! printf '%s' "$B64" | base64 -d > "$KS" 2>/dev/null || [ ! -s "$KS" ]; then
             echo "::error::OMNI_RELEASE_KEYSTORE_B64 is not valid base64 (length after cleanup: ${#B64}). Re-paste the one-line value from the backup file."
             exit 1

@@ -560,11 +560,15 @@ def build_all_apps():
         "The KickBack Social Network",
         "kickback_main_app_ui.dart",
         ["kickback_seamless_stripe_checkout.dart", "continuity_token_service.dart",
-         "kickback_app_lock.dart", "kickback_secure_identity.dart", "kickback_hub_settings.dart"],
+         "kickback_app_lock.dart", "kickback_secure_identity.dart", "kickback_hub_settings.dart",
+         "kickback_platform.dart"],
         search_paths,
         # Biometric / device-credential app lock + Keystore-encrypted identity seed.
         # local_auth 2.x needs FlutterFragmentActivity and minSdk >= 23 (we use 26).
-        extra_dependencies={"local_auth": "^2.3.0", "flutter_secure_storage": "^9.2.4"},
+        # sqflite_common_ffi: sqflite has no Windows plugin, so the Windows desktop build
+        # (release.yml) uses SQLite via FFI; package:sqlite3's build hook bundles the library.
+        extra_dependencies={"local_auth": "^2.3.0", "flutter_secure_storage": "^9.2.4",
+                            "sqflite_common_ffi": "^2.4.0"},
         fragment_activity=True,
         extra_permissions=["android.permission.USE_BIOMETRIC"],
         remote_hub_cleartext=True,  # Settings > Hub > Remote hub (http://100.x.y.z:5000)

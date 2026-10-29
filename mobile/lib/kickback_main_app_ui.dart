@@ -6,6 +6,7 @@ import 'package:omni_core_ui/omni_core_ui.dart';
 
 import 'kickback_app_lock.dart';
 import 'kickback_hub_settings.dart';
+import 'kickback_platform.dart';
 import 'kickback_secure_identity.dart';
 
 /// ============================================================================
@@ -50,8 +51,10 @@ import 'kickback_secure_identity.dart';
 
 const String kPostAction = 'KICKBACK_POST';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Windows: sqflite via FFI with the DB in %APPDATA% (no-op on Android).
+  await initKickBackPlatform();
   // Must be set before the identity is first loaded.
   StargateIdentity.seedStore = SecureStorageSeedStore();
   runApp(const KickBackApp());
@@ -397,8 +400,10 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
                   value: HubMode.local,
                   groupValue: mode,
                   onChanged: (v) => setSheet(() => mode = v ?? HubMode.local),
-                  title: const Text('This phone'),
-                  subtitle: const Text('Daemon runs in Termux here (127.0.0.1)'),
+                  title: Text(kickbackIsDesktop ? 'This PC' : 'This phone'),
+                  subtitle: Text(kickbackIsDesktop
+                      ? 'Daemon runs on this PC (127.0.0.1)'
+                      : 'Daemon runs in Termux here (127.0.0.1)'),
                   contentPadding: EdgeInsets.zero,
                 ),
                 RadioListTile<HubMode>(
@@ -1000,10 +1005,12 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
               const SizedBox(height: 12),
               row('Your key', _identity?.pubkeyHex ?? 'loading…'),
-              row('Key storage', 'Android Keystore-encrypted storage (flutter_secure_storage)'),
+              row('Key storage', kickbackIsDesktop
+                  ? 'Windows-protected storage (flutter_secure_storage)'
+                  : 'Android Keystore-encrypted storage (flutter_secure_storage)'),
               row('App lock', AppLock.unprotected
-                  ? 'No screen lock on this phone: app can\'t be locked'
-                  : 'Fingerprint / face / device PIN',
+                  ? 'No screen lock on this $kickbackDeviceNoun: app can\'t be locked'
+                  : (kickbackIsDesktop ? 'Windows Hello (face / fingerprint / PIN)' : 'Fingerprint / face / device PIN'),
                   color: AppLock.unprotected ? _amber : _teal),
               row('Hub setting', _hubSettings.label),
               row(_hub.isRemote ? 'Remote hub' : 'Local daemon', daemon, color: s?.online == true ? _teal : _amber),

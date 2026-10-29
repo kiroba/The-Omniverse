@@ -1,6 +1,8 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:omni_core_ui/omni_core_ui.dart';
 
+import 'kickback_platform.dart';
+
 /// ============================================================================
 /// KICKBACK HUB SETTING: which Omni-Hub (daemon) this app talks to
 /// ============================================================================
@@ -48,7 +50,7 @@ class HubSettings {
         )
       : const OmniHubClient();
 
-  String get label => isRemote ? 'Remote hub $host' : 'This phone (127.0.0.1)';
+  String get label => isRemote ? 'Remote hub $host' : 'This $kickbackDeviceNoun (127.0.0.1)';
 
   /// Cleans what the user typed: drops "http://", a path, and spaces. Returns
   /// (host, port) where port is the IPC port if they typed "host:5000", or

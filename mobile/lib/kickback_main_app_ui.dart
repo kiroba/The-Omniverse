@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:omni_core_ui/omni_core_ui.dart';
 
 import 'kickback_app_lock.dart';
+import 'kickback_hub_settings.dart';
 import 'kickback_secure_identity.dart';
 
 /// ============================================================================
@@ -32,6 +33,13 @@ import 'kickback_secure_identity.dart';
 ///   trusted.
 /// - If the daemon is offline or older than v8.6.0 (no feed endpoint, HTTP 404),
 ///   the app keeps showing this device's own posts and says why.
+///
+/// - Hub setting (Settings icon > Hub): "This phone" (default, 127.0.0.1) or
+///   "Remote hub": another phone's daemon (v8.7.0+, OMNI_HUB_REMOTE=1), e.g.
+///   over Tailscale, with a bearer token. Same feed and submit calls; posts are
+///   still signed with this phone's key and the remote hub keeps that
+///   signature. The header says connected / unauthorized / unreachable.
+///   Stored in flutter_secure_storage (kickback_hub_settings.dart).
 ///
 /// Not here yet (shown honestly instead of faked):
 /// - Peers are only whoever the daemon syncs with; there is no account,
@@ -87,7 +95,10 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
 
   final TextEditingController _postController = TextEditingController();
   final LocalEventStore _store = LocalEventStore();
-  final OmniHubClient _hub = const OmniHubClient();
+  OmniHubClient _hub = const OmniHubClient();
+  HubSettings _hubSettings = const HubSettings();
+  HubConnection? _hubConn; // null = not checked yet
+  int _hubGen = 0; // bumped when the Hub setting changes; drops answers from the old hub
 
   List<OmniEvent> _posts = [];
   final Map<String, bool> _sigOk = {};
@@ -95,7 +106,7 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
   // Daemon feed (other phones' posts). One event per content-bound
   // HubFeedEvent.dedupeKey; Verified results are cached per content
   // fingerprint, so a reused post id never inherits another post's badge.
-  final HubFeedCache _hubFeed = HubFeedCache(maxEvents: 500);
+  HubFeedCache _hubFeed = HubFeedCache(maxEvents: 500); // replaced when the Hub setting changes
   int _hubCursor = 0; // highest daemon row id seen; 0 = not loaded yet
   HubFeedState? _feedState; // null = not checked yet
   String? _feedError;
@@ -126,6 +137,8 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
 
   Future<void> _init() async {
     try {
+      _hubSettings = await HubSettingsStore.load();
+      _hub = _hubSettings.client();
       _identity = await StargateIdentity.load();
       await _loadFeed();
     } catch (e) {
@@ -155,10 +168,12 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
   /// Pulls new posts from the daemon feed. Keeps what it already has when the
   /// daemon is offline, too old, or errors, so the local feed always shows.
   Future<void> _refreshHubFeed() async {
+    final gen = _hubGen;
     final first = _hubCursor == 0;
     final r = first
         ? await _hub.eventsFeed(limit: 100, type: kPostAction)
         : await _hub.eventsFeed(limit: 200, since: _hubCursor, type: kPostAction);
+    if (gen != _hubGen) return; // Hub setting changed while this was in flight
     if (r.state == HubFeedState.ok) {
       await _hubFeed.addAll(r.events);
       final top = r.maxEventId;
@@ -181,8 +196,11 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
   Future<void> _pollHub() async {
     if (_polling) return;
     _polling = true;
+    final gen = _hubGen;
     try {
-      final status = await _hub.status();
+      final conn = await _hub.connection();
+      if (gen != _hubGen) return;
+      final status = conn.status;
       int? count;
       HubSyncResult? sync;
       if (status.online) {
@@ -193,8 +211,9 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
           sync = await _store.syncToHubDetailed(_hub);
         }
       }
-      if (!mounted) return;
+      if (!mounted || gen != _hubGen) return;
       setState(() {
+        _hubConn = conn;
         _hubStatus = status;
         _daemonEventCount = count;
         if (sync != null) _lastSync = sync;
@@ -231,20 +250,27 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
       await _loadFeed();
 
       final sync = await _store.syncToHubDetailed(_hub);
-      final status = sync.hubReachable ? await _hub.status() : const HubStatus(online: false, peers: 0);
+      final conn = sync.hubReachable
+          ? await _hub.connection()
+          : const HubConnection(HubConnectionState.unreachable);
       if (!mounted) return;
       setState(() {
         _lastSync = sync;
-        _hubStatus = status;
+        _hubConn = conn;
+        _hubStatus = conn.status;
       });
       await _loadFeed();
       final sent = _posts.any((p) => p.eventId == ev.eventId && p.synced);
       if (sent) {
-        _snack('Signed, saved on this device and sent to the local daemon.', _teal);
+        _snack('Signed, saved on this device and sent to ${_hub.isRemote ? 'the remote hub' : 'the local daemon'}.', _teal);
       } else if (!sync.hubReachable) {
-        _snack('Signed and saved on this device. Daemon offline: it will be sent when the daemon is running.', _amber);
+        _snack(
+            _hub.isRemote
+                ? 'Signed and saved on this device. Remote hub unreachable: it will be sent when it is back.'
+                : 'Signed and saved on this device. Daemon offline: it will be sent when the daemon is running.',
+            _amber);
       } else {
-        _snack('Signed and saved on this device. The daemon refused it: ${sync.error ?? 'unknown error'}', _red);
+        _snack('Signed and saved on this device. The hub refused it: ${sync.error ?? 'unknown error'}', _red);
       }
     } catch (e) {
       _snack('Could not save the post: $e', _red);
@@ -266,14 +292,219 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
   // Header status (from node-health telemetry, never hardcoded)
   // ---------------------------------------------------------------------------
   ({String text, Color color}) _headerStatus() {
+    final remote = _hub.isRemote;
+    final c = _hubConn;
     final s = _hubStatus;
-    if (s == null) return (text: 'Checking local daemon…', color: Colors.grey);
-    if (!s.online) {
-      return (text: 'Daemon offline • posts stay on this device', color: _amber);
+    if (c == null && s == null) {
+      return (text: remote ? 'Checking remote hub…' : 'Checking local daemon…', color: Colors.grey);
+    }
+    switch (c?.state) {
+      case HubConnectionState.unauthorized:
+        return (text: 'Remote hub: unauthorized • check the token in Settings', color: _red);
+      case HubConnectionState.forbidden:
+        return (text: 'Hub is not in remote mode • posts stay on this device', color: _red);
+      case HubConnectionState.unreachable:
+        return (
+          text: remote ? 'Remote hub unreachable • posts stay on this device' : 'Daemon offline • posts stay on this device',
+          color: _amber
+        );
+      default:
+        break;
+    }
+    if (s == null || !s.online) {
+      return (
+        text: remote ? 'Remote hub unreachable • posts stay on this device' : 'Daemon offline • posts stay on this device',
+        color: _amber
+      );
     }
     final peers = s.peers == 0 ? 'no peers yet' : '${s.peers} peer${s.peers == 1 ? '' : 's'}';
     final v = s.version != null ? ' v${s.version}' : '';
-    return (text: 'Daemon$v online • $peers', color: _teal);
+    return (text: remote ? 'Remote hub$v connected • $peers' : 'Daemon$v online • $peers', color: _teal);
+  }
+
+  /// Switches hubs: saves the setting, drops the old hub's feed and checks the new one.
+  Future<void> _applyHubSettings(HubSettings next) async {
+    await HubSettingsStore.save(next);
+    if (!mounted) return;
+    setState(() {
+      _hubGen++;
+      _hubSettings = next;
+      _hub = next.client();
+      _hubConn = null;
+      _hubStatus = null;
+      _daemonEventCount = null;
+      _hubFeed = HubFeedCache(maxEvents: 500); // drop the old hub's posts
+      _hubCursor = 0;
+      _feedState = null;
+      _feedError = null;
+    });
+    _polling = false; // a poll against the old hub is ignored via _hubGen
+    await _pollHub();
+    if (!mounted) return;
+    final c = _hubConn;
+    switch (c?.state) {
+      case HubConnectionState.connected:
+        _snack(next.isRemote ? 'Connected to the remote hub.' : 'Using the daemon on this phone.', _teal);
+      case HubConnectionState.unauthorized:
+        _snack('The hub refused the token (unauthorized). Copy it again from the hub phone.', _red);
+      case HubConnectionState.forbidden:
+        _snack('That hub is not in remote mode. Start it with OMNI_HUB_REMOTE=1.', _red);
+      case HubConnectionState.unreachable:
+        _snack(
+            next.isRemote
+                ? 'Remote hub unreachable. Is Tailscale on for both phones and the daemon running?'
+                : 'No daemon on this phone right now. Posts stay on this device.',
+            _amber);
+      default:
+        _snack('Hub answered with an error: ${c?.detail ?? 'unknown'}', _red);
+    }
+  }
+
+  void _showHubSettings(BuildContext context) {
+    var mode = _hubSettings.mode;
+    final addr = TextEditingController(text: _hubSettings.host);
+    final token = TextEditingController(text: _hubSettings.token);
+    final ipc = TextEditingController(text: '${_hubSettings.ipcPort}');
+    final tel = TextEditingController(text: '${_hubSettings.telemetryPort}');
+    var hideToken = true;
+    String? error;
+    InputDecoration deco(String label, {String? hint, Widget? suffix}) => InputDecoration(
+          labelText: label,
+          hintText: hint,
+          suffixIcon: suffix,
+          filled: true,
+          fillColor: const Color(0xFF2C2C2C),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+        );
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFF1E1E1E),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (sheetContext, setSheet) => Padding(
+          padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + MediaQuery.of(sheetContext).viewInsets.bottom),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Hub', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                const SizedBox(height: 4),
+                const Text('Which Omni daemon this app uses for the shared feed and for sending posts.',
+                    style: TextStyle(color: Colors.grey, fontSize: 12)),
+                RadioListTile<HubMode>(
+                  value: HubMode.local,
+                  groupValue: mode,
+                  onChanged: (v) => setSheet(() => mode = v ?? HubMode.local),
+                  title: const Text('This phone'),
+                  subtitle: const Text('Daemon runs in Termux here (127.0.0.1)'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+                RadioListTile<HubMode>(
+                  value: HubMode.remote,
+                  groupValue: mode,
+                  onChanged: (v) => setSheet(() => mode = v ?? HubMode.remote),
+                  title: const Text('Remote hub'),
+                  subtitle: const Text('Another phone runs the daemon (e.g. over Tailscale)'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+                if (mode == HubMode.remote) ...[
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: addr,
+                    keyboardType: TextInputType.url,
+                    autocorrect: false,
+                    decoration: deco('Address', hint: '100.x.y.z (Tailscale IP) or host name'),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: token,
+                    obscureText: hideToken,
+                    autocorrect: false,
+                    enableSuggestions: false,
+                    decoration: deco('Token',
+                        hint: 'from ~/.omni/hub_token on the hub phone',
+                        suffix: IconButton(
+                          icon: Icon(hideToken ? Icons.visibility : Icons.visibility_off),
+                          onPressed: () => setSheet(() => hideToken = !hideToken),
+                        )),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(children: [
+                    Expanded(
+                        child: TextField(
+                            controller: ipc,
+                            keyboardType: TextInputType.number,
+                            decoration: deco('Feed/post port'))),
+                    const SizedBox(width: 10),
+                    Expanded(
+                        child: TextField(
+                            controller: tel,
+                            keyboardType: TextInputType.number,
+                            decoration: deco('Health port'))),
+                  ]),
+                ],
+                if (error != null) ...[
+                  const SizedBox(height: 10),
+                  Text(error!, style: const TextStyle(color: _red, fontSize: 12)),
+                ],
+                const SizedBox(height: 16),
+                Row(children: [
+                  Expanded(
+                    child: TextButton(onPressed: () => Navigator.pop(sheetContext), child: const Text('Cancel')),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        HubSettings next;
+                        if (mode == HubMode.local) {
+                          next = HubSettings(
+                            mode: HubMode.local,
+                            host: _hubSettings.host,
+                            ipcPort: _hubSettings.ipcPort,
+                            telemetryPort: _hubSettings.telemetryPort,
+                            token: _hubSettings.token,
+                          );
+                        } else {
+                          final parsed = HubSettings.parseAddress(addr.text);
+                          final ipcPort = parsed.port ?? int.tryParse(ipc.text.trim()) ?? HubSettings.defaultIpcPort;
+                          final telPort = int.tryParse(tel.text.trim()) ?? HubSettings.defaultTelemetryPort;
+                          final tok = token.text.trim();
+                          if (parsed.host == null) {
+                            setSheet(() => error = 'Enter the hub phone\'s address, e.g. its Tailscale 100.x IP.');
+                            return;
+                          }
+                          if (tok.isEmpty) {
+                            setSheet(() => error = 'Paste the token from the hub phone (cat ~/.omni/hub_token).');
+                            return;
+                          }
+                          if (ipcPort < 1 || ipcPort > 65535 || telPort < 1 || telPort > 65535) {
+                            setSheet(() => error = 'Ports must be 1-65535 (defaults 5000 and 9100).');
+                            return;
+                          }
+                          next = HubSettings(
+                            mode: HubMode.remote,
+                            host: parsed.host!,
+                            ipcPort: ipcPort,
+                            telemetryPort: telPort,
+                            token: tok,
+                          );
+                        }
+                        Navigator.pop(sheetContext);
+                        _applyHubSettings(next);
+                      },
+                      child: const Text('Save'),
+                    ),
+                  ),
+                ]),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -303,6 +534,11 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
             icon: const Icon(Icons.info_outline, color: _teal),
             tooltip: 'Identity & node',
             onPressed: () => _showNodeInfoModal(context),
+          ),
+          IconButton(
+            icon: Icon(Icons.settings_outlined, color: _hub.isRemote ? _teal : Colors.grey),
+            tooltip: 'Settings: Hub',
+            onPressed: () => _showHubSettings(context),
           ),
         ],
       ),
@@ -413,7 +649,7 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
         );
       case HubFeedState.unreachable:
         return (
-          text: 'Local daemon not reachable. Showing this device\'s posts${_hubFeed.isEmpty ? '' : ' and posts already received'}.',
+          text: '${_hub.isRemote ? 'Remote hub' : 'Local daemon'} not reachable. Showing this device\'s posts${_hubFeed.isEmpty ? '' : ' and posts already received'}.',
           color: _amber,
         );
       case HubFeedState.error:
@@ -726,11 +962,16 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
 
   void _showNodeInfoModal(BuildContext context) {
     final s = _hubStatus;
+    final c = _hubConn;
     String daemon;
-    if (s == null) {
+    if (c?.state == HubConnectionState.unauthorized) {
+      daemon = 'unauthorized: the hub refused the token (Settings > Hub)';
+    } else if (c?.state == HubConnectionState.forbidden) {
+      daemon = 'refused: hub is not in remote mode (OMNI_HUB_REMOTE=1)';
+    } else if (s == null) {
       daemon = 'checking…';
     } else if (!s.online) {
-      daemon = 'offline (nothing answering on 127.0.0.1:9100)';
+      daemon = 'unreachable (nothing answering on ${_hub.address}:${_hub.telemetryPort})';
     } else {
       daemon = 'online${s.version != null ? ' v${s.version}' : ''}, ${s.peers} peer(s)'
           '${s.meshId != null ? ', mesh "${s.meshId}"' : ''}';
@@ -764,7 +1005,8 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
                   ? 'No screen lock on this phone: app can\'t be locked'
                   : 'Fingerprint / face / device PIN',
                   color: AppLock.unprotected ? _amber : _teal),
-              row('Local daemon', daemon, color: s?.online == true ? _teal : _amber),
+              row('Hub setting', _hubSettings.label),
+              row(_hub.isRemote ? 'Remote hub' : 'Local daemon', daemon, color: s?.online == true ? _teal : _amber),
               if (s?.nodeId != null) row('Daemon node', s!.nodeId!),
               if (_daemonEventCount != null) row('Daemon log', '$_daemonEventCount events'),
               row(
@@ -773,7 +1015,7 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
                   null => 'checking…',
                   HubFeedState.ok => '${_hubFeed.length} post(s) from the daemon feed',
                   HubFeedState.unsupported => 'daemon too old (needs v8.6.0+ for /api/events/feed)',
-                  HubFeedState.unreachable => 'offline (nothing answering on 127.0.0.1:5000)',
+                  HubFeedState.unreachable => 'unreachable (nothing answering on ${_hub.address}:${_hub.ipcPort})',
                   HubFeedState.error => 'error: ${_feedError ?? 'unknown'}',
                 },
                 color: _feedState == HubFeedState.ok ? _teal : _amber,

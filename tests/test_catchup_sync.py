@@ -302,7 +302,7 @@ class GateTests(unittest.TestCase):
         os.environ.pop("OMNI_SYNC_PEERS", None)
 
     def test_version(self):
-        self.assertEqual(self.d.VERSION, "8.8.0")
+        self.assertEqual(self.d.VERSION, "8.8.1")
 
     def test_parse_sync_peers(self):
         p = self.d.parse_sync_peers

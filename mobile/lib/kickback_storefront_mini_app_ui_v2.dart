@@ -155,7 +155,7 @@ class _OmniMarketStorefrontMiniAppState
     if (_userCreditBalance < price) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Insufficient OmniCredits balance in SQLite ledger!"),
+          content: Text("Not enough test credits."),
           backgroundColor: Colors.redAccent,
         ),
       );
@@ -216,7 +216,7 @@ class _OmniMarketStorefrontMiniAppState
           children: [
             Icon(Icons.check_circle_outline, color: Colors.greenAccent),
             SizedBox(width: 8),
-            Text("Purchased & Logged to WAL",
+            Text("Test purchase saved on this device",
                 style: TextStyle(color: Colors.white, fontSize: 16)),
           ],
         ),
@@ -227,14 +227,14 @@ class _OmniMarketStorefrontMiniAppState
             Text("Item: ${item['name']}",
                 style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 6),
-            Text("Settled Price: $price OmniCredits",
+            Text("Price: $price test credits (alpha, no real money)",
                 style: const TextStyle(
                     color: Colors.white, fontWeight: FontWeight.bold)),
             const Divider(color: Colors.white24, height: 20),
-            Text("• Merchant (80%): $merchantShare Credits",
+            Text("• Merchant (80%): $merchantShare test credits",
                 style:
                     const TextStyle(color: Colors.greenAccent, fontSize: 13)),
-            Text("• Platform Fee (20%): $platformShare Credits",
+            Text("• Platform fee (20%): $platformShare test credits",
                 style: const TextStyle(color: Colors.cyanAccent, fontSize: 13)),
             const SizedBox(height: 8),
             Text("Event Hash: evt_$eventHash",
@@ -315,7 +315,7 @@ class _OmniMarketStorefrontMiniAppState
                 const Icon(Icons.bolt, color: Colors.amberAccent, size: 16),
                 const SizedBox(width: 4),
                 Text(
-                  "$_userCreditBalance",
+                  "$_userCreditBalance test credits",
                   style: const TextStyle(
                       color: Colors.white, fontWeight: FontWeight.bold),
                 ),
@@ -447,7 +447,7 @@ class _OmniMarketStorefrontMiniAppState
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("${item['price']} CR",
+                        Text("${item['price']} test CR",
                             style: const TextStyle(
                                 color: Colors.amberAccent,
                                 fontWeight: FontWeight.bold)),

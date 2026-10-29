@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ==============================================================================
-OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.9.0 - Hardened Mesh Spine]
+OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.10.0 - Hardened Mesh Spine]
 ==============================================================================
 Architecture:
 - Port 9100 (127.0.0.1): Node Health Telemetry & Agent Cache
@@ -25,6 +25,11 @@ Bug reports (v8.9.0): POST :5000/api/bugs/report stores a tester's report (JSON,
 "what_happened") as a node-signed chain event with action "bug_report"; GET :5000/api/bugs/list
 (loopback only) lists them newest first. The POST is also allowed in remote hub mode with the bearer
 token. Admin/omnimind_bug_triage_utility.py verifies and groups them. See Admin/docs/BUG_REPORTS.md.
+Omni Credits TEST ledger (v8.10.0): closed-loop test credits (no cash value) stored as node-signed
+"credit_entry" chain events; balances are replayed from those entries, never kept in a table. Each new
+pubkey gets a one-time 1,000-credit welcome grant. GET :5000/api/credits/balance?pubkey=,
+GET /api/credits/history?pubkey=&limit=, POST /api/credits/transfer, POST /api/credits/grant (admin).
+All loopback only. Treasury fee: OMNI_TREASURY_FEE_BPS (default 0). See Admin/docs/CREDITS_LEDGER.md.
 ==============================================================================
 """
 
@@ -50,7 +55,7 @@ import urllib.parse
 from pathlib import Path
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
-VERSION = "8.9.0"
+VERSION = "8.10.0"
 def _env_port(name: str, default: int) -> int:
     """Port override (e.g. to run two nodes on one machine for tests). Bad values fall back."""
     raw = os.environ.get(name, "").strip()
@@ -845,6 +850,274 @@ def list_bug_reports(limit: int = FEED_DEFAULT_LIMIT, db_path: Path = None) -> d
     return {"status": "OK", "node_id": page["node_id"], "version": VERSION, "limit": page["limit"],
             "count": len(reports), "has_more": page["has_more"], "reports": reports}
 
+# --- Omni Credits TEST ledger (v8.10.0): closed-loop, replayed from signed chain events -----------
+# Every ledger entry is a node-signed chain event with action "credit_entry", appended through the
+# same process_and_store_event path as /api/events/append (not relayed on arrival). There is no balance
+# table: balances are derived by replaying this node's own credit_entry events in chain order, and
+# every entry's hash and Ed25519 signature are re-checked on each replay. TEST credits only: no cash
+# value, nothing is redeemable, and every endpoint is loopback only (see Admin/docs/CREDITS_LEDGER.md).
+CREDIT_ACTION = "credit_entry"
+CREDIT_TREASURY = "treasury"
+CREDIT_KINDS = ("grant", "transfer", "purchase", "reset")
+CREDIT_MAX_AMOUNT = 1_000_000
+CREDIT_WELCOME_AMOUNT = 1000
+CREDIT_WELCOME_MEMO = "welcome grant: 1,000 test credits, no cash value"
+CREDIT_MEMO_MAX = 200
+CREDIT_BODY_MAX_BYTES = 4 * 1024
+CREDIT_FEE_BPS_ENV = "OMNI_TREASURY_FEE_BPS"
+_PUBKEY_RE = re.compile(r"[0-9a-f]{64}")
+_CREDIT_HISTORY_ARGS = {"pubkey", "limit"}
+CREDITS_LOCK = threading.Lock()   # replay + overdraft check + append is one critical section
+
+def treasury_fee_bps(value=None) -> int:
+    """Treasury fee in basis points (0-10000) from $OMNI_TREASURY_FEE_BPS. Unset/bad -> 0."""
+    raw = (os.environ.get(CREDIT_FEE_BPS_ENV, "") if value is None else str(value)).strip()
+    return int(raw) if raw.isdigit() and int(raw) <= 10000 else 0
+
+TREASURY_FEE_BPS = treasury_fee_bps()
+
+class LedgerIntegrityError(Exception):
+    def __init__(self, event_id: str, reason: str):
+        super().__init__(f"credit entry {event_id} failed verification: {reason}")
+        self.event_id, self.reason = event_id, reason
+
+def credit_account(value, allow_treasury: bool = True) -> str:
+    """A 64-hex Ed25519 pubkey (lower-cased) or "treasury". Raises ValueError."""
+    if not isinstance(value, str):
+        raise ValueError("account must be a 64-hex pubkey string")
+    v = value.strip().lower()
+    if allow_treasury and v == CREDIT_TREASURY:
+        return v
+    if not _PUBKEY_RE.fullmatch(v):
+        raise ValueError("account must be a 64-hex Ed25519 pubkey" + (' or "treasury"' if allow_treasury else ""))
+    return v
+
+def credit_amount(value, name: str = "amount", allow_zero: bool = False) -> int:
+    """Integer credits, 0 < n <= 1,000,000 (fee may be 0). Floats, strings and bools are rejected."""
+    if not isinstance(value, int) or isinstance(value, bool):
+        raise ValueError(f"'{name}' must be an integer number of credits")
+    if value < 0 or (value == 0 and not allow_zero):
+        raise ValueError(f"'{name}' must be greater than 0")
+    if value > CREDIT_MAX_AMOUNT:
+        raise ValueError(f"'{name}' is over the {CREDIT_MAX_AMOUNT:,} credit limit")
+    return value
+
+def credit_memo(value) -> str:
+    if value is None:
+        return ""
+    if not isinstance(value, str):
+        raise ValueError("'memo' must be a string")
+    v = "".join(ch for ch in value if ch >= " ").strip()
+    if len(v) > CREDIT_MEMO_MAX:
+        raise ValueError(f"'memo' is longer than {CREDIT_MEMO_MAX} characters")
+    return v
+
+def validate_credit_payload(p) -> dict:
+    """Schema check used both before append and on every replayed entry."""
+    if not isinstance(p, dict):
+        raise ValueError("payload is not an object")
+    if set(p) != {"kind", "from", "to", "amount", "fee", "memo", "test_only"}:
+        raise ValueError("payload fields are not exactly kind/from/to/amount/fee/memo/test_only")
+    if p["kind"] not in CREDIT_KINDS:
+        raise ValueError(f"unknown kind {p['kind']!r}")
+    if p["test_only"] is not True:
+        raise ValueError("test_only must be true")
+    frm, to = credit_account(p["from"]), credit_account(p["to"])
+    amount = credit_amount(p["amount"])
+    fee = credit_amount(p["fee"], "fee", allow_zero=True)
+    if fee > amount:
+        raise ValueError("fee is larger than amount")
+    if frm == to:
+        raise ValueError("from and to are the same account")
+    if p["kind"] == "grant" and (frm != CREDIT_TREASURY or to == CREDIT_TREASURY or fee):
+        raise ValueError("a grant goes from treasury to a pubkey with no fee")
+    if p["kind"] == "reset" and (frm == CREDIT_TREASURY or to != CREDIT_TREASURY or fee):
+        raise ValueError("a reset returns a pubkey's balance to treasury with no fee")
+    if p["kind"] in ("transfer", "purchase") and frm == CREDIT_TREASURY:
+        raise ValueError("transfers and purchases must come from a pubkey")
+    credit_memo(p["memo"])
+    return p
+
+def _verify_credit_row(row):
+    """Returns the payload of a stored credit_entry row, or raises LedgerIntegrityError."""
+    rowid, event_id, author, prev_hash, timestamp, payload_json, signature, ts_ms = row
+    try:
+        payload = json.loads(payload_json or "{}")
+    except ValueError:
+        raise LedgerIntegrityError(event_id, "payload is not JSON")
+    time_fields = {"ts": int(ts_ms)} if ts_ms is not None else {"timestamp": timestamp}
+    recomputed = compute_canonical_event_id(CREDIT_ACTION, author, payload, prev_hash, timestamp,
+                                            int(ts_ms) if ts_ms is not None else None)
+    if recomputed != event_id:
+        raise LedgerIntegrityError(event_id, "content hash does not match event_id")
+    if not signature or not verify_event({"action": CREDIT_ACTION, "author_pubkey": author, "payload": payload,
+                                          "previous_hash": prev_hash, **time_fields, "signature": signature}):
+        raise LedgerIntegrityError(event_id, "bad Ed25519 signature")
+    try:
+        validate_credit_payload(payload)
+    except ValueError as e:
+        raise LedgerIntegrityError(event_id, f"bad entry: {e}")
+    return payload
+
+def replay_credit_ledger(db_path: Path = None) -> dict:
+    """Replays this node's credit_entry events in chain (row) order. Entries authored by any other key
+    (e.g. a peer's copy arriving through sync) are ignored: each node's ledger is its own.
+    Raises LedgerIntegrityError if any entry fails its hash, signature or schema check."""
+    db_path = db_path or _db_path()
+    balances, welcomed, entries = {}, set(), []
+    if db_path.exists():
+        conn = sqlite3.connect(str(db_path))
+        try:
+            rows = conn.execute("SELECT id, event_id, author_pubkey, previous_hash, timestamp, payload_json, "
+                                "signature, ts_ms FROM events WHERE action = ? AND author_pubkey = ? "
+                                "ORDER BY id ASC", (CREDIT_ACTION, STATE.node_id)).fetchall()
+        finally:
+            conn.close()
+        for row in rows:
+            p = _verify_credit_row(row)
+            frm, to, amount, fee = p["from"], p["to"], p["amount"], p["fee"]
+            if frm != CREDIT_TREASURY:            # treasury grants are issuance, not a debit
+                balances[frm] = balances.get(frm, 0) - amount
+            balances[to] = balances.get(to, 0) + amount - fee
+            if fee:
+                balances[CREDIT_TREASURY] = balances.get(CREDIT_TREASURY, 0) + fee
+            if p["kind"] == "grant" and p["memo"] == CREDIT_WELCOME_MEMO:
+                welcomed.add(to)
+            entries.append({"id": row[0], "event_id": row[1], "ts_ms": int(row[7]) if row[7] is not None
+                            else int(round(float(row[4]) * 1000)), "verified": True, **p})
+    for acct, bal in balances.items():   # cannot happen through the API; a valid-but-negative chain is corrupt
+        if bal < 0 and acct != CREDIT_TREASURY:
+            raise LedgerIntegrityError("-", f"replayed balance for {acct[:12]}... is negative")
+    return {"balances": balances, "welcomed": welcomed, "entries": entries}
+
+def _append_credit(kind: str, frm: str, to: str, amount: int, fee: int = 0, memo: str = "") -> tuple:
+    payload = validate_credit_payload({"kind": kind, "from": frm, "to": to, "amount": amount, "fee": fee,
+                                       "memo": memo, "test_only": True})
+    resp, status = process_and_store_event({"action": CREDIT_ACTION, "payload": payload},
+                                           origin_peer=None, relay=False)
+    if status == 200:
+        resp = {"status": "SUCCESS", "event_id": resp.get("event_id"), "entry": payload}
+    return resp, status
+
+def _ensure_welcome_locked(pubkey: str, ledger: dict) -> dict:
+    """Caller holds CREDITS_LOCK. Issues the one-time welcome grant; returns the (re)played ledger."""
+    if pubkey == CREDIT_TREASURY or pubkey in ledger["welcomed"]:
+        return ledger
+    resp, status = _append_credit("grant", CREDIT_TREASURY, pubkey, CREDIT_WELCOME_AMOUNT, 0, CREDIT_WELCOME_MEMO)
+    if status != 200:
+        raise RuntimeError(f"welcome grant failed: {resp.get('message')}")
+    return replay_credit_ledger()
+
+def credits_balance(pubkey) -> tuple:
+    try:
+        acct = credit_account(pubkey)
+    except ValueError as e:
+        return {"status": "ERROR", "message": str(e)}, 400
+    with CREDITS_LOCK:
+        ledger = _ensure_welcome_locked(acct, replay_credit_ledger())
+    return {"status": "OK", "pubkey": acct, "balance": ledger["balances"].get(acct, 0), "test_only": True,
+            "note": "test credits, no cash value", "fee_bps": TREASURY_FEE_BPS,
+            "entries_replayed": len(ledger["entries"]), "version": VERSION}, 200
+
+def credits_history(query: str) -> tuple:
+    params = urllib.parse.parse_qs(query or "", keep_blank_values=True)
+    unknown = set(params) - _CREDIT_HISTORY_ARGS
+    if unknown:
+        return {"status": "ERROR", "message": f"unknown parameter(s): {', '.join(sorted(unknown))}"}, 400
+    try:
+        acct = credit_account((params.get("pubkey") or [""])[-1])
+        limit = _feed_int(params, "limit")
+    except ValueError as e:
+        return {"status": "ERROR", "message": str(e)}, 400
+    limit = FEED_DEFAULT_LIMIT if limit is None else max(1, min(limit, FEED_MAX_LIMIT))
+    ledger = replay_credit_ledger()
+    running, mine = 0, []
+    for e in ledger["entries"]:
+        delta = 0
+        if acct == CREDIT_TREASURY:
+            if e["to"] != CREDIT_TREASURY and not e["fee"]:
+                continue                  # grants are issuance: they never debit the treasury
+            delta = e["fee"] + (e["amount"] if e["to"] == CREDIT_TREASURY else 0)
+        else:
+            if acct not in (e["from"], e["to"]):
+                continue
+            if e["from"] == acct:
+                delta -= e["amount"]
+            if e["to"] == acct:
+                delta += e["amount"] - e["fee"]
+        running += delta
+        mine.append(dict(e, delta=delta, balance_after=running))
+    mine.reverse()   # newest first
+    return {"status": "OK", "pubkey": acct, "balance": ledger["balances"].get(acct, 0), "test_only": True,
+            "count": min(len(mine), limit), "has_more": len(mine) > limit, "entries": mine[:limit]}, 200
+
+def credits_transfer(data) -> tuple:
+    """Body: {"from": pubkey, "to": pubkey|"treasury", "amount": int, "memo"?: str, "kind"?: transfer|purchase}.
+    The Treasury fee (OMNI_TREASURY_FEE_BPS of amount, rounded down) comes out of what the recipient gets."""
+    if not isinstance(data, dict):
+        return {"status": "ERROR", "message": "body must be a JSON object"}, 400
+    unknown = set(data) - {"from", "to", "amount", "memo", "kind"}
+    if unknown:
+        return {"status": "ERROR", "message": f"unknown field(s): {', '.join(sorted(unknown))}"}, 400
+    try:
+        kind = data.get("kind", "transfer")
+        if kind not in ("transfer", "purchase"):
+            raise ValueError("'kind' must be transfer or purchase")
+        frm = credit_account(data.get("from"), allow_treasury=False)
+        to = credit_account(data.get("to"))
+        amount = credit_amount(data.get("amount"))
+        memo = credit_memo(data.get("memo"))
+        if frm == to:
+            raise ValueError("from and to are the same account")
+    except ValueError as e:
+        return {"status": "ERROR", "message": str(e)}, 400
+    fee = 0 if to == CREDIT_TREASURY else amount * TREASURY_FEE_BPS // 10000
+    with CREDITS_LOCK:
+        ledger = _ensure_welcome_locked(frm, replay_credit_ledger())
+        have = ledger["balances"].get(frm, 0)
+        if amount > have:
+            return {"status": "ERROR", "message": f"insufficient test credits: balance {have}, need {amount}",
+                    "balance": have}, 409
+        resp, status = _append_credit(kind, frm, to, amount, fee, memo)
+        if status == 200:
+            resp["balance"] = have - amount
+    return resp, status
+
+def credits_grant(data) -> tuple:
+    """Admin (loopback only). {"to": pubkey, "amount": int, "memo"?} grants from treasury;
+    {"kind": "reset", "pubkey": pubkey, "memo"?} returns that pubkey's whole balance to treasury."""
+    if not isinstance(data, dict):
+        return {"status": "ERROR", "message": "body must be a JSON object"}, 400
+    kind = data.get("kind", "grant")
+    try:
+        if kind == "grant":
+            unknown = set(data) - {"kind", "to", "amount", "memo"}
+            if unknown:
+                raise ValueError(f"unknown field(s): {', '.join(sorted(unknown))}")
+            to = credit_account(data.get("to"), allow_treasury=False)
+            amount = credit_amount(data.get("amount"))
+            memo = credit_memo(data.get("memo")) or "admin test grant, no cash value"
+            if memo == CREDIT_WELCOME_MEMO:
+                raise ValueError("that memo is reserved for the welcome grant")
+        elif kind == "reset":
+            unknown = set(data) - {"kind", "pubkey", "memo"}
+            if unknown:
+                raise ValueError(f"unknown field(s): {', '.join(sorted(unknown))}")
+            acct = credit_account(data.get("pubkey"), allow_treasury=False)
+            memo = credit_memo(data.get("memo")) or "test reset"
+        else:
+            raise ValueError("'kind' must be grant or reset")
+    except ValueError as e:
+        return {"status": "ERROR", "message": str(e)}, 400
+    with CREDITS_LOCK:
+        ledger = replay_credit_ledger()
+        if kind == "grant":
+            return _append_credit("grant", CREDIT_TREASURY, to, amount, 0, memo)
+        have = ledger["balances"].get(acct, 0)
+        if have <= 0:
+            return {"status": "SUCCESS", "result": "NOTHING_TO_RESET", "balance": 0}, 200
+        return _append_credit("reset", acct, CREDIT_TREASURY, have, 0, memo)
+
 # --- Catch-up sync (v8.8.0): negentropy range-based set reconciliation ---------------------------
 
 def _db_path() -> Path:
@@ -1251,10 +1524,47 @@ class ContinuityIPCHandler(BaseHTTPRequestHandler):
             resp, status = {"status": "ERROR", "message": f"could not store bug report: {e}"}, 500
         self._send_json(status, resp)
 
+    def _read_small_json(self, max_bytes: int):
+        """(data, ok). Sends the error itself when not ok."""
+        try:
+            content_len = int(self.headers.get("Content-Length", "") or -1)
+        except ValueError:
+            content_len = -1
+        if content_len < 0:
+            _deny(self, 411, "Content-Length required")
+            return None, False
+        if content_len > max_bytes:
+            _deny(self, 413, f"body too large (max {max_bytes} bytes)")
+            return None, False
+        try:
+            return json.loads(self.rfile.read(content_len).decode("utf-8") if content_len else ""), True
+        except (ValueError, UnicodeDecodeError):
+            self._send_json(400, {"status": "ERROR", "message": "body must be valid UTF-8 JSON"})
+            return None, False
+
+    def _credits_call(self, fn, *args):
+        """Runs a credits function and maps ledger tamper/corruption to 409. Loopback only: the
+        /api/credits/* paths are never in REMOTE_*_PATHS, so remote_gate already refused other callers."""
+        try:
+            resp, status = fn(*args)
+        except LedgerIntegrityError as e:
+            resp, status = {"status": "ERROR", "message": str(e), "integrity": "FAILED",
+                            "event_id": e.event_id}, 409
+        except Exception as e:
+            resp, status = {"status": "ERROR", "message": f"credits ledger error: {e}"}, 500
+        self._send_json(status, resp)
+
     def do_GET(self):
         path, _, query = self.path.partition("?")
         # Loopback: open as before. Non-loopback: remote hub on + bearer token, else 403/401.
         if not remote_gate(self, "GET", path):
+            return
+        if path == "/api/credits/balance":
+            params = urllib.parse.parse_qs(query or "", keep_blank_values=True)
+            self._credits_call(credits_balance, (params.get("pubkey") or [""])[-1])
+            return
+        if path == "/api/credits/history":
+            self._credits_call(credits_history, query)
             return
         if path == "/api/events/feed":
             try:
@@ -1335,6 +1645,11 @@ class ContinuityIPCHandler(BaseHTTPRequestHandler):
         if self.path == "/api/bugs/report":
             self._handle_bug_report()
             return
+        if self.path in ("/api/credits/transfer", "/api/credits/grant"):
+            data, ok = self._read_small_json(CREDIT_BODY_MAX_BYTES)
+            if ok:
+                self._credits_call(credits_transfer if self.path.endswith("transfer") else credits_grant, data)
+            return
         if self.path == "/api/events/append":
             content_len = int(self.headers.get("Content-Length", 0))
             if content_len > MAX_PAYLOAD_SIZE:
@@ -1344,7 +1659,11 @@ class ContinuityIPCHandler(BaseHTTPRequestHandler):
             post_body = self.rfile.read(content_len).decode("utf-8") if content_len > 0 else "{}"
             try:
                 data = json.loads(post_body)
-                if _is_loopback(self.client_address[0]):
+                if isinstance(data, dict) and str(data.get("action", "")).strip() == CREDIT_ACTION:
+                    # Ledger entries only come from /api/credits/*, where overdraft checks run.
+                    resp_data, status_code = {"status": "ERROR", "message":
+                                              "credit_entry events can only be written via /api/credits/*"}, 403
+                elif _is_loopback(self.client_address[0]):
                     resp_data, status_code = process_and_store_event(data, origin_peer=None)
                 else:
                     # Remote app (token already checked): store the event the PHONE signed, verified
@@ -1480,6 +1799,8 @@ def main():
     print(f"[✓] Local IPC Event API:  http://{IPC_HOST}:{CONTINUITY_IPC_PORT}/api/events/append")
     print(f"[✓] Local IPC Event Feed: http://{IPC_HOST}:{CONTINUITY_IPC_PORT}/api/events/feed?limit=50")
     print(f"[✓] Bug Reports:          POST http://{IPC_HOST}:{CONTINUITY_IPC_PORT}/api/bugs/report  (list: GET /api/bugs/list)")
+    print(f"[✓] Omni Credits (TEST):  GET http://{IPC_HOST}:{CONTINUITY_IPC_PORT}/api/credits/balance?pubkey=  "
+          f"(loopback only, fee {TREASURY_FEE_BPS} bps)")
     print(f"[✓] P2P Sync Server Bound: http://{P2P_HOST}:{P2P_SYNC_PORT}/p2p/sync")
     print(f"[✓] UDP Subnet Discovery: Listening on port {UDP_DISCOVERY_PORT}...")
     if STATE.trusted_keys is None:

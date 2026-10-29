@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ==============================================================================
-OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.8.0 - Hardened Mesh Spine]
+OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.8.1 - Hardened Mesh Spine]
 ==============================================================================
 Architecture:
 - Port 9100 (127.0.0.1): Node Health Telemetry & Agent Cache
@@ -18,6 +18,9 @@ seconds, the node reconciles its event set with its peers (negentropy v1 range-b
 reconciliation over POST /p2p/reconcile on :5005), fetches only the events it lacks (POST
 /p2p/events) and pushes the ones the peer lacks (POST /p2p/sync). Fetched events go through the same
 hash/signature/allowlist checks as /p2p/sync. See Admin/docs/CATCHUP_SYNC.md.
+Windows (v8.8.1): console output is forced to UTF-8 (redirected output can't crash on the banner),
+~/.omni and hub_token get an owner-only ACL via icacls, and the TCP ports are bound with
+SO_EXCLUSIVEADDRUSE so a second daemon fails fast instead of sharing them.
 ==============================================================================
 """
 
@@ -30,6 +33,7 @@ import sqlite3
 import hashlib
 import hmac
 import secrets
+import subprocess
 from omni_signing import (load_or_create_key, pubkey_hex, sign_event, verify_event,
                           canonical_event_bytes, now_ms, load_trusted_keys, is_trusted,
                           TRUSTED_KEYS_ENV)
@@ -42,7 +46,7 @@ import urllib.parse
 from pathlib import Path
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
-VERSION = "8.8.0"
+VERSION = "8.8.1"
 TELEMETRY_PORT = 9100
 CONTINUITY_IPC_PORT = 5000
 P2P_SYNC_PORT = 5005
@@ -136,24 +140,84 @@ def hub_token_path() -> Path:
     override = os.environ.get(HUB_TOKEN_FILE_ENV, "").strip()
     return Path(override) if override else Path.home() / ".omni" / "hub_token"
 
+IS_WINDOWS = os.name == "nt"
+
+def force_utf8_console(streams=None):
+    """Makes stdout/stderr UTF-8 with errors='replace' so the [✓] banner can't raise
+    UnicodeEncodeError when Windows redirects output to a cp1252 file or pipe."""
+    for stream in (streams if streams is not None else (sys.stdout, sys.stderr)):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError, OSError):
+            pass
+
+def _windows_owner_sid() -> str:
+    """Current user's SID, e.g. S-1-5-21-..., from `whoami /user`."""
+    out = subprocess.run(["whoami", "/user", "/fo", "csv", "/nh"], capture_output=True,
+                         text=True, check=True, timeout=10).stdout
+    sid = out.strip().split(",")[-1].strip().strip('"')
+    if not sid.startswith("S-1-"):
+        raise OSError(f"could not read the current user's SID from whoami: {out!r}")
+    return sid
+
+def restrict_to_owner(path: Path, is_dir: bool = False, windows: bool = None):
+    """Owner-only access. POSIX: chmod 700/600. Windows: chmod is a no-op there, so drop
+    inherited ACEs and grant Full Control to the current user's SID only (icacls)."""
+    windows = IS_WINDOWS if windows is None else windows
+    if not windows:
+        os.chmod(path, 0o700 if is_dir else 0o600)
+        return
+    grant = f"*{_windows_owner_sid()}:" + ("(OI)(CI)F" if is_dir else "F")
+    subprocess.run(["icacls", str(path), "/inheritance:r", "/grant:r", grant],
+                   capture_output=True, text=True, check=True, timeout=15)
+
 def load_or_create_hub_token(path: Path = None) -> str:
-    """Returns the persisted remote-hub token, creating it (chmod 600) on first use."""
+    """Returns the persisted remote-hub token, creating it owner-only on first use.
+    Permissions are re-tightened on every start, so a token copied in loosely gets locked down."""
     path = path or hub_token_path()
-    if path.exists():
-        tok = path.read_text(encoding="utf-8").strip()
-        if len(tok) >= 32:
-            return tok
     path.parent.mkdir(parents=True, exist_ok=True)
     try:
-        os.chmod(path.parent, 0o700)
-    except OSError:
-        pass
-    tok = secrets.token_urlsafe(32)
-    fd = os.open(str(path), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-    with os.fdopen(fd, "w", encoding="utf-8") as f:
-        f.write(tok + "\n")
-    os.chmod(path, 0o600)
+        restrict_to_owner(path.parent, is_dir=True)   # first, so a new file inherits owner-only
+    except (OSError, subprocess.SubprocessError) as e:
+        print(f"[!] Could not restrict {path.parent} to the current user: {e}", flush=True)
+    tok = None
+    if path.exists():
+        tok = path.read_text(encoding="utf-8").strip()
+        if len(tok) < 32:
+            tok = None
+    if tok is None:
+        tok = secrets.token_urlsafe(32)
+        fd = os.open(str(path), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(tok + "\n")
+    try:
+        restrict_to_owner(path)
+    except (OSError, subprocess.SubprocessError) as e:
+        if not IS_WINDOWS:
+            raise
+        print(f"[!] WARNING: could not lock {path} to the current user ({e}). "
+              f"Run: icacls \"{path}\" /inheritance:r /grant:r \"%USERNAME%:F\"", flush=True)
     return tok
+
+class OmniHTTPServer(ThreadingHTTPServer):
+    """One daemon per port. On Windows SO_REUSEADDR lets a second process bind a port that is
+    already listening, so it is off there and SO_EXCLUSIVEADDRUSE is set instead. On POSIX
+    SO_REUSEADDR only skips TIME_WAIT (fast restart) and a second bind still fails, so keep it."""
+    allow_reuse_address = not IS_WINDOWS
+
+    def server_bind(self):
+        if IS_WINDOWS and hasattr(socket, "SO_EXCLUSIVEADDRUSE"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        super().server_bind()
+
+def bind_server(host: str, port: int, handler):
+    """Binds or exits with a plain message when another process (usually a second daemon) has the port."""
+    try:
+        return OmniHTTPServer((host, port), handler)
+    except OSError as e:
+        print(f"[X] Port {host}:{port} is already in use ({e}). Is another Omniverse daemon running? "
+              f"Stop it first; only one daemon per machine.", flush=True)
+        sys.exit(2)
 
 def check_bearer(header_value, token) -> bool:
     """Constant-time check of an "Authorization: Bearer <token>" header."""
@@ -514,7 +578,8 @@ def handle_discovery_packet(msg: dict, peer_ip: str) -> bool:
 
 def udp_discovery_listener():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    if not IS_WINDOWS:   # on Windows this would let a second daemon share 9101
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     try:
         sock.bind(('0.0.0.0', UDP_DISCOVERY_PORT))
     except Exception:
@@ -1214,6 +1279,7 @@ class P2PSyncHandler(BaseHTTPRequestHandler):
             self.send_error(404, "Endpoint Not Found")
 
 def main():
+    force_utf8_console()
     db_file = init_db()
     print("==================================================================")
     print(f"OMNIVERSE LIVE LOCAL DAEMON ENGINE [v{VERSION} - Hardened Spine]")
@@ -1255,9 +1321,9 @@ def main():
     # Bind in the main thread so a bad OMNI_HUB_BIND fails loudly instead of in a dead thread.
     servers = []
     for host in hub_listen_hosts():
-        servers.append(ThreadingHTTPServer((host, TELEMETRY_PORT), TelemetryHandler))
-        servers.append(ThreadingHTTPServer((host, CONTINUITY_IPC_PORT), ContinuityIPCHandler))
-    servers.append(ThreadingHTTPServer((P2P_HOST, P2P_SYNC_PORT), P2PSyncHandler))
+        servers.append(bind_server(host, TELEMETRY_PORT, TelemetryHandler))
+        servers.append(bind_server(host, CONTINUITY_IPC_PORT, ContinuityIPCHandler))
+    servers.append(bind_server(P2P_HOST, P2P_SYNC_PORT, P2PSyncHandler))
 
     t1.start()
     t2.start()

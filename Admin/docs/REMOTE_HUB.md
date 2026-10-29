@@ -24,9 +24,12 @@ Rules:
 - **Every request that does not come from phone A itself needs `Authorization: Bearer <token>`.**
   No token or a wrong token gets **401**. Other paths (like the OmniMind agent cache) stay
   phone-A-only and answer **403**. Requests from phone A itself work as before, no token.
-- The token is made once, saved to `~/.omni/hub_token` (only you can read it: `chmod 600`), and
+- The token is made once, saved to `~/.omni/hub_token` (only you can read it: `chmod 600` on Linux/macOS, an owner-only
+  `icacls` ACL on Windows, re-applied on every start), and
   printed when the daemon starts. It stays the same across restarts. To change it, delete the file
   and restart the daemon; then type the new one into phone B.
+- On Windows (v8.8.1+) the daemon forces UTF-8 output, so redirecting it to a file no longer needs
+  `PYTHONUTF8=1`, and a second daemon on the same PC exits with "Port ... is already in use".
 - **Phone B's posts keep phone B's own signature.** KickBack signs each post with its own key; the
   daemon checks that signature (the same check it does for posts from other nodes) and stores the
   post with phone B as the author. It never signs on phone B's behalf. An unsigned post gets 400,

@@ -161,7 +161,7 @@ class RemoteHubTests(unittest.TestCase):
     def test_remote_good_token_200(self):
         code, body = _http(self.remote(self.ipc, "/api/events/feed?limit=5"), headers=self.auth())
         self.assertEqual(code, 200, body)
-        self.assertEqual(body["version"], "8.8.0")
+        self.assertEqual(body["version"], "8.8.1")
         code, body = _http(self.remote(self.tel, "/api/v1/telemetry/node-health"), headers=self.auth())
         self.assertEqual(code, 200, body)
 

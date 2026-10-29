@@ -566,14 +566,16 @@ def build_all_apps():
         "kickback_main_app_ui.dart",
         ["kickback_seamless_stripe_checkout.dart", "continuity_token_service.dart",
          "kickback_app_lock.dart", "kickback_secure_identity.dart", "kickback_hub_settings.dart",
-         "kickback_platform.dart"],
+         "kickback_platform.dart", "omni_bug_report.dart"],
         search_paths,
         # Biometric / device-credential app lock + Keystore-encrypted identity seed.
         # local_auth 2.x needs FlutterFragmentActivity and minSdk >= 23 (we use 26).
         # sqflite_common_ffi: sqflite has no Windows plugin, so the Windows desktop build
         # (release.yml) uses SQLite via FFI; package:sqlite3's build hook bundles the library.
         extra_dependencies={"local_auth": "^2.3.0", "flutter_secure_storage": "^9.2.4",
-                            "sqflite_common_ffi": "^2.4.0"},
+                            "sqflite_common_ffi": "^2.4.0",
+                            # Report a bug sheet (omni_bug_report.dart)
+                            "url_launcher": "^6.3.1", "device_info_plus": "^11.3.0"},
         fragment_activity=True,
         extra_permissions=["android.permission.USE_BIOMETRIC"],
         remote_hub_cleartext=True,  # Settings > Hub > Remote hub (http://100.x.y.z:5000)
@@ -604,9 +606,11 @@ def build_all_apps():
             "halo_plaza_experience_ui.dart",
             "plaza_fighting_game_engine.dart",
             "continuity_token_service.dart",
-            "kickback_seamless_stripe_checkout.dart"
+            "kickback_seamless_stripe_checkout.dart",
+            "omni_bug_report.dart"
         ],
-        search_paths
+        search_paths,
+        extra_dependencies={"url_launcher": "^6.3.1", "device_info_plus": "^11.3.0"},
     )
 
     print("\n==================================================================")

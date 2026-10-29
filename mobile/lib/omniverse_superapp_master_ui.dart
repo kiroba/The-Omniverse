@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'omni_bug_report.dart';
 
 /// ============================================================================
 /// OMNIVERSE UNIFIED SUPERAPP MASTER UI (CANONICAL USER-FACING SHELL)
@@ -131,6 +132,11 @@ class _SuperappMasterScreenState extends State<SuperappMasterScreen> {
             icon: const Icon(Icons.account_balance_wallet, color: Color(0xFFBB86FC)),
             tooltip: 'Sovereign Wallet',
             onPressed: () => _showWalletDialog(context),
+          ),
+          IconButton(
+            icon: const Icon(Icons.bug_report_outlined, color: Colors.grey),
+            tooltip: 'Report a bug',
+            onPressed: () => showBugReportSheet(context, appName: 'Omniverse Superapp'),
           ),
         ],
       ),

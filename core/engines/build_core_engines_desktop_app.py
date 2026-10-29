@@ -194,8 +194,8 @@ class _DesktopGatewayShellState extends State<DesktopGatewayShell> {
         const SizedBox(height: 16),
         _buildDesktopCard(
           'ENGINE 02: KNIT P2P MESH & MERKLE DAG CONSENSUS',
-          'Off-Grid Mesh Relay Operational',
-          '$_activePeers Peer Nodes Connected (Wi-Fi Aware & BLE) | GossipSub Relays: 128 pkts/sec',
+          'HTTP sync on :5005 + UDP 9101 LAN discovery',
+          '$_activePeers peers (LAN / Tailscale) | GossipSub, BLE & Wi-Fi Aware: roadmap, not built',
           Colors.cyanAccent,
         ),
         const SizedBox(height: 16),
@@ -235,7 +235,7 @@ class _DesktopGatewayShellState extends State<DesktopGatewayShell> {
             ),
             child: const Center(
               child: Text(
-                '• Active Bootnodes: 127.0.0.1:9200 (IPC Loopback)\\n• Peer ID: 0x8F92A1...\\n• CRDT State Synchronization: IN_SYNC (0ms drift)',
+                'SAMPLE TEXT, NOT LIVE DATA\\n• Transport: HTTP sync on :5005, UDP 9101 discovery\\n• Peer ID: see the daemon at 127.0.0.1:9100\\n• Sync: negentropy catch-up (no CRDT yet)\\n• GossipSub / libp2p / BLE / Wi-Fi Aware: roadmap',
                 style: TextStyle(color: Colors.white70, fontFamily: 'monospace', fontSize: 13),
               ),
             ),
@@ -251,7 +251,7 @@ class _DesktopGatewayShellState extends State<DesktopGatewayShell> {
       color: Colors.black,
       child: const SingleChildScrollView(
         child: Text(
-          '[INFO] Gateway loopback bound to 127.0.0.1:9200\\n[INFO] Starting zero-dependency core runners...\\n[P2P] GossipSub relay activated (128 pkts/sec)\\n[CRDT] Local Merkle Root updated: 0x0185D7BE\\n[MARKOV] Inference state: INSPECT_CUBE -> REPAIR_HATCH (0.85 conf)',
+          '[DEMO] Sample output, not a live log\\n[INFO] Gateway loopback bound to 127.0.0.1:9200\\n[INFO] Starting zero-dependency core runners...\\n[P2P] HTTP sync on :5005 (GossipSub is roadmap)\\n[CRDT] Local Merkle Root updated: 0x0185D7BE\\n[MARKOV] Inference state: INSPECT_CUBE -> REPAIR_HATCH (0.85 conf)',
           style: TextStyle(color: Color(0xFF00FFCC), fontFamily: 'monospace', fontSize: 12),
         ),
       ),

@@ -65,8 +65,21 @@ jobs:
             echo "::error::Add OMNI_RELEASE_KEYSTORE_B64, OMNI_RELEASE_KEYSTORE_PASSWORD, OMNI_RELEASE_KEY_ALIAS and OMNI_RELEASE_KEY_PASSWORD in Settings > Secrets and variables > Actions. Not signing a release with the debug or test key."
             exit 1
           fi
+          # Pasted secrets often pick up line breaks, spaces or quotes: strip them.
+          clean() { printf '%s' "$1" | tr -d '\r\n' | sed -e 's/^[[:space:]"'"'"']*//' -e 's/[[:space:]"'"'"']*$//'; }
+          for v in OMNI_KEYSTORE_PASSWORD OMNI_KEY_ALIAS OMNI_KEY_PASSWORD; do
+            val="$(clean "${!v}")"
+            echo "::add-mask::$val"
+            printf -v "$v" '%s' "$val"; export "$v"
+            echo "$v=$val" >> "$GITHUB_ENV"
+          done
           KS="$RUNNER_TEMP/omniverse-release.p12"
-          printf '%s' "$OMNI_RELEASE_KEYSTORE_B64" | base64 -d > "$KS"
+          B64="$(printf '%s' "$OMNI_RELEASE_KEYSTORE_B64" | tr -d ' \t\r\n"'"'"'')"
+          if ! printf '%s' "$B64" | base64 -d > "$KS" 2>/dev/null || [ ! -s "$KS" ]; then
+            echo "::error::OMNI_RELEASE_KEYSTORE_B64 is not valid base64 (length after cleanup: ${#B64}). Re-paste the one-line value from the backup file."
+            exit 1
+          fi
+          echo "Decoded release keystore: $(stat -c %s "$KS") bytes"
           # Prove the keystore opens with the stored password and holds the alias.
           keytool -list -storetype pkcs12 -keystore "$KS" -storepass:env OMNI_KEYSTORE_PASSWORD -alias "$OMNI_KEY_ALIAS" > /dev/null \
             || { echo "::error::Release keystore did not open with OMNI_RELEASE_KEYSTORE_PASSWORD / OMNI_RELEASE_KEY_ALIAS"; exit 1; }
@@ -92,7 +105,7 @@ jobs:
           flutter pub get
           flutter build apk --release --target-platform android-arm64 --android-skip-build-dependency-validation \
             --dart-define=OMNI_APP=${{ matrix.slug }} --dart-define=OMNI_BUILD=$((1000 + ${{ github.run_number }})) \
-            --dart-define=OMNI_OTA_PUBKEY=$OMNI_OTA_PUBKEY
+            --dart-define=OMNI_OTA_PUBKEY=$OMNI_OTA_PUBKEY --dart-define=OMNI_APP_VERSION=${GITHUB_REF_NAME#v}
           cp build/app/outputs/flutter-apk/app-release.apk "$GITHUB_WORKSPACE/${{ matrix.slug }}-android-arm64.apk"
       - name: Check the APK is signed with the release key
         run: |

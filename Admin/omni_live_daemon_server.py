@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ==============================================================================
-OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.8.1 - Hardened Mesh Spine]
+OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.9.0 - Hardened Mesh Spine]
 ==============================================================================
 Architecture:
 - Port 9100 (127.0.0.1): Node Health Telemetry & Agent Cache
@@ -21,6 +21,10 @@ hash/signature/allowlist checks as /p2p/sync. See Admin/docs/CATCHUP_SYNC.md.
 Windows (v8.8.1): console output is forced to UTF-8 (redirected output can't crash on the banner),
 ~/.omni and hub_token get an owner-only ACL via icacls, and the TCP ports are bound with
 SO_EXCLUSIVEADDRUSE so a second daemon fails fast instead of sharing them.
+Bug reports (v8.9.0): POST :5000/api/bugs/report stores a tester's report (JSON, max 8 KB, required
+"what_happened") as a node-signed chain event with action "bug_report"; GET :5000/api/bugs/list
+(loopback only) lists them newest first. The POST is also allowed in remote hub mode with the bearer
+token. Admin/omnimind_bug_triage_utility.py verifies and groups them. See Admin/docs/BUG_REPORTS.md.
 ==============================================================================
 """
 
@@ -46,7 +50,7 @@ import urllib.parse
 from pathlib import Path
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
-VERSION = "8.8.1"
+VERSION = "8.9.0"
 def _env_port(name: str, default: int) -> int:
     """Port override (e.g. to run two nodes on one machine for tests). Bad values fall back."""
     raw = os.environ.get(name, "").strip()
@@ -104,7 +108,7 @@ HUB_BIND = os.environ.get(HUB_BIND_ENV, "").strip() or "127.0.0.1"
 # Paths a remote (authenticated) app may use. Everything else stays loopback-only
 # (e.g. POST /api/omnimind/telemetry, the local agent's cache).
 REMOTE_GET_PATHS = {"/api/events/feed", "/api/events/stats", "/api/events/list", "/api/v1/telemetry/node-health"}
-REMOTE_POST_PATHS = {"/api/events/append"}
+REMOTE_POST_PATHS = {"/api/events/append", "/api/bugs/report"}
 _APP_ENVELOPE_KEYS = ("app_event_id", "app_author_pubkey", "app_signature", "app_previous_hash",
                       "app_ts", "app_timestamp")
 
@@ -775,6 +779,72 @@ def list_feed_events(limit: int = FEED_DEFAULT_LIMIT, before: int = None, since:
                 next_before=(events[-1]["id"] if has_more and events else None))
     return base
 
+# --- Bug reports (v8.9.0): POST /api/bugs/report, GET /api/bugs/list -----------------------------
+BUG_REPORT_ACTION = "bug_report"
+BUG_REPORT_MAX_BYTES = 8 * 1024
+BUG_REPORT_SCHEMA = 1
+# field -> max length (characters). Only these keys are accepted; "what_happened" is required.
+BUG_REPORT_FIELDS = {"what_happened": 4000, "title": 200, "app": 64, "app_version": 32, "device": 120,
+                     "android_version": 32, "network": 64, "steps": 4000, "expected": 2000}
+BUG_REPORT_REQUIRED = ("what_happened",)
+_BUG_LIST_ARGS = {"limit"}
+
+def validate_bug_report(data) -> dict:
+    """The stored payload for a bug report body, or ValueError. Strings only, trimmed, length-capped;
+    unknown keys are rejected so nothing unexpected (tokens, seeds, message contents) is stored."""
+    if not isinstance(data, dict):
+        raise ValueError("body must be a JSON object")
+    unknown = set(data) - set(BUG_REPORT_FIELDS)
+    if unknown:
+        raise ValueError(f"unknown field(s): {', '.join(sorted(unknown))}")
+    clean = {}
+    for key, max_len in BUG_REPORT_FIELDS.items():
+        if key not in data or data[key] is None:
+            continue
+        val = data[key]
+        if not isinstance(val, str):
+            raise ValueError(f"'{key}' must be a string")
+        val = "".join(ch for ch in val if ch in "\n\t" or ch >= " ").strip()
+        if len(val) > max_len:
+            raise ValueError(f"'{key}' is longer than {max_len} characters")
+        if val:
+            clean[key] = val
+    for key in BUG_REPORT_REQUIRED:
+        if not clean.get(key):
+            raise ValueError(f"'{key}' is required")
+    return clean
+
+def store_bug_report(data, via: str = "loopback") -> tuple:
+    """Validates and appends a bug report as a normal node-signed chain event (the same
+    process_and_store_event path as a local /api/events/append). Not relayed to peers on arrival."""
+    try:
+        payload = validate_bug_report(data)
+    except ValueError as e:
+        return {"status": "ERROR", "message": str(e)}, 400
+    payload["schema"] = BUG_REPORT_SCHEMA
+    payload["received_via"] = via
+    resp, status = process_and_store_event({"action": BUG_REPORT_ACTION, "payload": payload},
+                                           origin_peer=None, relay=False)
+    if status == 200:
+        resp = {"status": "SUCCESS", "event_id": resp.get("event_id"),
+                **({"result": resp["result"]} if resp.get("result") else {})}
+    return resp, status
+
+def parse_bug_list_query(query: str) -> int:
+    params = urllib.parse.parse_qs(query or "", keep_blank_values=True)
+    unknown = set(params) - _BUG_LIST_ARGS
+    if unknown:
+        raise ValueError(f"unknown parameter(s): {', '.join(sorted(unknown))}")
+    limit = _feed_int(params, "limit")
+    return FEED_DEFAULT_LIMIT if limit is None else max(1, min(limit, FEED_MAX_LIMIT))
+
+def list_bug_reports(limit: int = FEED_DEFAULT_LIMIT, db_path: Path = None) -> dict:
+    page = list_feed_events(limit, etype=BUG_REPORT_ACTION, db_path=db_path)
+    reports = [{"id": e["id"], "event_id": e["event_id"], "ts_ms": e["ts_ms"], "verified": e["verified"],
+                "author_pubkey": e["author_pubkey"], "report": e["payload"]} for e in page["events"]]
+    return {"status": "OK", "node_id": page["node_id"], "version": VERSION, "limit": page["limit"],
+            "count": len(reports), "has_more": page["has_more"], "reports": reports}
+
 # --- Catch-up sync (v8.8.0): negentropy range-based set reconciliation ---------------------------
 
 def _db_path() -> Path:
@@ -1158,6 +1228,29 @@ class ContinuityIPCHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _handle_bug_report(self):
+        try:
+            content_len = int(self.headers.get("Content-Length", "") or -1)
+        except ValueError:
+            content_len = -1
+        if content_len < 0:
+            _deny(self, 411, "Content-Length required")
+            return
+        if content_len > BUG_REPORT_MAX_BYTES:
+            _deny(self, 413, f"bug report too large (max {BUG_REPORT_MAX_BYTES} bytes)")
+            return
+        try:
+            data = json.loads(self.rfile.read(content_len).decode("utf-8") if content_len else "")
+        except (ValueError, UnicodeDecodeError):
+            self._send_json(400, {"status": "ERROR", "message": "body must be valid UTF-8 JSON"})
+            return
+        via = "loopback" if _is_loopback(self.client_address[0]) else "remote_hub"
+        try:
+            resp, status = store_bug_report(data, via=via)
+        except Exception as e:
+            resp, status = {"status": "ERROR", "message": f"could not store bug report: {e}"}, 500
+        self._send_json(status, resp)
+
     def do_GET(self):
         path, _, query = self.path.partition("?")
         # Loopback: open as before. Non-loopback: remote hub on + bearer token, else 403/401.
@@ -1175,6 +1268,18 @@ class ContinuityIPCHandler(BaseHTTPRequestHandler):
                 self._send_json(500, {"status": "ERROR", "message": f"feed read failed: {e}"})
                 return
             self._send_json(200, resp)
+            return
+        if path == "/api/bugs/list":
+            # Loopback only: not in REMOTE_GET_PATHS, so remote_gate already refused other callers.
+            try:
+                limit = parse_bug_list_query(query)
+            except ValueError as e:
+                self._send_json(400, {"status": "ERROR", "message": str(e)})
+                return
+            try:
+                self._send_json(200, list_bug_reports(limit))
+            except Exception as e:
+                self._send_json(500, {"status": "ERROR", "message": f"bug list read failed: {e}"})
             return
         if self.path in ["/api/events/stats", "/api/events/list"]:
             db_path = Path.cwd() / "continuity_events.db"
@@ -1226,6 +1331,9 @@ class ContinuityIPCHandler(BaseHTTPRequestHandler):
             except ValueError:
                 pass
             self._send_json(200, run_catchup(wait=True))
+            return
+        if self.path == "/api/bugs/report":
+            self._handle_bug_report()
             return
         if self.path == "/api/events/append":
             content_len = int(self.headers.get("Content-Length", 0))
@@ -1371,6 +1479,7 @@ def main():
     print(f"[✓] Telemetry API Bound:  http://{IPC_HOST}:{TELEMETRY_PORT}/api/v1/telemetry/node-health")
     print(f"[✓] Local IPC Event API:  http://{IPC_HOST}:{CONTINUITY_IPC_PORT}/api/events/append")
     print(f"[✓] Local IPC Event Feed: http://{IPC_HOST}:{CONTINUITY_IPC_PORT}/api/events/feed?limit=50")
+    print(f"[✓] Bug Reports:          POST http://{IPC_HOST}:{CONTINUITY_IPC_PORT}/api/bugs/report  (list: GET /api/bugs/list)")
     print(f"[✓] P2P Sync Server Bound: http://{P2P_HOST}:{P2P_SYNC_PORT}/p2p/sync")
     print(f"[✓] UDP Subnet Discovery: Listening on port {UDP_DISCOVERY_PORT}...")
     if STATE.trusted_keys is None:

@@ -71,14 +71,13 @@ class Node:
             d.mkdir(parents=True)
         for f in ("omni_live_daemon_server.py", "omni_signing.py", "omni_negentropy.py"):
             shutil.copy(ADMIN / f, self.code / f)
-        src = (self.code / "omni_live_daemon_server.py").read_text()
-        for const, port in self.ports.items():
-            src, n = re.subn(rf"^{const} = \d+$", f"{const} = {port}", src, flags=re.M)
-            assert n == 1, const
-        (self.code / "omni_live_daemon_server.py").write_text(src)
         self.env = dict(os.environ, HOME=str(self.home), OMNI_MESH_ID=MESH, PYTHONPATH=_PYPATH,
                         OMNI_SYNC_PEERS=f"127.0.0.1:{peer_port}", OMNI_CATCHUP_STARTUP_DELAY="1",
                         OMNI_CATCHUP_INTERVAL="0", NO_PROXY="127.0.0.1,localhost")
+        env_names = {"TELEMETRY_PORT": "OMNI_TELEMETRY_PORT", "CONTINUITY_IPC_PORT": "OMNI_IPC_PORT",
+                     "P2P_SYNC_PORT": "OMNI_P2P_PORT", "UDP_DISCOVERY_PORT": "OMNI_UDP_PORT"}
+        for const, port in self.ports.items():
+            self.env[env_names[const]] = str(port)
         for k in ("OMNI_TRUSTED_KEYS_FILE", "OMNI_LEGACY_FLOAT_TS", "OMNI_HUB_REMOTE", "OMNI_HUB_BIND"):
             self.env.pop(k, None)
         self.proc = None

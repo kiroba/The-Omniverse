@@ -6,6 +6,7 @@ import 'package:omni_core_ui/omni_core_ui.dart';
 
 import 'kickback_app_lock.dart';
 import 'kickback_hub_settings.dart';
+import 'omni_bug_report.dart';
 import 'kickback_platform.dart';
 import 'kickback_secure_identity.dart';
 
@@ -544,6 +545,20 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
             icon: Icon(Icons.settings_outlined, color: _hub.isRemote ? _teal : Colors.grey),
             tooltip: 'Settings: Hub',
             onPressed: () => _showHubSettings(context),
+          ),
+          IconButton(
+            icon: const Icon(Icons.bug_report_outlined, color: Colors.grey),
+            tooltip: 'Report a bug',
+            onPressed: () => showBugReportSheet(
+              context,
+              appName: 'KickBack',
+              hub: _hubSettings.isRemote
+                  ? BugReportHub(
+                      host: _hubSettings.host,
+                      ipcPort: _hubSettings.ipcPort,
+                      token: _hubSettings.token)
+                  : null,
+            ),
           ),
         ],
       ),

@@ -60,6 +60,12 @@ MAX_PAYLOAD_SIZE = 5 * 1024 * 1024  # 5 MB Strict Cap
 # Set OMNI_LEGACY_FLOAT_TS=1 while any peer still runs a pre-8.5.1 daemon: those peers only
 # understand float "timestamp", so events this node stamps itself would 401 there.
 LEGACY_FLOAT_TS = os.environ.get("OMNI_LEGACY_FLOAT_TS", "").strip() in ("1", "true", "yes")
+# Events stamped further ahead than this are rejected (clock skew allowance). OMNI_MAX_FUTURE_SKEW_S.
+try:
+    MAX_FUTURE_SKEW_S = float(os.environ.get("OMNI_MAX_FUTURE_SKEW_S", "600"))
+except ValueError:
+    MAX_FUTURE_SKEW_S = 600.0
+DB_WRITE_LOCK = threading.Lock()   # serializes read-head + insert (see process_and_store_event)
 
 # Mesh name: keeps dev and production meshes apart (defense in depth next to the trusted-keys
 # allowlist). It travels in UDP beacons and in the X-Omni-Mesh header on /p2p/sync. It is NOT part
@@ -410,6 +416,49 @@ def resolve_event_time(data: dict, is_local: bool) -> tuple:
     ts = now_ms()
     return {"ts": ts}, ts / 1000.0, ts
 
+def _chain_and_insert(c, data, action, author, payload_obj, time_fields, timestamp, ts_ms, origin_peer):
+    """Runs inside process_and_store_event's write transaction. Returns (response, status); a stored
+    event's response carries _event_id/_prev_hash/_signature for the caller to pop."""
+    c.execute("SELECT event_id FROM events ORDER BY id DESC LIMIT 1;")
+    last_row = c.fetchone()
+    expected_prev_hash = last_row[0] if last_row else ("0x" + "0" * 64)
+
+    provided_prev_hash = data.get("previous_hash")
+    prev_hash = provided_prev_hash if provided_prev_hash else expected_prev_hash
+
+    computed_event_id = compute_canonical_event_id(action, author, payload_obj, prev_hash, timestamp, ts_ms)
+    provided_event_id = data.get("event_id")
+    if provided_event_id and provided_event_id != computed_event_id:
+        return {"status": "ERROR", "message": f"Event hash mismatch. Computed: {computed_event_id}, Provided: {provided_event_id}"}, 400
+    event_id = computed_event_id
+
+    # --- Ed25519: remote events must be signed by their author; local events get signed by us ---
+    unsigned = {"action": action, "author_pubkey": author, "payload": payload_obj,
+                "previous_hash": prev_hash, **time_fields}
+    if origin_peer is None:
+        signature = sign_event(STATE.signing_key, unsigned)
+    else:
+        signature = str(data.get("signature", ""))
+        if not verify_event(dict(unsigned, signature=signature)):
+            return {"status": "ERROR", "message": "Invalid or missing signature"}, 401
+        if not is_trusted(author, STATE.trusted_keys):
+            return {"status": "ERROR", "message": "Author key is not in this node's trusted-keys allowlist"}, 403
+
+    with STATE.lock:
+        if event_id in STATE.seen_event_ids:
+            return {"status": "SUCCESS", "event_id": event_id, "result": "ALREADY_EXISTS"}, 200
+    c.execute("SELECT id FROM events WHERE event_id = ?;", (event_id,))
+    if c.fetchone():
+        with STATE.lock:
+            STATE.seen_event_ids.add(event_id)
+        return {"status": "SUCCESS", "event_id": event_id, "result": "ALREADY_EXISTS"}, 200
+
+    c.execute("""
+        INSERT INTO events (event_id, action, author_pubkey, previous_hash, timestamp, payload_json, signature, ts_ms)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """, (event_id, action, author, prev_hash, timestamp, json.dumps(payload_obj), signature, ts_ms))
+    return {"status": "SUCCESS", "_event_id": event_id, "_prev_hash": prev_hash, "_signature": signature}, 200
+
 def process_and_store_event(data: dict, origin_peer: str = None, relay: bool = True) -> tuple[dict, int]:
     action = str(data.get("action", "USER_ACTION")).strip()
     if origin_peer is None:
@@ -426,64 +475,38 @@ def process_and_store_event(data: dict, origin_peer: str = None, relay: bool = T
     except ValueError as e:
         return {"status": "ERROR", "message": str(e)}, 400
 
+    # Replay of an already-stored event is a no-op (content-addressed event_id dedup below). Old events
+    # are fine (catch-up needs them), but far-future ones are rejected so a peer can't pin the head.
+    if timestamp > time.time() + MAX_FUTURE_SKEW_S:
+        return {"status": "ERROR", "message": f"Event time is more than {int(MAX_FUTURE_SKEW_S)}s in the future"}, 400
+
     db_path = Path.cwd() / "continuity_events.db"
-    conn = sqlite3.connect(str(db_path))
-    c = conn.cursor()
-
-    # Get event_id of latest DB row for true Merkle chaining
-    c.execute("SELECT event_id FROM events ORDER BY id DESC LIMIT 1;")
-    last_row = c.fetchone()
-    expected_prev_hash = last_row[0] if last_row else ("0x" + "0" * 64)
-
-    provided_prev_hash = data.get("previous_hash")
-    prev_hash = provided_prev_hash if provided_prev_hash else expected_prev_hash
-
-    # Compute deterministic canonical hash ID
-    computed_event_id = compute_canonical_event_id(action, author, payload_obj, prev_hash, timestamp, ts_ms)
-    provided_event_id = data.get("event_id")
-
-    # Hash re-verification check
-    if provided_event_id and provided_event_id != computed_event_id:
-        conn.close()
-        return {"status": "ERROR", "message": f"Event hash mismatch. Computed: {computed_event_id}, Provided: {provided_event_id}"}, 400
-
-    event_id = computed_event_id
-
-    # --- Ed25519: remote events must be signed by their author; local events get signed by us ---
-    unsigned = {"action": action, "author_pubkey": author, "payload": payload_obj,
-                "previous_hash": prev_hash, **time_fields}
-    if origin_peer is None:
-        signature = sign_event(STATE.signing_key, unsigned)
-    else:
-        signature = str(data.get("signature", ""))
-        if not verify_event(dict(unsigned, signature=signature)):
+    # Read-head + insert is one critical section: without it two concurrent appends both chain onto
+    # the same head and fork the log (issue #7). The thread lock covers this process; BEGIN IMMEDIATE
+    # takes SQLite's write lock so a second process on the same DB can't interleave either.
+    with DB_WRITE_LOCK:
+        conn = sqlite3.connect(str(db_path), timeout=10.0, isolation_level=None)
+        try:
+            c = conn.cursor()
+            c.execute("BEGIN IMMEDIATE;")
+            result = _chain_and_insert(c, data, action, author, payload_obj, time_fields, timestamp,
+                                       ts_ms, origin_peer)
+            if result[1] == 200 and result[0].get("result") != "ALREADY_EXISTS":
+                c.execute("COMMIT;")
+            else:
+                c.execute("ROLLBACK;")
+        except Exception:
+            try:
+                conn.execute("ROLLBACK;")
+            except sqlite3.Error:
+                pass
+            raise
+        finally:
             conn.close()
-            return {"status": "ERROR", "message": "Invalid or missing signature"}, 401
-        # Valid signature is not enough when an allowlist is configured: the key must be on it.
-        if not is_trusted(author, STATE.trusted_keys):
-            conn.close()
-            return {"status": "ERROR", "message": "Author key is not in this node's trusted-keys allowlist"}, 403
-
-    # Deduplication check
-    with STATE.lock:
-        if event_id in STATE.seen_event_ids:
-            conn.close()
-            return {"status": "SUCCESS", "event_id": event_id, "result": "ALREADY_EXISTS"}, 200
-
-    c.execute("SELECT id FROM events WHERE event_id = ?;", (event_id,))
-    if c.fetchone():
-        with STATE.lock:
-            STATE.seen_event_ids.add(event_id)
-        conn.close()
-        return {"status": "SUCCESS", "event_id": event_id, "result": "ALREADY_EXISTS"}, 200
-
-    # Insert verified event
-    c.execute("""
-        INSERT INTO events (event_id, action, author_pubkey, previous_hash, timestamp, payload_json, signature, ts_ms)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    """, (event_id, action, author, prev_hash, timestamp, json.dumps(payload_obj), signature, ts_ms))
-    conn.commit()
-    conn.close()
+    resp, status = result
+    if status != 200 or resp.get("result") == "ALREADY_EXISTS":
+        return resp, status
+    event_id, prev_hash, signature = resp.pop("_event_id"), resp.pop("_prev_hash"), resp.pop("_signature")
 
     with STATE.lock:
         STATE.seen_event_ids.add(event_id)

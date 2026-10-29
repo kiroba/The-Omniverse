@@ -47,10 +47,15 @@ from pathlib import Path
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
 VERSION = "8.8.1"
-TELEMETRY_PORT = 9100
-CONTINUITY_IPC_PORT = 5000
-P2P_SYNC_PORT = 5005
-UDP_DISCOVERY_PORT = 9101
+def _env_port(name: str, default: int) -> int:
+    """Port override (e.g. to run two nodes on one machine for tests). Bad values fall back."""
+    raw = os.environ.get(name, "").strip()
+    return int(raw) if raw.isdigit() and 0 < int(raw) < 65536 else default
+
+TELEMETRY_PORT = _env_port("OMNI_TELEMETRY_PORT", 9100)
+CONTINUITY_IPC_PORT = _env_port("OMNI_IPC_PORT", 5000)
+P2P_SYNC_PORT = _env_port("OMNI_P2P_PORT", 5005)
+UDP_DISCOVERY_PORT = _env_port("OMNI_UDP_PORT", 9101)
 OMNIMIND_MAX_PAYLOAD = 64 * 1024
 OMNIMIND_STALE_SECONDS = 15.0
 
@@ -537,10 +542,11 @@ def relay_event_to_peers(event_envelope: dict, origin_peer: str = None):
         peer_ip = peer.get("ip")
         if not peer_ip or peer_ip == LOCAL_IP or peer_ip == "127.0.0.1":
             continue
-        if origin_peer and (peer_ip == origin_peer or f"{peer_ip}:{P2P_SYNC_PORT}" == origin_peer):
+        peer_port = int(peer.get("port") or P2P_SYNC_PORT)   # the port the peer advertised
+        if origin_peer and (peer_ip == origin_peer or f"{peer_ip}:{peer_port}" == origin_peer):
             continue  # Skip relaying back to sender!
 
-        url = f"http://{peer_ip}:{P2P_SYNC_PORT}/p2p/sync"
+        url = f"http://{peer_ip}:{peer_port}/p2p/sync"
         try:
             req = urllib.request.Request(url, data=json_bytes, method='POST',
                                          headers={'Content-Type': 'application/json', MESH_HEADER: STATE.mesh_id})

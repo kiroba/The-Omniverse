@@ -7,6 +7,7 @@ import 'package:omni_core_ui/omni_core_ui.dart';
 import 'kickback_app_lock.dart';
 import 'kickback_hub_settings.dart';
 import 'omni_bug_report.dart';
+import 'omni_consent_gate.dart';
 import 'kickback_platform.dart';
 import 'kickback_secure_identity.dart';
 
@@ -79,7 +80,10 @@ class KickBackApp extends StatelessWidget {
           surface: Color(0xFF1E1E1E),
         ),
       ),
-      home: const KickBackLockGate(child: KickBackMainScreen()),
+      home: const OmniConsentGate(
+        appName: 'KickBack',
+        child: KickBackLockGate(child: KickBackMainScreen()),
+      ),
     );
   }
 }

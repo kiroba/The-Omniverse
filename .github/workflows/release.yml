@@ -108,9 +108,16 @@ jobs:
           flutter config --enable-windows-desktop
           flutter create --platforms=windows --project-name ${{ matrix.folder }} .
           (Get-Content windows\runner\main.cpp) -replace 'L"${{ matrix.folder }}"', 'L"${{ matrix.title }}"' | Set-Content windows\runner\main.cpp
+          # local_auth_windows compiles with /await (experimental coroutines), a hard error (STL1011) on
+          # MSVC 14.5x / VS 2026 runners. Silence it for every plugin target until upstream moves to C++20 <coroutine>.
+          $cm = Get-Content windows\CMakeLists.txt -Raw
+          $cm = $cm -replace '(project\([^)]*\)\r?\n)', "`$1add_compile_definitions(_SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS)`n"
+          Set-Content windows\CMakeLists.txt $cm
+          if (-not (Select-String -Path windows\CMakeLists.txt -Pattern '_SILENCE_EXPERIMENTAL_COROUTINE' -Quiet)) { throw "could not patch windows/CMakeLists.txt" }
           flutter pub get
           $build = 1000 + ${{ github.run_number }}
           flutter build windows --release "--dart-define=OMNI_APP=${{ matrix.slug }}-windows" "--dart-define=OMNI_BUILD=$build"
+          if ($LASTEXITCODE -ne 0) { throw "flutter build windows failed ($LASTEXITCODE)" }
           Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath "$env:GITHUB_WORKSPACE\${{ matrix.zip }}"
       - uses: actions/upload-artifact@v4
         with:

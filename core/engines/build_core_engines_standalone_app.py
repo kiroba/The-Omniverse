@@ -118,7 +118,7 @@ class _CoreEnginesDashboardState extends State<CoreEnginesDashboard> {
             _buildEngineCard(
               title: 'ENGINE 02: KNIT P2P MESH & MERKLE DAG',
               status: 'Local Loopback 127.0.0.1:9200',
-              detail: '$_activePeers Peer Nodes (Wi-Fi Aware & BLE) | GossipSub Relays',
+              detail: '$_activePeers peers via HTTP :5005 | GossipSub, BLE & Wi-Fi Aware: roadmap',
               color: Colors.cyanAccent,
             ),
             const SizedBox(height: 12),

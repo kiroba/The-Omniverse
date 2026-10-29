@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'omni_bug_report.dart';
+import 'omni_consent_gate.dart';
 
 /// ============================================================================
 /// OMNIVERSE UNIFIED SUPERAPP MASTER UI (CANONICAL USER-FACING SHELL)
@@ -31,7 +32,10 @@ class OmniverseSuperappMaster extends StatelessWidget {
           surface: Color(0xFF1E1E1E),
         ),
       ),
-      home: const SuperappMasterScreen(),
+      home: const OmniConsentGate(
+        appName: 'The Omniverse',
+        child: SuperappMasterScreen(),
+      ),
     );
   }
 }

@@ -566,7 +566,8 @@ def build_all_apps():
         "kickback_main_app_ui.dart",
         ["kickback_seamless_stripe_checkout.dart", "continuity_token_service.dart",
          "kickback_app_lock.dart", "kickback_secure_identity.dart", "kickback_hub_settings.dart",
-         "kickback_platform.dart", "omni_bug_report.dart"],
+         "kickback_platform.dart", "omni_bug_report.dart",
+         "omni_consent_gate.dart"],
         search_paths,
         # Biometric / device-credential app lock + Keystore-encrypted identity seed.
         # local_auth 2.x needs FlutterFragmentActivity and minSdk >= 23 (we use 26).
@@ -607,7 +608,8 @@ def build_all_apps():
             "plaza_fighting_game_engine.dart",
             "continuity_token_service.dart",
             "kickback_seamless_stripe_checkout.dart",
-            "omni_bug_report.dart"
+            "omni_bug_report.dart",
+            "omni_consent_gate.dart"
         ],
         search_paths,
         extra_dependencies={"url_launcher": "^6.3.1", "device_info_plus": "^11.3.0"},

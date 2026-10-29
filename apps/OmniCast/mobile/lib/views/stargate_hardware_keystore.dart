@@ -3,14 +3,15 @@ import 'package:flutter/material.dart';
 class StargateHardwareKeystore {
   static const String keyAlias = 'stargate_master_identity';
 
+  /// No real attestation exists yet (no Android Key Attestation / App Attest call), so this
+  /// reports "not verified" instead of a hardcoded pass (issue #5).
   static Future<Map<String, dynamic>> verifyHardwareEnclaveAttestation() async {
-    await Future.delayed(const Duration(milliseconds: 300));
     return {
-      'is_hardware_backed': true,
-      'enclave_type': 'OS Secure Enclave / Keystore',
+      'is_hardware_backed': false,
+      'enclave_type': 'not verified',
       'key_alias': keyAlias,
-      'non_exportable': true,
-      'attestation_score': 0.99,
+      'non_exportable': false,
+      'attestation_score': null,
     };
   }
 }
@@ -59,7 +60,7 @@ class _HardwareSecurityBadgeState extends State<HardwareSecurityBadge> {
           ),
           const SizedBox(width: 4),
           Text(
-            _isAttested ? 'Enclave Active (HSM)' : 'Soft Key Vault',
+            _isAttested ? 'Hardware key (attested)' : 'Software key (not attested)',
             style: TextStyle(
               color: _isAttested ? const Color(0xFF10B981) : Colors.orange,
               fontSize: 10,

@@ -46,21 +46,14 @@ class _OmniWebRTCStreamHarnessState extends State<OmniWebRTCStreamHarness> {
     super.dispose();
   }
 
+  // Not implemented: no RTCPeerConnection exists, so never report "connected" or fake
+  // bandwidth (issue #5).
   void _initPeerConnectionPipeline() async {
-    await Future.delayed(const Duration(seconds: 2));
     if (!mounted) return;
-
     setState(() {
-      _connectionState = WebRTCConnectionState.connected;
+      _connectionState = WebRTCConnectionState.failed;
     });
-
-    _metricsTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (_connectionState == WebRTCConnectionState.connected && mounted) {
-        setState(() {
-          _bandwidthKbps = 1200 + (DateTime.now().second % 100);
-        });
-      }
-    });
+    // When a real RTCPeerConnection lands, start a metrics timer here that reads its stats.
   }
 
   void _endCall() {
@@ -101,7 +94,7 @@ class _OmniWebRTCStreamHarnessState extends State<OmniWebRTCStreamHarness> {
                           border: Border.all(color: const Color(0xFF10B981)),
                         ),
                         child: Text(
-                          'WebRTC SRTP Active • $_bandwidthKbps Kbps',
+                          'Media connected • $_bandwidthKbps Kbps',
                           style: const TextStyle(color: Color(0xFF10B981), fontSize: 11, fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -113,7 +106,7 @@ class _OmniWebRTCStreamHarnessState extends State<OmniWebRTCStreamHarness> {
                       CircularProgressIndicator(color: Color(0xFF6366F1)),
                       SizedBox(height: 16),
                       Text(
-                        'Exchanging SDP Offer/Answer via Local Daemon...',
+                        'Video calling is not implemented yet (no WebRTC in this build).',
                         style: TextStyle(color: Colors.grey, fontSize: 13),
                       ),
                     ],

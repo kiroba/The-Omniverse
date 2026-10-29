@@ -79,9 +79,6 @@ class _StargateAuthLoginScreenState extends State<StargateAuthLoginScreen> {
       _isAuthenticating = true;
     });
 
-    // Simulate Stargate Ed25519 Hardware Enclave Auth & Local Merkle Init
-    await Future.delayed(const Duration(seconds: 2));
-
     String livePeerId = '';
     String liveMerkleRoot = '';
 
@@ -108,27 +105,29 @@ class _StargateAuthLoginScreenState extends State<StargateAuthLoginScreen> {
       }
     } catch (_) {}
 
-    if (livePeerId.isEmpty) {
-      livePeerId = generateSecureRandomHex(16);
-    }
-    if (liveMerkleRoot.isEmpty) {
-      liveMerkleRoot = generateSecureRandomHex(32);
-    }
-
-    final fakePeerId = livePeerId;
-    final fakeMerkle = liveMerkleRoot;
-
     if (!mounted) return;
 
     setState(() {
       _isAuthenticating = false;
     });
 
+    // No fake identity: without the local daemon there is no node key, so stay on this screen.
+    if (livePeerId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text(
+            'Local hub not reachable on 127.0.0.1:9100. Start the Omniverse daemon and try again.'),
+      ));
+      return;
+    }
+    if (liveMerkleRoot.isEmpty) {
+      liveMerkleRoot = 'unknown (hub has no events yet)';
+    }
+
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (context) => OmniCastDialerLobby(
-          peerId: fakePeerId,
-          merkleRoot: fakeMerkle,
+          peerId: livePeerId,
+          merkleRoot: liveMerkleRoot,
         ),
       ),
     );
@@ -165,7 +164,7 @@ class _StargateAuthLoginScreenState extends State<StargateAuthLoginScreen> {
               ),
               const SizedBox(height: 8),
               const Text(
-                'Zero-Server WebRTC Video & Encrypted Mesh Chat',
+                'Preview: contacts come from your local hub. Calls and chat are not live yet (no camera, WebRTC or encryption in this build).',
                 style: TextStyle(fontSize: 14, color: Colors.grey),
                 textAlign: TextAlign.center,
               ),
@@ -175,7 +174,7 @@ class _StargateAuthLoginScreenState extends State<StargateAuthLoginScreen> {
                   children: [
                     CircularProgressIndicator(color: Color(0xFF6366F1)),
                     SizedBox(height: 16),
-                    Text("Attesting Stargate Hardware Enclave Key...",
+                    Text("Connecting to local hub (127.0.0.1:9100)...",
                         style: TextStyle(color: Colors.grey)),
                   ],
                 )
@@ -192,7 +191,7 @@ class _StargateAuthLoginScreenState extends State<StargateAuthLoginScreen> {
                   icon: const Icon(Icons.fingerprint_rounded,
                       color: Colors.white),
                   label: const Text(
-                    'Authenticate & Connect Stargate Key',
+                    'Connect to Local Hub',
                     style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -655,14 +654,9 @@ class _OmniCastVideoCallScreenState extends State<OmniCastVideoCallScreen> {
     super.dispose();
   }
 
-  void _connectWebRTCStream() async {
-    await Future.delayed(const Duration(seconds: 2));
-    if (mounted) {
-      setState(() {
-        _isConnected = true;
-      });
-    }
-  }
+  // No media stack yet: flutter_webrtc, camera access and signaling are not implemented
+  // (issue #5). The screen says so instead of pretending a call connected.
+  void _connectWebRTCStream() {}
 
   void _sendMessage() {
     final text = _msgController.text.trim();
@@ -701,7 +695,7 @@ class _OmniCastVideoCallScreenState extends State<OmniCastVideoCallScreen> {
                             color: Colors.white24,
                             borderRadius: BorderRadius.circular(2))),
                     const SizedBox(height: 12),
-                    const Text('Encrypted Mesh Chat',
+                    const Text('Chat preview (stays on this device, not sent)',
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -732,7 +726,7 @@ class _OmniCastVideoCallScreenState extends State<OmniCastVideoCallScreen> {
                             controller: _msgController,
                             style: const TextStyle(color: Colors.white),
                             decoration: const InputDecoration(
-                              hintText: 'Type encrypted message...',
+                              hintText: 'Type a message (not sent yet)...',
                               hintStyle: TextStyle(color: Colors.grey),
                               border: InputBorder.none,
                             ),
@@ -778,23 +772,30 @@ class _OmniCastVideoCallScreenState extends State<OmniCastVideoCallScreen> {
                                 size: 96, color: Colors.indigoAccent),
                             const SizedBox(height: 12),
                             Text(
-                                "Connected to ${widget.targetPeerId.length >= 10 ? widget.targetPeerId.substring(0, 10) : widget.targetPeerId}...",
+                                "Peer ${widget.targetPeerId.length >= 10 ? widget.targetPeerId.substring(0, 10) : widget.targetPeerId}...",
                                 style: const TextStyle(color: Colors.white70)),
-                            const SizedBox(height: 6),
-                            const Text("WebRTC SRTP Encrypted Stream Active",
-                                style: TextStyle(
-                                    fontSize: 12, color: Color(0xFF10B981))),
                           ],
                         )
-                      : const Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CircularProgressIndicator(color: Color(0xFF6366F1)),
-                            SizedBox(height: 16),
-                            Text(
-                                "Exchanging SDP & ICE Candidates via Local Hub...",
-                                style: TextStyle(color: Colors.grey)),
-                          ],
+                      : const Padding(
+                          padding: EdgeInsets.all(24),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.videocam_off_rounded,
+                                  size: 64, color: Colors.orange),
+                              SizedBox(height: 16),
+                              Text("Video calling isn't built yet",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold)),
+                              SizedBox(height: 8),
+                              Text(
+                                  "This screen is a UI preview. No camera, microphone or WebRTC connection is used.",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: Colors.grey)),
+                            ],
+                          ),
                         ),
                 ),
               ),

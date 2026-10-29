@@ -54,7 +54,7 @@ MODULE_TREE = {
         "name": "The-Omni-Hub Transport Engine",
         "level": 1,
         "type": "TRANSPORT",
-        "description": "P2P GossipSub Mesh, BLE/Wi-Fi Aware & IPC Gateway (127.0.0.1:9200)",
+        "description": "P2P HTTP Sync (:5005) & IPC Gateway (127.0.0.1:9200); GossipSub/BLE/Wi-Fi Aware on roadmap",
         "requires": ["module_1"],
         "mandatory": False,
         "default": True,
@@ -611,7 +611,7 @@ def main():
     init_wal_db()
     print("[MERKLE WAL] SQLite WAL DB Ready.")
     print("[IPC GATEWAY] Binding local loopback server to 127.0.0.1:9200...")
-    print("[P2P MESH] Wi-Fi Aware & BLE GATT Radios Active.")
+    print("[P2P MESH] HTTP sync + UDP discovery (BLE / Wi-Fi Aware not implemented).")
     print("==============================================================================")
     print("[DAEMON ACTIVE] Press Ctrl+C to terminate.")
     while True:

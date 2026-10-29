@@ -90,10 +90,10 @@ def run_easter_egg_loop(max_frames=60):
             output.append(f"║ {BOLD}{GREEN}[ ENGINE 01: 9x9 RAYCAST 3D CUBE ]{RESET}   │ {BOLD}{MAGENTA}[ ENGINE 02: KNIT P2P MESH & MERKLE ]{RESET}  ║")
             
             right_info = [
-                f"• Active Peer Nodes: {GREEN}4 (Wi-Fi Aware + BLE){RESET}",
+                f"• Peer transport : {GREEN}HTTP :5005 + UDP 9101{RESET}",
                 f"• Local Merkle Root: {YELLOW}{hash_hex}{RESET}",
-                f"• GossipSub Relays : {CYAN}{14 + frame * 2} pkts/sec{RESET}",
-                f"• CRDT Consensus   : {GREEN}IN_SYNC (0ms drift){RESET}",
+                f"• GossipSub / BLE : {YELLOW}roadmap, not built{RESET}",
+                f"• Catch-up sync   : {GREEN}negentropy over HTTP{RESET}",
                 f"• Local SQLite WAL : {GREEN}127.0.0.1:9200 ACTIVE{RESET}",
                 f"─────────────────────────────────────",
                 f"{BOLD}{YELLOW}[ ENGINE 03: MARKOV AI BUILDER ]{RESET}",

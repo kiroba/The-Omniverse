@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ==============================================================================
-OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.7.0 - Hardened Mesh Spine]
+OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.8.0 - Hardened Mesh Spine]
 ==============================================================================
 Architecture:
 - Port 9100 (127.0.0.1): Node Health Telemetry & Agent Cache
@@ -13,6 +13,11 @@ Remote hub (opt-in, v8.7.0): OMNI_HUB_REMOTE=1 + OMNI_HUB_BIND=<ip> also serves 
 (feed, append, stats, node-health) on that address. Non-loopback requests need
 "Authorization: Bearer <token>" (token in ~/.omni/hub_token) and remote posts must carry the phone's
 own Ed25519 signature. See Admin/docs/REMOTE_HUB.md.
+Catch-up sync (v8.8.0): on startup, when a new peer is discovered and every OMNI_CATCHUP_INTERVAL
+seconds, the node reconciles its event set with its peers (negentropy v1 range-based set
+reconciliation over POST /p2p/reconcile on :5005), fetches only the events it lacks (POST
+/p2p/events) and pushes the ones the peer lacks (POST /p2p/sync). Fetched events go through the same
+hash/signature/allowlist checks as /p2p/sync. See Admin/docs/CATCHUP_SYNC.md.
 ==============================================================================
 """
 
@@ -28,6 +33,7 @@ import secrets
 from omni_signing import (load_or_create_key, pubkey_hex, sign_event, verify_event,
                           canonical_event_bytes, now_ms, load_trusted_keys, is_trusted,
                           TRUSTED_KEYS_ENV)
+import omni_negentropy as neg
 import threading
 import socket
 import urllib.request
@@ -36,7 +42,7 @@ import urllib.parse
 from pathlib import Path
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
-VERSION = "8.7.0"
+VERSION = "8.8.0"
 TELEMETRY_PORT = 9100
 CONTINUITY_IPC_PORT = 5000
 P2P_SYNC_PORT = 5005
@@ -86,6 +92,45 @@ REMOTE_GET_PATHS = {"/api/events/feed", "/api/events/stats", "/api/events/list",
 REMOTE_POST_PATHS = {"/api/events/append"}
 _APP_ENVELOPE_KEYS = ("app_event_id", "app_author_pubkey", "app_signature", "app_previous_hash",
                       "app_ts", "app_timestamp")
+
+# Catch-up sync (v8.8.0). Peers come from UDP discovery (same mesh) plus OMNI_SYNC_PEERS, a
+# comma-separated list of host:port P2P endpoints (needed over Tailscale, where beacons don't reach).
+SYNC_PEERS_ENV = "OMNI_SYNC_PEERS"
+CATCHUP_INTERVAL_ENV = "OMNI_CATCHUP_INTERVAL"            # seconds between periodic runs; 0 = off
+CATCHUP_STARTUP_DELAY_ENV = "OMNI_CATCHUP_STARTUP_DELAY"  # seconds after start before the first run
+CATCHUP_PUSH_ENV = "OMNI_CATCHUP_PUSH"                    # 0 = only pull; default pushes too
+RECONCILE_MAX_ROUNDS = 32
+FETCH_BATCH = 200
+FETCH_MAX_RESPONSE = 4 * 1024 * 1024
+_EVENT_ID_RE = re.compile(r"0x[0-9a-f]{64}")
+_PEER_HOST_RE = re.compile(r"[A-Za-z0-9.\-:\[\]]{1,255}")
+
+def _env_float(name: str, default: float) -> float:
+    try:
+        return max(0.0, float(os.environ.get(name, "").strip() or default))
+    except ValueError:
+        return default
+
+def parse_sync_peers(value=None) -> list:
+    """OMNI_SYNC_PEERS="100.64.0.7:5005,laptop.tailnet.ts.net" -> [("100.64.0.7", 5005), ...].
+    Port defaults to 5005. Raises ValueError on a malformed entry (never silently drops a peer)."""
+    if value is None:
+        value = os.environ.get(SYNC_PEERS_ENV, "")
+    peers = []
+    for raw in value.split(","):
+        entry = raw.strip()
+        if not entry:
+            continue
+        host, port = entry, P2P_SYNC_PORT
+        if entry.count(":") == 1:
+            host, _, port_s = entry.partition(":")
+            if not port_s.isdigit() or not 0 < int(port_s) < 65536:
+                raise ValueError(f"{SYNC_PEERS_ENV}: bad port in {entry!r}")
+            port = int(port_s)
+        if not _PEER_HOST_RE.fullmatch(host):
+            raise ValueError(f"{SYNC_PEERS_ENV}: bad host in {entry!r}")
+        peers.append((host, port))
+    return peers
 
 def hub_token_path() -> Path:
     override = os.environ.get(HUB_TOKEN_FILE_ENV, "").strip()
@@ -187,6 +232,14 @@ class EngineState:
         if self.trusted_keys is not None:
             self.trusted_keys = self.trusted_keys | {self.node_id}  # our own relayed events
         self.hub_token = load_or_create_hub_token() if HUB_REMOTE else None
+        try:
+            self.sync_peers = parse_sync_peers()
+        except ValueError as e:
+            sys.stderr.write(f"[x] FATAL: {e}\n")
+            raise SystemExit(2)
+        self.catchup_lock = threading.Lock()   # one catch-up run at a time
+        self.catchup_wake = threading.Event()  # set when a new peer shows up
+        self.last_catchup = None               # summary of the last run, shown in node-health
 
 STATE = EngineState()
 
@@ -293,7 +346,7 @@ def resolve_event_time(data: dict, is_local: bool) -> tuple:
     ts = now_ms()
     return {"ts": ts}, ts / 1000.0, ts
 
-def process_and_store_event(data: dict, origin_peer: str = None) -> tuple[dict, int]:
+def process_and_store_event(data: dict, origin_peer: str = None, relay: bool = True) -> tuple[dict, int]:
     action = str(data.get("action", "USER_ACTION")).strip()
     if origin_peer is None:
         author = STATE.node_id   # local app: this node is the author, never trust a client-supplied name
@@ -381,8 +434,10 @@ def process_and_store_event(data: dict, origin_peer: str = None) -> tuple[dict, 
         "signature": signature
     }
 
-    # Relay to active P2P peers (skipping origin sender)
-    threading.Thread(target=relay_event_to_peers, args=(event_envelope, origin_peer), daemon=True).start()
+    # Relay to active P2P peers (skipping origin sender). Catch-up passes relay=False: every peer
+    # reconciles for itself, so re-relaying a backlog would only multiply traffic.
+    if relay:
+        threading.Thread(target=relay_event_to_peers, args=(event_envelope, origin_peer), daemon=True).start()
 
     return {"status": "SUCCESS", "event_id": event_id, "merkle_hash": prev_hash, **time_fields}, 200
 
@@ -450,7 +505,11 @@ def handle_discovery_packet(msg: dict, peer_ip: str) -> bool:
         return False
     peer_port = int(msg.get("port", P2P_SYNC_PORT))
     with STATE.lock:
+        old = STATE.active_peers.get(peer_ip)
+        is_new = old is None or time.time() - old["last_seen"] >= 15.0   # new or back after a gap
         STATE.active_peers[peer_ip] = {"ip": peer_ip, "port": peer_port, "last_seen": time.time()}
+    if is_new:
+        STATE.catchup_wake.set()   # (re)connected peer: reconcile with it soon
     return True
 
 def udp_discovery_listener():
@@ -571,6 +630,241 @@ def list_feed_events(limit: int = FEED_DEFAULT_LIMIT, before: int = None, since:
                 next_before=(events[-1]["id"] if has_more and events else None))
     return base
 
+# --- Catch-up sync (v8.8.0): negentropy range-based set reconciliation ---------------------------
+
+def _db_path() -> Path:
+    return Path.cwd() / "continuity_events.db"
+
+def reconcile_item_ts(timestamp, ts_ms) -> int:
+    """Negentropy timestamp for an event: whole seconds of the signed time (see omni_negentropy)."""
+    if ts_ms is not None:
+        return max(0, int(ts_ms) // 1000)
+    return max(0, int(float(timestamp)))
+
+def load_reconcile_items(db_path: Path = None) -> list:
+    """(timestamp_s, 32-byte id) for every signed event whose id is a content hash. The unsigned
+    per-node genesis row and malformed ids are left out: they can never verify on another node."""
+    db_path = db_path or _db_path()
+    if not db_path.exists():
+        return []
+    conn = sqlite3.connect(str(db_path))
+    try:
+        rows = conn.execute("SELECT event_id, timestamp, ts_ms FROM events "
+                            "WHERE signature IS NOT NULL AND signature != '';").fetchall()
+    finally:
+        conn.close()
+    items = []
+    for event_id, timestamp, ts_ms in rows:
+        if isinstance(event_id, str) and _EVENT_ID_RE.fullmatch(event_id):
+            items.append((reconcile_item_ts(timestamp, ts_ms), bytes.fromhex(event_id[2:])))
+    return items
+
+def load_event_envelopes(event_ids, db_path: Path = None) -> list:
+    """Stored events as /p2p/sync envelopes (exactly the signed time field), in the order given.
+    Served as stored: the RECEIVER re-verifies everything, so nothing here is trusted."""
+    db_path = db_path or _db_path()
+    wanted = [e for e in event_ids if isinstance(e, str) and _EVENT_ID_RE.fullmatch(e)]
+    if not wanted or not db_path.exists():
+        return []
+    conn = sqlite3.connect(str(db_path))
+    found = {}
+    try:
+        for i in range(0, len(wanted), 500):
+            chunk = wanted[i:i + 500]
+            q = ("SELECT event_id, action, author_pubkey, previous_hash, timestamp, payload_json, signature, ts_ms "
+                 "FROM events WHERE event_id IN (%s);" % ",".join("?" * len(chunk)))
+            for row in conn.execute(q, chunk):
+                found[row[0]] = row
+    finally:
+        conn.close()
+    out = []
+    for e in wanted:
+        row = found.get(e)
+        if not row or not row[6]:
+            continue
+        event_id, action, author, prev_hash, timestamp, payload_json, signature, ts_ms = row
+        try:
+            payload = json.loads(payload_json or "{}")
+        except ValueError:
+            payload = {}
+        time_fields = {"ts": int(ts_ms)} if ts_ms is not None else {"timestamp": timestamp}
+        out.append({"event_id": event_id, "action": action, "author_pubkey": author,
+                    "previous_hash": prev_hash, **time_fields, "payload": payload, "signature": signature})
+    return out
+
+def catchup_peers() -> list:
+    """(host, port) pairs to reconcile with: OMNI_SYNC_PEERS plus fresh same-mesh discovery peers."""
+    peers = list(STATE.sync_peers)
+    now = time.time()
+    with STATE.lock:
+        found = [(p["ip"], int(p.get("port", P2P_SYNC_PORT))) for p in STATE.active_peers.values()
+                 if now - p["last_seen"] < 15.0]
+    for host, port in found:
+        if host in (LOCAL_IP, "127.0.0.1"):
+            continue
+        if (host, port) not in peers:
+            peers.append((host, port))
+    return peers
+
+def _resolve(host: str) -> set:
+    try:
+        return {ai[4][0] for ai in socket.getaddrinfo(host, None)}
+    except Exception:
+        return set()
+
+def catchup_peer_allowed(ip: str) -> bool:
+    """Who may call /p2p/reconcile and /p2p/events: loopback, a same-mesh peer this node discovered,
+    or a host listed in OMNI_SYNC_PEERS. That is the set relay_event_to_peers already pushes every
+    new event to, so catch-up serves nothing to anyone who wouldn't get it from live relay anyway."""
+    if _is_loopback(ip):
+        return True
+    with STATE.lock:
+        p = STATE.active_peers.get(ip)
+        if p and time.time() - p["last_seen"] < 15.0:
+            return True
+    for host, _ in STATE.sync_peers:
+        if ip == host or ip in _resolve(host):
+            return True
+    return False
+
+def _peer_post(host: str, port: int, path: str, obj: dict, timeout: float = 10.0) -> tuple:
+    body = json.dumps(obj, separators=(",", ":")).encode("utf-8")
+    req = urllib.request.Request(f"http://{host}:{port}{path}", data=body, method="POST",
+                                 headers={"Content-Type": "application/json", MESH_HEADER: STATE.mesh_id})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            raw = resp.read()
+            return resp.status, json.loads(raw), len(body) + len(raw)
+    except urllib.error.HTTPError as e:
+        raw = e.read()
+        try:
+            return e.code, json.loads(raw), len(body) + len(raw)
+        except ValueError:
+            return e.code, {}, len(body) + len(raw)
+
+def reconcile_with_peer(host: str, port: int) -> dict:
+    """Client side of one catch-up: reconcile, pull what we lack (verified), push what they lack."""
+    t0 = time.time()
+    stats = {"peer": f"{host}:{port}", "rounds": 0, "bytes": 0, "need": 0, "have": 0, "stored": 0,
+             "already": 0, "rejected": 0, "missing": 0, "pushed": 0, "push_failed": 0, "error": None}
+    try:
+        ne = neg.Negentropy(neg.Storage(load_reconcile_items()))
+        msg = ne.initiate()
+        have, need = [], []
+        while msg is not None:
+            stats["rounds"] += 1
+            if stats["rounds"] > RECONCILE_MAX_ROUNDS:
+                raise RuntimeError("reconcile did not converge")
+            code, resp, n = _peer_post(host, port, "/p2p/reconcile", {"negentropy": msg.hex()})
+            stats["bytes"] += n
+            if code != 200 or not isinstance(resp.get("negentropy"), str):
+                raise RuntimeError(f"/p2p/reconcile answered {code}: {resp.get('message', '')}"[:200])
+            msg, h, nd = ne.reconcile(bytes.fromhex(resp["negentropy"]))
+            have += h
+            need += nd
+        need_ids = ["0x" + i.hex() for i in need]
+        have_ids = ["0x" + i.hex() for i in have]
+        stats["need"], stats["have"] = len(need_ids), len(have_ids)
+
+        # Pull: fetch only the missing events, then verify each exactly like /p2p/sync does.
+        pending = list(need_ids)
+        while pending:
+            batch, pending = pending[:FETCH_BATCH], pending[FETCH_BATCH:]
+            code, resp, n = _peer_post(host, port, "/p2p/events", {"ids": batch}, timeout=30.0)
+            stats["bytes"] += n
+            if code != 200 or not isinstance(resp.get("events"), list):
+                raise RuntimeError(f"/p2p/events answered {code}: {resp.get('message', '')}"[:200])
+            asked = set(batch)
+            got = set()
+            for env in resp["events"]:
+                eid = env.get("event_id") if isinstance(env, dict) else None
+                if eid not in asked or eid in got:
+                    stats["rejected"] += 1      # unrequested or duplicate: never stored
+                    continue
+                got.add(eid)
+                result, status = process_and_store_event(env, origin_peer=host, relay=False)
+                if status != 200:
+                    stats["rejected"] += 1
+                    print(f"[!] Catch-up from {host}:{port}: rejected {eid[:18]}... ({status}: {result.get('message', '')[:80]})", flush=True)
+                elif result.get("result") == "ALREADY_EXISTS":
+                    stats["already"] += 1
+                else:
+                    stats["stored"] += 1
+            rest = [e for e in batch if e not in got]
+            if resp.get("truncated") and rest and len(got) > 0:
+                pending = rest + pending     # response hit the size cap: ask again for the rest
+            else:
+                stats["missing"] += len(rest)
+
+        # Push: send what the peer lacks through its normal /p2p/sync (it verifies them itself).
+        if os.environ.get(CATCHUP_PUSH_ENV, "1").strip().lower() not in ("0", "false", "no"):
+            for env in load_event_envelopes(have_ids):
+                code, _, n = _peer_post(host, port, "/p2p/sync", env)
+                stats["bytes"] += n
+                if code == 200:
+                    stats["pushed"] += 1
+                else:
+                    stats["push_failed"] += 1
+    except Exception as e:
+        stats["error"] = str(e)[:200]
+    stats["duration_ms"] = int((time.time() - t0) * 1000)
+    return stats
+
+def run_catchup(wait: bool = False) -> dict:
+    """One catch-up pass over every known peer. Returns {"peers": [stats...]} (or skipped)."""
+    if not STATE.catchup_lock.acquire(blocking=wait, timeout=60 if wait else -1):
+        return {"status": "SKIPPED", "message": "a catch-up run is already in progress"}
+    try:
+        results = [reconcile_with_peer(h, p) for h, p in catchup_peers()]
+        summary = {"status": "OK", "at": int(time.time()), "peers": results}
+        STATE.last_catchup = summary
+        for r in results:
+            if r["error"] or r["need"] or r["have"]:
+                print(f"[✓] Catch-up {r['peer']}: rounds={r['rounds']} need={r['need']} stored={r['stored']} "
+                      f"rejected={r['rejected']} pushed={r['pushed']} error={r['error']}", flush=True)
+        return summary
+    finally:
+        STATE.catchup_lock.release()
+
+def catchup_loop():
+    """Startup run (the 'reconnect' case), then whenever a new peer appears or the interval passes."""
+    time.sleep(_env_float(CATCHUP_STARTUP_DELAY_ENV, 5.0))
+    interval = _env_float(CATCHUP_INTERVAL_ENV, 60.0)
+    while True:
+        try:
+            run_catchup()
+        except Exception as e:
+            print(f"[!] Catch-up failed: {e}", flush=True)
+        STATE.catchup_wake.clear()
+        STATE.catchup_wake.wait(interval if interval > 0 else None)
+        time.sleep(1.0)   # let a burst of beacons settle
+
+def answer_reconcile(data: dict) -> tuple:
+    """Server side of /p2p/reconcile: stateless, one negentropy message in, one out."""
+    msg_hex = data.get("negentropy") if isinstance(data, dict) else None
+    if not isinstance(msg_hex, str):
+        return {"status": "ERROR", "message": "expected {\"negentropy\": \"<hex message>\"}"}, 400
+    try:
+        out, _, _ = neg.Negentropy(neg.Storage(load_reconcile_items())).reconcile(bytes.fromhex(msg_hex))
+    except ValueError as e:
+        return {"status": "ERROR", "message": f"bad negentropy message: {e}"}, 400
+    return {"status": "OK", "negentropy": out.hex()}, 200
+
+def answer_events(data: dict) -> tuple:
+    """Server side of /p2p/events: the stored envelopes for the requested ids (max FETCH_BATCH)."""
+    ids = data.get("ids") if isinstance(data, dict) else None
+    if not isinstance(ids, list) or len(ids) > FETCH_BATCH:
+        return {"status": "ERROR", "message": f"expected {{\"ids\": [...]}} with at most {FETCH_BATCH} ids"}, 400
+    events, size, truncated = [], 0, False
+    for env in load_event_envelopes(ids):
+        n = len(json.dumps(env))
+        if events and size + n > FETCH_MAX_RESPONSE:
+            truncated = True
+            break
+        events.append(env)
+        size += n
+    return {"status": "OK", "events": events, "truncated": truncated}, 200
+
 def _is_loopback(ip: str) -> bool:
     return ip in ("127.0.0.1", "::1", "::ffff:127.0.0.1") or ip.startswith("127.")
 
@@ -639,7 +933,8 @@ class TelemetryHandler(BaseHTTPRequestHandler):
                 "p2p_sync_port": P2P_SYNC_PORT,
                 "active_peers": active_count,
                 "peer_ips": peer_ips,
-                "uptime_seconds": uptime
+                "uptime_seconds": uptime,
+                "catchup": STATE.last_catchup,
             }
             body = json.dumps(resp_data).encode("utf-8")
             self.send_response(200)
@@ -777,6 +1072,16 @@ class ContinuityIPCHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         if not remote_gate(self, "POST", self.path):
             return
+        if self.path == "/api/sync/catchup":
+            # Loopback-only (never in REMOTE_POST_PATHS): run a catch-up pass now and report it.
+            try:
+                n = min(int(self.headers.get("Content-Length", 0) or 0), 65536)
+                if n > 0:
+                    self.rfile.read(n)
+            except ValueError:
+                pass
+            self._send_json(200, run_catchup(wait=True))
+            return
         if self.path == "/api/events/append":
             content_len = int(self.headers.get("Content-Length", 0))
             if content_len > MAX_PAYLOAD_SIZE:
@@ -837,7 +1142,47 @@ class P2PSyncHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _json_reply(self, status_code: int, obj: dict):
+        body = json.dumps(obj).encode("utf-8")
+        self.send_response(status_code)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        try:
+            self.wfile.write(body)
+        except Exception:
+            pass
+
     def do_POST(self):
+        if self.path in ("/p2p/reconcile", "/p2p/events"):
+            # Catch-up sync (v8.8.0). Mesh first (403, unread), then only loopback / known peers (403):
+            # the same hosts live relay already pushes every event to. Nothing here writes to the DB.
+            their_mesh = self.headers.get(MESH_HEADER)
+            if their_mesh is None or their_mesh.strip() != STATE.mesh_id:
+                self.reject_mesh(their_mesh)
+                return
+            if not catchup_peer_allowed(self.client_address[0]):
+                _deny(self, 403, "catch-up is only served to known peers on this mesh")
+                return
+            try:
+                content_len = int(self.headers.get("Content-Length", 0) or 0)
+            except ValueError:
+                content_len = -1
+            if content_len <= 0 or content_len > MAX_PAYLOAD_SIZE:
+                _deny(self, 413, "body missing or too large (max 5MB)")
+                return
+            try:
+                data = json.loads(self.rfile.read(content_len).decode("utf-8"))
+            except Exception as e:
+                self._json_reply(400, {"status": "ERROR", "message": f"Bad Request: {e}"})
+                return
+            handler = answer_reconcile if self.path == "/p2p/reconcile" else answer_events
+            try:
+                resp_data, status_code = handler(data)
+            except Exception as e:
+                resp_data, status_code = {"status": "ERROR", "message": f"catch-up failed: {e}"}, 500
+            self._json_reply(status_code, resp_data)
+            return
         if self.path == "/p2p/sync":
             their_mesh = self.headers.get(MESH_HEADER)
             if their_mesh is None or their_mesh.strip() != STATE.mesh_id:
@@ -897,11 +1242,16 @@ def main():
         print("    Remote requests need 'Authorization: Bearer <token>'; remote posts must be signed by the phone.")
     else:
         print(f"[✓] Remote hub: off (set {HUB_REMOTE_ENV}=1 and {HUB_BIND_ENV}=<ip> to serve another phone)")
+    peers_txt = ", ".join(f"{h}:{p}" for h, p in STATE.sync_peers) or "none (discovery only)"
+    interval = _env_float(CATCHUP_INTERVAL_ENV, 60.0)
+    print(f"[✓] Catch-up sync (negentropy v1): /p2p/reconcile + /p2p/events; static peers ({SYNC_PEERS_ENV}): {peers_txt}; "
+          f"every {int(interval)}s" if interval > 0 else "[✓] Catch-up sync: startup + new peers only (interval 0)")
     print(f"[✓] Event time format: {'legacy float timestamp' if LEGACY_FLOAT_TS else 'int-ms ts'} for events this node stamps")
     print("------------------------------------------------------------------", flush=True)  # show in daemon.log now
 
     t1 = threading.Thread(target=udp_discovery_broadcaster, daemon=True)
     t2 = threading.Thread(target=udp_discovery_listener, daemon=True)
+    t3 = threading.Thread(target=catchup_loop, daemon=True)
     # Bind in the main thread so a bad OMNI_HUB_BIND fails loudly instead of in a dead thread.
     servers = []
     for host in hub_listen_hosts():
@@ -913,6 +1263,7 @@ def main():
     t2.start()
     for srv in servers:
         threading.Thread(target=srv.serve_forever, daemon=True).start()
+    t3.start()   # after the servers are up, so peers can reconcile back with us
 
     try:
         while True:

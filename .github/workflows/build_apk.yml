@@ -84,3 +84,44 @@ jobs:
           name: ${{ matrix.app_folder }}-release-apk
           path: apps/${{ matrix.app_folder }}/mobile/build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
+
+  windows-kickback:
+    name: Build KickBack Windows (desktop)
+    runs-on: windows-latest
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: ⚙️ Generate Standalone App Workspaces
+        shell: pwsh
+        env: { PYTHONIOENCODING: utf-8 }
+        run: python build_multi_app_suite.py
+
+      - name: 🦋 Set up Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: 🔨 Build KickBack for Windows
+        working-directory: apps/kickback_main_standalone/mobile
+        shell: pwsh
+        run: |
+          flutter config --enable-windows-desktop
+          flutter create --platforms=windows --project-name kickback_main_standalone .
+          (Get-Content windows\runner\main.cpp) -replace 'L"kickback_main_standalone"', 'L"The KickBack"' | Set-Content windows\runner\main.cpp
+          flutter pub get
+          flutter build windows --release "--dart-define=OMNI_APP=kickback-social-windows"
+          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath "$env:GITHUB_WORKSPACE\kickback-social-windows-x64.zip"
+
+      - name: 📤 Upload Windows Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kickback-social-windows-x64
+          path: kickback-social-windows-x64.zip
+          if-no-files-found: error

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 
+import 'kickback_platform.dart';
+
 /// ============================================================================
 /// KICKBACK APP LOCK (fingerprint / face / device PIN)
 /// ============================================================================
@@ -90,7 +92,9 @@ class AppLock {
           // lock at all, fall back to unprotected mode instead of trapping the user.
           final hasLock = await probe();
           if (!hasLock) return const AuthOutcome(true);
-          return AuthOutcome(false, 'Set up a fingerprint, face or screen lock in Android Settings (${e.code}).');
+          return AuthOutcome(false, kickbackIsDesktop
+              ? 'Set up Windows Hello (PIN, face or fingerprint) in Windows Settings > Accounts > Sign-in options (${e.code}).'
+              : 'Set up a fingerprint, face or screen lock in Android Settings (${e.code}).');
         case 'LockedOut':
           return const AuthOutcome(false, 'Too many attempts. Wait 30 seconds and try again.');
         case 'PermanentlyLockedOut':
@@ -98,6 +102,10 @@ class AppLock {
         default:
           return AuthOutcome(false, e.message ?? e.code);
       }
+    } on MissingPluginException {
+      // No local_auth implementation on this platform: don't trap the user.
+      _unprotected = true;
+      return const AuthOutcome(true);
     }
   }
 
@@ -196,13 +204,15 @@ class _KickBackLockGateState extends State<KickBackLockGate> with WidgetsBinding
               bottom: false,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                child: Row(children: const [
-                  Icon(Icons.lock_open, size: 16, color: Color(0xFFFFC107)),
-                  SizedBox(width: 8),
+                child: Row(children: [
+                  const Icon(Icons.lock_open, size: 16, color: Color(0xFFFFC107)),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'No screen lock or biometrics on this phone, so KickBack can\'t be locked. Add one in Android Settings.',
-                      style: TextStyle(fontSize: 11, color: Color(0xFFFFE082)),
+                      kickbackIsDesktop
+                          ? 'Windows Hello is not set up on this PC, so KickBack can\'t be locked. Add a PIN in Windows Settings > Accounts > Sign-in options.'
+                          : 'No screen lock or biometrics on this phone, so KickBack can\'t be locked. Add one in Android Settings.',
+                      style: const TextStyle(fontSize: 11, color: Color(0xFFFFE082)),
                     ),
                   ),
                 ]),

@@ -78,9 +78,18 @@ jobs:
           retention-days: 3
 
   windows:
-    name: Windows · desktop app
+    name: Windows · ${{ matrix.slug }}
     runs-on: windows-latest
-    continue-on-error: true
+    # No continue-on-error: releases are immutable, so a missing Windows zip must
+    # fail the run (rerun the failed job) instead of publishing an incomplete release.
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Superapp: unchanged asset name (omniverse-windows-x64.zip).
+          - { folder: omniverse_superapp_master, slug: omniverse-superapp, zip: omniverse-windows-x64.zip, title: The Omniverse }
+          # KickBack desktop: talks to the daemon on this PC (127.0.0.1) or a remote hub over Tailscale.
+          - { folder: kickback_main_standalone,  slug: kickback-social,    zip: kickback-social-windows-x64.zip, title: The KickBack }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -92,19 +101,22 @@ jobs:
       - uses: subosito/flutter-action@v2
         with: { channel: stable, cache: true }
       - name: Build Windows
-        # mobile/ has no pubspec.yaml; build the generated superapp and add a Windows runner to it.
-        working-directory: apps/omniverse_superapp_master/mobile
+        # The generator only scaffolds Android; add a Windows runner to the generated app.
+        working-directory: apps/${{ matrix.folder }}/mobile
         shell: pwsh
         run: |
           flutter config --enable-windows-desktop
-          flutter create --platforms=windows --project-name omniverse_superapp_master .
+          flutter create --platforms=windows --project-name ${{ matrix.folder }} .
+          (Get-Content windows\runner\main.cpp) -replace 'L"${{ matrix.folder }}"', 'L"${{ matrix.title }}"' | Set-Content windows\runner\main.cpp
           flutter pub get
-          flutter build windows --release
-          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath "$env:GITHUB_WORKSPACE\omniverse-windows-x64.zip"
+          $build = 1000 + ${{ github.run_number }}
+          flutter build windows --release "--dart-define=OMNI_APP=${{ matrix.slug }}-windows" "--dart-define=OMNI_BUILD=$build"
+          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath "$env:GITHUB_WORKSPACE\${{ matrix.zip }}"
       - uses: actions/upload-artifact@v4
         with:
-          name: windows
-          path: omniverse-windows-x64.zip
+          name: windows-${{ matrix.slug }}
+          path: ${{ matrix.zip }}
+          if-no-files-found: error
           retention-days: 3
 
   publish:
@@ -116,6 +128,19 @@ jobs:
         with: { path: dist, merge-multiple: true }
       - name: List binaries
         run: ls -la dist
+      - name: Check every asset is present (releases are immutable)
+        run: |
+          missing=0
+          for f in omniverse-superapp kickback-social idle-plaza mesh-monitor phaser-studio; do
+            [ -s "dist/$f-android-arm64.apk" ] || { echo "::error::missing $f-android-arm64.apk"; missing=1; }
+          done
+          for f in omniverse-windows-x64.zip kickback-social-windows-x64.zip; do
+            [ -s "dist/$f" ] || { echo "::error::missing $f"; missing=1; }
+          done
+          if [ "$missing" = 1 ]; then
+            echo "::error::Not publishing an incomplete release. Re-run the failed jobs."
+            exit 1
+          fi
       - name: Write OTA update manifest
         env:
           OMNI_OTA_SIGNING_KEY: ${{ secrets.OMNI_OTA_SIGNING_KEY }}

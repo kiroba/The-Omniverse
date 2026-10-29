@@ -88,6 +88,17 @@ class OmniOta {
     if (silent && _checkedThisSession) return;
     _checkedThisSession = true;
 
+    // In-app updates install APKs (ota_update is Android-only). Desktop builds
+    // update by downloading the new zip from GitHub Releases.
+    if (!Platform.isAndroid) {
+      if (!silent) {
+        ScaffoldMessenger.maybeOf(context)?.showSnackBar(const SnackBar(
+          content: Text('In-app updates are Android-only. Get the new build from GitHub Releases.'),
+        ));
+      }
+      return;
+    }
+
     final messenger = ScaffoldMessenger.maybeOf(context);
     final manifest = await fetchManifest();
     if (manifest == null) {

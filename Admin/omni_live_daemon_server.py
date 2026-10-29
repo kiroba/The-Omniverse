@@ -526,6 +526,62 @@ def relay_event_to_peers(event_envelope: dict, origin_peer: str = None):
         except Exception:
             pass
 
+BEACON_DOMAIN = b"OMNI_BEACON_V1\n"   # domain-separates beacon signatures from event signatures
+BEACON_MAX_AGE_MS = 60_000
+REQUIRE_SIGNED_BEACONS = os.environ.get("OMNI_REQUIRE_SIGNED_BEACONS", "").strip() in ("1", "true", "yes")
+
+def _beacon_bytes(msg: dict) -> bytes:
+    body = {k: v for k, v in msg.items() if k != "sig"}
+    return BEACON_DOMAIN + json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
+
+def _log_beacon_reject_once(peer_ip: str, reason: str):
+    key = (peer_ip, "beacon:" + reason)
+    with STATE.lock:
+        if key in STATE.mesh_logged:
+            return
+        if len(STATE.mesh_logged) >= 1024:
+            STATE.mesh_logged.clear()
+        STATE.mesh_logged.add(key)
+    print(f"[!] UDP discovery: ignoring {peer_ip}: {reason}", flush=True)
+
+def build_beacon() -> dict:
+    """UDP 9101 beacon, signed with this node's Ed25519 key (node_id is the public key)."""
+    msg = {"type": "OMNI_P2P_BEACON", "node_id": STATE.node_id, "mesh_id": STATE.mesh_id,
+           "ip": LOCAL_IP, "port": P2P_SYNC_PORT, "transport": "UDP_LAN", "ts": now_ms()}
+    msg["sig"] = STATE.signing_key.sign(_beacon_bytes(msg)).hex()
+    return msg
+
+def beacon_signature_ok(msg: dict) -> bool:
+    """Signed beacon: valid Ed25519 sig by node_id over the beacon, and ts within 60 s of now
+    (stops a captured beacon being replayed later)."""
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
+    from cryptography.exceptions import InvalidSignature
+    ts = msg.get("ts")
+    if not isinstance(ts, int) or isinstance(ts, bool) or abs(now_ms() - ts) > BEACON_MAX_AGE_MS:
+        return False
+    try:
+        pub = Ed25519PublicKey.from_public_bytes(bytes.fromhex(str(msg.get("node_id", ""))))
+        pub.verify(bytes.fromhex(str(msg.get("sig", ""))), _beacon_bytes(msg))
+        return True
+    except (ValueError, TypeError, InvalidSignature):
+        return False
+
+def beacon_allowed(msg: dict, peer_ip: str) -> bool:
+    """Signed beacons must verify (and, with an allowlist, come from a trusted key). Unsigned beacons
+    (pre-8.9 daemons) are accepted only when there is no allowlist and OMNI_REQUIRE_SIGNED_BEACONS is off."""
+    if "sig" in msg:
+        if not beacon_signature_ok(msg):
+            _log_beacon_reject_once(peer_ip, "bad-or-stale-beacon-signature")
+            return False
+        if not is_trusted(str(msg.get("node_id", "")), STATE.trusted_keys):
+            _log_beacon_reject_once(peer_ip, "untrusted-beacon-key")
+            return False
+        return True
+    if REQUIRE_SIGNED_BEACONS or STATE.trusted_keys is not None:
+        _log_beacon_reject_once(peer_ip, "unsigned-beacon")
+        return False
+    return True
+
 def udp_discovery_broadcaster():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -533,14 +589,7 @@ def udp_discovery_broadcaster():
 
     while True:
         try:
-            payload = json.dumps({
-                "type": "OMNI_P2P_BEACON",
-                "node_id": STATE.node_id,
-                "mesh_id": STATE.mesh_id,
-                "ip": LOCAL_IP,
-                "port": P2P_SYNC_PORT,  # Advertises 5005
-                "transport": "UDP_LAN"
-            }).encode('utf-8')
+            payload = json.dumps(build_beacon()).encode('utf-8')
             sock.sendto(payload, ('<broadcast>', UDP_DISCOVERY_PORT))
         except Exception:
             pass
@@ -566,6 +615,8 @@ def handle_discovery_packet(msg: dict, peer_ip: str) -> bool:
         with STATE.lock:
             STATE.active_peers.pop(peer_ip, None)  # a peer that moved to another mesh is dropped
         log_mesh_reject_once(peer_ip, their_mesh, "UDP discovery")
+        return False
+    if not beacon_allowed(msg, peer_ip):
         return False
     peer_port = int(msg.get("port", P2P_SYNC_PORT))
     with STATE.lock:

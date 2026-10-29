@@ -1,0 +1,70 @@
+name: Bug report (pre-alpha)
+description: Something broke or looked wrong in an Omniverse app or the hub.
+title: "[Bug]: "
+labels: ["bug", "pre-alpha"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing! Please don't paste tokens, recovery seeds, or private messages.
+        Can't use GitHub? Email keithb2290@gmail.com instead.
+  - type: dropdown
+    id: app
+    attributes:
+      label: App
+      options:
+        - KickBack
+        - Omniverse Superapp
+        - Idle Plaza
+        - Mesh Monitor
+        - Phaser Studio
+        - Windows hub / daemon
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: app_version
+    attributes:
+      label: App version
+      placeholder: v0.1.10
+  - type: input
+    id: device
+    attributes:
+      label: Device
+      placeholder: Samsung Galaxy A15
+  - type: input
+    id: android_version
+    attributes:
+      label: Android version
+      placeholder: "14"
+  - type: dropdown
+    id: network
+    attributes:
+      label: Network
+      options:
+        - Same Wi-Fi as hub
+        - Mobile data
+        - Tailscale remote
+        - Other
+  - type: textarea
+    id: what_happened
+    attributes:
+      label: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open ...
+        2. Tap ...
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs (optional)
+      render: shell

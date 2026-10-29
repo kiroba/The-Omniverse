@@ -17,18 +17,23 @@ permissions:
 
 env:
   TAG: ${{ github.event.inputs.tag || github.ref_name }}
-  # Shared test signing key (committed on purpose, sideload testing only).
-  # Replace with a private key stored in GitHub Secrets before any public/Play release.
-  OMNI_KEYSTORE: ${{ github.workspace }}/signing/omniverse-test.p12
-  OMNI_KEYSTORE_PASSWORD: omniverse-test
-  OMNI_KEY_ALIAS: omniverse
-  OMNI_KEY_PASSWORD: omniverse-test
+  # Release APKs are signed with the PRIVATE release key from repo secrets (see the
+  # android job). The committed signing/omniverse-test.p12 is only for CI/test builds
+  # (build_apk.yml and the install-test workflows), never for GitHub Releases.
   OMNI_VERSION_CODE: ${{ github.run_number }}
 
 jobs:
   android:
     name: Android · ${{ matrix.slug }}
     runs-on: ubuntu-latest
+    env:
+      # Private release signing key (repo secrets). The keystore itself is decoded to
+      # $RUNNER_TEMP by the "Release signing key" step, which sets OMNI_KEYSTORE.
+      OMNI_KEYSTORE_PASSWORD: ${{ secrets.OMNI_RELEASE_KEYSTORE_PASSWORD }}
+      OMNI_KEY_ALIAS: ${{ secrets.OMNI_RELEASE_KEY_ALIAS }}
+      OMNI_KEY_PASSWORD: ${{ secrets.OMNI_RELEASE_KEY_PASSWORD }}
+      # Gradle throws instead of falling back to the debug key if the keystore is missing.
+      OMNI_REQUIRE_RELEASE_KEY: "1"
     strategy:
       fail-fast: false
       matrix:
@@ -48,6 +53,24 @@ jobs:
           python3 build_multi_app_suite.py || python3 scripts/build_multi_app_suite.py
       - uses: actions/setup-java@v4
         with: { java-version: "17", distribution: temurin }
+      - name: Release signing key (fails the release if the secrets are missing)
+        env:
+          OMNI_RELEASE_KEYSTORE_B64: ${{ secrets.OMNI_RELEASE_KEYSTORE_B64 }}
+        run: |
+          missing=0
+          for v in OMNI_RELEASE_KEYSTORE_B64 OMNI_KEYSTORE_PASSWORD OMNI_KEY_ALIAS OMNI_KEY_PASSWORD; do
+            if [ -z "${!v}" ]; then echo "::error::Release signing secret for $v is empty or not set"; missing=1; fi
+          done
+          if [ "$missing" = 1 ]; then
+            echo "::error::Add OMNI_RELEASE_KEYSTORE_B64, OMNI_RELEASE_KEYSTORE_PASSWORD, OMNI_RELEASE_KEY_ALIAS and OMNI_RELEASE_KEY_PASSWORD in Settings > Secrets and variables > Actions. Not signing a release with the debug or test key."
+            exit 1
+          fi
+          KS="$RUNNER_TEMP/omniverse-release.p12"
+          printf '%s' "$OMNI_RELEASE_KEYSTORE_B64" | base64 -d > "$KS"
+          # Prove the keystore opens with the stored password and holds the alias.
+          keytool -list -storetype pkcs12 -keystore "$KS" -storepass:env OMNI_KEYSTORE_PASSWORD -alias "$OMNI_KEY_ALIAS" > /dev/null \
+            || { echo "::error::Release keystore did not open with OMNI_RELEASE_KEYSTORE_PASSWORD / OMNI_RELEASE_KEY_ALIAS"; exit 1; }
+          echo "OMNI_KEYSTORE=$KS" >> "$GITHUB_ENV"
       - uses: subosito/flutter-action@v2
         with: { channel: stable, cache: true }
       - name: OTA public key (pins signed update manifests when the secret exists)
@@ -71,6 +94,24 @@ jobs:
             --dart-define=OMNI_APP=${{ matrix.slug }} --dart-define=OMNI_BUILD=$((1000 + ${{ github.run_number }})) \
             --dart-define=OMNI_OTA_PUBKEY=$OMNI_OTA_PUBKEY
           cp build/app/outputs/flutter-apk/app-release.apk "$GITHUB_WORKSPACE/${{ matrix.slug }}-android-arm64.apk"
+      - name: Check the APK is signed with the release key
+        run: |
+          APK="${{ matrix.slug }}-android-arm64.apk"
+          SDK="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
+          APKSIGNER=$(ls -d "$SDK"/build-tools/*/apksigner 2>/dev/null | sort -V | tail -n 1)
+          if [ -z "$APKSIGNER" ]; then
+            echo "::warning::apksigner not found; skipping signer check (Gradle already refuses to build without the release keystore)"
+            exit 0
+          fi
+          CERT=$("$APKSIGNER" verify --print-certs "$APK")
+          echo "$CERT" | grep -E "certificate DN|SHA-256 digest" || true
+          if echo "$CERT" | grep -qiE "Android Debug|The Omniverse Test"; then
+            echo "::error::$APK is signed with the debug/test key, not the release key"; exit 1
+          fi
+          echo "$CERT" | grep -q "CN=The Omniverse Release" || { echo "::error::$APK is not signed with the release certificate"; exit 1; }
+      - name: Remove decoded keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/omniverse-release.p12"
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.slug }}

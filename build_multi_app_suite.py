@@ -209,9 +209,12 @@ android {{
         versionName "5.4.0"
     }}
 
-    // Stable signing: CI points OMNI_KEYSTORE at signing/omniverse-test.p12 so every
-    // release has the same signature and installs over the previous one.
-    // Local builds without the env var fall back to the debug key.
+    // Stable signing: CI points OMNI_KEYSTORE at a PKCS12 keystore so every build has
+    // the same signature and installs over the previous one.
+    //  - GitHub Releases (release.yml): private key decoded from repo secrets, and
+    //    OMNI_REQUIRE_RELEASE_KEY=1 makes a missing keystore a hard build failure.
+    //  - CI/test builds: the shared test key signing/omniverse-test.p12.
+    //  - Local builds without the env var fall back to the debug key.
     signingConfigs {{
         release {{
             def ks = System.getenv("OMNI_KEYSTORE")
@@ -221,6 +224,8 @@ android {{
                 storePassword System.getenv("OMNI_KEYSTORE_PASSWORD")
                 keyAlias System.getenv("OMNI_KEY_ALIAS")
                 keyPassword System.getenv("OMNI_KEY_PASSWORD")
+            }} else if (System.getenv("OMNI_REQUIRE_RELEASE_KEY") == "1") {{
+                throw new GradleException("OMNI_REQUIRE_RELEASE_KEY=1 but the release keystore is missing (OMNI_KEYSTORE=" + ks + "). Refusing to fall back to the debug key.")
             }}
         }}
     }}

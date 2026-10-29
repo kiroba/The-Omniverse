@@ -7,6 +7,11 @@ on:
     branches: [ main, master, desktop ]
   workflow_dispatch:
 
+# Least privilege: these jobs only check out code and upload build artifacts
+# (upload-artifact uses the Actions runtime token, not GITHUB_TOKEN).
+permissions:
+  contents: read
+
 jobs:
   core-package-tests:
     name: omni_core_ui tests (Dart/Python interop)

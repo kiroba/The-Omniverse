@@ -129,8 +129,11 @@ def run_milestone5_bootnode_tests() -> bool:
     desktop_node = orchestrator.register_mobile_node("desktop_node_01", nat_type="PUBLIC")
     print(f"[-] Registered Desktop Node: Mode = {desktop_node['bootstrap_session']['routing_mode']}")
 
-    mobile_node = orchestrator.register_mobile_node("mobile_iphone_01", nat_type="SYMMETRIC_CGNAT")
-    print(f"[-] Registered Mobile CGNAT Node: Mode = {mobile_node['bootstrap_session']['routing_mode']} (Relay: {mobile_node['bootstrap_session']['relay_node']})")
+    cgnat_node = orchestrator.register_mobile_node("mobile_iphone_01", nat_type="SYMMETRIC_CGNAT")
+    # Log only routing metadata, never the node record itself (it carries key material).
+    cgnat_routing_mode = str(cgnat_node["bootstrap_session"]["routing_mode"])
+    cgnat_relay_id = str(cgnat_node["bootstrap_session"]["relay_node"])
+    print(f"[-] Registered Mobile CGNAT Node: Mode = {cgnat_routing_mode} (Relay: {cgnat_relay_id})")
 
     bootnode = orchestrator.registry.get_healthy_bootnodes()[0]
     p2p_session = CGNATTraversalEngine.negotiate_peer_connection(

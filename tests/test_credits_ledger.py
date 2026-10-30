@@ -330,9 +330,13 @@ class RemoteHubCreditsTests(unittest.TestCase):
         shutil.rmtree(cls.tmp, ignore_errors=True)
 
     def test_credits_are_loopback_only(self):
+        """Unsigned writes stay loopback only. Since v8.15.0 balance/history are readable remotely
+        (read-only: a remote balance lookup never issues the welcome grant) and signed sends go to
+        /api/credits/send (tests/test_signed_credits.py)."""
         a, b = _pk(0x51), _pk(0x52)
-        self.assertEqual(_http(f"{self.remote}/api/credits/balance?pubkey={a}", headers=self.auth)[0], 403)
-        self.assertEqual(_http(f"{self.remote}/api/credits/history?pubkey={a}", headers=self.auth)[0], 403)
+        code, r = _http(f"{self.remote}/api/credits/balance?pubkey={a}", headers=self.auth)
+        self.assertEqual((code, r["balance"], r["welcome_pending"]), (200, 0, True))
+        self.assertEqual(_http(f"{self.remote}/api/credits/history?pubkey={a}", headers=self.auth)[0], 200)
         self.assertEqual(_http(f"{self.remote}/api/credits/transfer", {"from": a, "to": b, "amount": 1},
                                headers=self.auth)[0], 403)
         self.assertEqual(_http(f"{self.remote}/api/credits/grant", {"to": a, "amount": 1},

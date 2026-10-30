@@ -60,6 +60,15 @@ class StargateIdentity {
     return _hex(sig.bytes);
   }
 
+  /// Signs exact bytes with this identity's key; returns a 128-char hex
+  /// signature. For protocols with their own canonical form, e.g. the OmniCast
+  /// signaling mailbox (mobile/lib/omni_signal_client.dart), so they reuse this
+  /// one identity instead of keeping a second key.
+  Future<String> signBytes(List<int> message) async {
+    final sig = await _algo.sign(message, keyPair: _keyPair);
+    return _hex(sig.bytes);
+  }
+
   /// True only if `signature` was made by the key behind `author_pubkey`.
   /// Works for events from this app, the local daemon, or any peer.
   static Future<bool> verify(Map<String, dynamic> event) async {

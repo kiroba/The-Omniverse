@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ==============================================================================
-OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.12.1 - Hardened Mesh Spine]
+OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.13.0 - Hardened Mesh Spine]
 ==============================================================================
 Architecture:
 - Port 9100 (127.0.0.1): Node Health Telemetry & Agent Cache
@@ -45,6 +45,13 @@ body (what Dart's HttpClient sends when contentLength isn't set). Before this, a
 as "{}" and stored as an EMPTY "USER_ACTION" event with status SUCCESS: every KickBack post ever sent to
 a daemon arrived that way. /api/events/append now answers 400 for an empty body. See
 Admin/docs/REQUEST_BODIES.md.
+Profiles, contact cards, invites (v8.13.0): POST :5000/api/profile/update stores a profile event signed
+by the PERSON's key (author = their pubkey, the hub only verifies; per-key rate limit); GET
+/api/profile?pubkey= and /api/profile/list read the latest one per key. POST /api/contacts/verify
+checks a signed contact card / "omni://contact?c=" QR; GET /api/hub/card is a node-signed "join this
+hub" card (no token in it); POST /api/invites/create + GET /api/invites/redeem?code= map a short code
+to a contact card for up to 7 days. All allowed in remote hub mode with the bearer token. See
+Admin/docs/PROFILES_AND_CONTACTS.md.
 ==============================================================================
 """
 
@@ -70,7 +77,7 @@ import urllib.parse
 from pathlib import Path
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
-VERSION = "8.12.1"
+VERSION = "8.13.0"
 def _env_port(name: str, default: int) -> int:
     """Port override (e.g. to run two nodes on one machine for tests). Bad values fall back."""
     raw = os.environ.get(name, "").strip()
@@ -128,8 +135,10 @@ HUB_BIND = os.environ.get(HUB_BIND_ENV, "").strip() or "127.0.0.1"
 # Paths a remote (authenticated) app may use. Everything else stays loopback-only
 # (e.g. POST /api/omnimind/telemetry, the local agent's cache).
 REMOTE_GET_PATHS = {"/api/events/feed", "/api/events/stats", "/api/events/list", "/api/v1/telemetry/node-health",
-                    "/api/signal/poll", "/api/signal/ice-config", "/api/telemetry/summary"}
-REMOTE_POST_PATHS = {"/api/events/append", "/api/bugs/report", "/api/signal/send"}
+                    "/api/signal/poll", "/api/signal/ice-config", "/api/telemetry/summary",
+                    "/api/profile", "/api/profile/list", "/api/hub/card", "/api/invites/redeem"}
+REMOTE_POST_PATHS = {"/api/events/append", "/api/bugs/report", "/api/signal/send",
+                     "/api/profile/update", "/api/contacts/verify", "/api/invites/create"}
 _APP_ENVELOPE_KEYS = ("app_event_id", "app_author_pubkey", "app_signature", "app_previous_hash",
                       "app_ts", "app_timestamp")
 
@@ -915,6 +924,438 @@ def list_bug_reports(limit: int = FEED_DEFAULT_LIMIT, db_path: Path = None) -> d
                 "author_pubkey": e["author_pubkey"], "report": e["payload"]} for e in page["events"]]
     return {"status": "OK", "node_id": page["node_id"], "version": VERSION, "limit": page["limit"],
             "count": len(reports), "has_more": page["has_more"], "reports": reports}
+
+# --- User-signed app events (v8.13.0): the phone's key is the author, the hub only verifies -----------
+# Profiles (and, from v8.14.0, comments/reactions) are events signed by the PERSON's Ed25519 key
+# (StargateIdentity on the phone), stored exactly as signed with author_pubkey = that key, and relayed /
+# caught up like any peer event. The hub never signs on a person's behalf. Envelope = the same canonical
+# event the app already signs for posts: {"action","author_pubkey","previous_hash","ts","payload",
+# "signature"[,"event_id"]} (see Admin/docs/SIGNED_EVENTS.md). previous_hash is the author's own chain
+# head (the hub doesn't enforce per-author continuity). See Admin/docs/PROFILES_AND_CONTACTS.md.
+USER_EVENT_MAX_BYTES = 16 * 1024
+USER_EVENT_FIELDS = {"event_id", "action", "author_pubkey", "previous_hash", "ts", "payload", "signature"}
+_HEX_HASH_RE = re.compile(r"0x[0-9a-f]{64}")
+_USER_SIG_RE = re.compile(r"[0-9a-f]{128}")
+USER_RATE_WINDOW_S = 60.0
+try:
+    USER_RATE_MAX = max(1, int(os.environ.get("OMNI_USER_RATE_MAX", "30")))   # writes per author per minute
+except ValueError:
+    USER_RATE_MAX = 30
+RESERVED_USER_ACTIONS = {}   # action -> endpoint; /api/events/append refuses these (filled below)
+
+
+class SlidingWindowLimiter:
+    """Per-key sliding-window rate limit (spec Module 1.2 tier 3: max publication rate per pubkey)."""
+
+    def __init__(self, max_events: int, window_s: float, clock=time.monotonic):
+        self.max, self.window, self.clock = max_events, window_s, clock
+        self.hits = {}
+        self.lock = threading.Lock()
+
+    def allow(self, key: str) -> bool:
+        now = self.clock()
+        with self.lock:
+            q = [t for t in self.hits.get(key, []) if now - t < self.window]
+            if len(q) >= self.max:
+                self.hits[key] = q
+                return False
+            q.append(now)
+            self.hits[key] = q
+            if len(self.hits) > 20_000:
+                self.hits = {k: v for k, v in self.hits.items() if v and now - v[-1] < self.window}
+            return True
+
+
+USER_RATE = SlidingWindowLimiter(USER_RATE_MAX, USER_RATE_WINDOW_S)
+
+
+def parse_user_event(data, validators: dict) -> dict:
+    """The phone-signed event in a request body, schema-checked (not yet signature-checked).
+    validators: action -> fn(payload) returning the payload or raising ValueError."""
+    if not isinstance(data, dict):
+        raise ValueError("body must be a JSON object (a signed event envelope)")
+    unknown = set(data) - USER_EVENT_FIELDS
+    if unknown:
+        raise ValueError(f"unknown field(s): {', '.join(sorted(unknown))}")
+    action = data.get("action")
+    if action not in validators:
+        raise ValueError(f"'action' must be one of: {', '.join(sorted(validators))}")
+    author = data.get("author_pubkey")
+    if not isinstance(author, str) or not _PUBKEY_RE.fullmatch(author):
+        raise ValueError("'author_pubkey' must be a 64-char lowercase hex Ed25519 public key")
+    ts = data.get("ts")
+    if not isinstance(ts, int) or isinstance(ts, bool) or ts < 0:
+        raise ValueError("'ts' must be an integer (milliseconds since epoch)")
+    prev = data.get("previous_hash")
+    if not isinstance(prev, str) or not _HEX_HASH_RE.fullmatch(prev):
+        raise ValueError("'previous_hash' must be 0x + 64 hex (the author's previous event id, or 0x00..00)")
+    sig = data.get("signature")
+    if not isinstance(sig, str) or not _USER_SIG_RE.fullmatch(sig):
+        raise ValueError("'signature' must be a 128-char lowercase hex Ed25519 signature")
+    if "event_id" in data and (not isinstance(data["event_id"], str) or not _HEX_HASH_RE.fullmatch(data["event_id"])):
+        raise ValueError("'event_id' must be 0x + 64 hex")
+    payload = validators[action](data.get("payload"))
+    ev = {"action": action, "author_pubkey": author, "previous_hash": prev, "ts": ts,
+          "payload": payload, "signature": sig}
+    if "event_id" in data:
+        ev["event_id"] = data["event_id"]
+    return ev
+
+
+def user_event_signature_ok(ev: dict) -> bool:
+    try:
+        return bool(verify_event({k: ev[k] for k in ("action", "author_pubkey", "previous_hash", "ts",
+                                                     "payload", "signature")}))
+    except Exception:
+        return False
+
+
+def store_user_event(data, validators: dict, via: str = "loopback") -> tuple:
+    """Validate -> verify the author's signature -> per-author rate limit -> store as signed (relayed to
+    peers like any peer event). Replays of a stored event answer ALREADY_EXISTS."""
+    try:
+        ev = parse_user_event(data, validators)
+    except ValueError as e:
+        return {"status": "ERROR", "message": str(e)}, 400
+    if not user_event_signature_ok(ev):
+        TELEMETRY.inc("user_events_rejected_signature")
+        return {"status": "ERROR", "message": "bad signature: must be the author's Ed25519 signature over the "
+                                              "canonical event (action, author_pubkey, payload, previous_hash, ts)"}, 401
+    if not USER_RATE.allow(ev["author_pubkey"]):
+        TELEMETRY.inc("user_events_rate_limited")
+        return {"status": "ERROR", "message": f"rate limited: max {USER_RATE_MAX} writes per minute per key"}, 429
+    resp, status = process_and_store_event(ev, origin_peer=f"app-{via}")
+    if status == 200:
+        TELEMETRY.inc(f"user_events_{ev['action']}")
+        resp = dict(resp, author_pubkey=ev["author_pubkey"], action=ev["action"])
+    return resp, status
+
+
+def _query_args(query: str, allowed: set) -> dict:
+    params = urllib.parse.parse_qs(query or "", keep_blank_values=True)
+    unknown = set(params) - allowed
+    if unknown:
+        raise ValueError(f"unknown parameter(s): {', '.join(sorted(unknown))}")
+    return params
+
+
+def _user_rows(actions, where: str = "", args: tuple = (), db_path: Path = None) -> list:
+    """Stored events of the given actions as dicts, oldest row first, each re-verified: the signature must
+    check out and the author must not be this node (user events are signed by people, never the hub)."""
+    db_path = db_path or _db_path()
+    if not db_path.exists():
+        return []
+    marks = ",".join("?" for _ in actions)
+    sql = ("SELECT id, event_id, action, author_pubkey, previous_hash, timestamp, payload_json, signature, ts_ms "
+           f"FROM events WHERE action IN ({marks})" + (f" AND {where}" if where else "") + " ORDER BY id ASC")
+    conn = sqlite3.connect(str(db_path))
+    try:
+        rows = conn.execute(sql, (*actions, *args)).fetchall()
+    finally:
+        conn.close()
+    out = []
+    for r in rows:
+        e = _row_to_feed_event(r)
+        if e["verified"] and "ts" in e and e["author_pubkey"] != STATE.node_id:
+            out.append(e)
+    return out
+
+
+# --- Profiles: handle + display name signed by the person's key ------------------------------------
+PROFILE_ACTION = "profile_update"
+PROFILE_SCHEMA = 1
+_HANDLE_RE = re.compile(r"[a-z0-9_]{3,20}")
+PROFILE_TEXT_FIELDS = {"display_name": 48, "bio": 280, "avatar": 200}
+_PROFILE_LIST_ARGS = {"limit", "q"}
+
+
+def _clean_text(value, name: str, max_len: int, multiline: bool = False) -> str:
+    if not isinstance(value, str):
+        raise ValueError(f"'{name}' must be a string")
+    v = "".join(ch for ch in value if ch >= " " or (multiline and ch == "\n")).strip()
+    if len(v) > max_len:
+        raise ValueError(f"'{name}' is longer than {max_len} characters")
+    return v
+
+
+def validate_profile(p) -> dict:
+    if not isinstance(p, dict):
+        raise ValueError("payload must be an object")
+    unknown = set(p) - {"schema", "handle", "omnicast"} - set(PROFILE_TEXT_FIELDS)
+    if unknown:
+        raise ValueError(f"unknown profile field(s): {', '.join(sorted(unknown))}")
+    if p.get("schema") != PROFILE_SCHEMA:
+        raise ValueError(f"'schema' must be {PROFILE_SCHEMA}")
+    if not isinstance(p.get("handle"), str) or not _HANDLE_RE.fullmatch(p["handle"]):
+        raise ValueError("'handle' must be 3-20 chars of a-z 0-9 _")
+    for k, n in PROFILE_TEXT_FIELDS.items():
+        if k in p and _clean_text(p[k], k, n, multiline=(k == "bio")) != p[k]:
+            raise ValueError(f"'{k}' has control characters or surrounding spaces; send it trimmed")
+    if "omnicast" in p and not isinstance(p["omnicast"], bool):
+        raise ValueError("'omnicast' must be true or false (accepts OmniCast calls)")
+    return p
+
+
+def handle_display(handle: str, pubkey: str) -> str:
+    """@handle.abcd: the 4-hex key suffix tells two people with the same handle apart. Handles are NOT
+    unique (there is no global registry); the pubkey is the identity."""
+    return f"@{handle}.{pubkey[:4]}"
+
+
+def _profile_view(e: dict) -> dict:
+    p = e["payload"]
+    return {"pubkey": e["author_pubkey"], "handle": p["handle"], "handle_display": handle_display(p["handle"], e["author_pubkey"]),
+            **{k: p[k] for k in ("display_name", "bio", "avatar", "omnicast") if k in p},
+            "updated_ts_ms": e["ts"], "event_id": e["event_id"], "origin": e["origin"], "verified": True}
+
+
+def latest_profiles(pubkey: str = None, db_path: Path = None) -> dict:
+    """pubkey -> latest valid profile event (highest signed ts; ties by arrival)."""
+    rows = _user_rows((PROFILE_ACTION,), "author_pubkey = ?" if pubkey else "", (pubkey,) if pubkey else (),
+                      db_path)
+    best = {}
+    for e in rows:
+        try:
+            validate_profile(e["payload"])
+        except ValueError:
+            continue   # a peer can relay anything; invalid ones are ignored on read
+        cur = best.get(e["author_pubkey"])
+        if cur is None or e["ts"] >= cur["ts"]:
+            best[e["author_pubkey"]] = e
+    return best
+
+
+def get_profile(query: str) -> tuple:
+    try:
+        params = _query_args(query, {"pubkey"})
+        pk = credit_account((params.get("pubkey") or [""])[-1], allow_treasury=False)
+    except ValueError as e:
+        return {"status": "ERROR", "message": str(e)}, 400
+    e = latest_profiles(pk).get(pk)
+    if e is None:
+        return {"status": "ERROR", "message": "no profile for that key on this hub", "pubkey": pk}, 404
+    return {"status": "OK", "profile": _profile_view(e)}, 200
+
+
+def list_profiles(query: str) -> tuple:
+    try:
+        params = _query_args(query, _PROFILE_LIST_ARGS)
+        limit = _feed_int(params, "limit")
+        q = (params.get("q") or [""])[-1].strip().lower().lstrip("@")
+    except ValueError as e:
+        return {"status": "ERROR", "message": str(e)}, 400
+    limit = FEED_DEFAULT_LIMIT if limit is None else max(1, min(limit, FEED_MAX_LIMIT))
+    views = [_profile_view(e) for e in latest_profiles().values()]
+    if q:
+        views = [v for v in views if v["handle"].startswith(q) or v["pubkey"].startswith(q)
+                 or v.get("display_name", "").lower().startswith(q)]
+    views.sort(key=lambda v: v["updated_ts_ms"], reverse=True)
+    return {"status": "OK", "count": min(len(views), limit), "has_more": len(views) > limit,
+            "profiles": views[:limit]}, 200
+
+
+RESERVED_USER_ACTIONS[PROFILE_ACTION] = "/api/profile/update"
+
+# --- Contact cards (QR), hub card, invite codes ---------------------------------------------------
+# A contact card is a small JSON object the PERSON signs (domain-separated by "type"); a QR code holds
+# "omni://contact?c=<base64url(card JSON)>". Contact lists themselves stay on the phone: the hub stores
+# no social graph. Invite codes map a short code to a card for up to 7 days (SQLite side table, not the
+# event log, not relayed).
+CONTACT_CARD_TYPE = "omni.contact-card.v1"
+HUB_CARD_TYPE = "omni.hub-card.v1"
+CONTACT_CARD_FIELDS = {"type", "pubkey", "handle", "display_name", "hub", "ts", "sig"}
+CONTACT_CARD_MAX_AGE_MS = 365 * 86_400_000
+INVITE_TTL_DEFAULT_S = 24 * 3600
+INVITE_TTL_MAX_S = 7 * 24 * 3600
+INVITE_MAX_USES = 100
+INVITE_ALPHABET = "23456789ABCDEFGHJKMNPQRSTUVWXYZ"   # no 0/O/1/I/L
+INVITE_CREATE_SKEW_MS = 600_000
+_INVITE_CODE_RE = re.compile(r"[2-9A-HJKMNP-Z]{4}-?[2-9A-HJKMNP-Z]{4}")
+INVITE_REDEEM_FAILS = SlidingWindowLimiter(20, 60.0)   # failed redeems per client per minute
+INVITES_LOCK = threading.Lock()
+
+
+def card_signing_bytes(card: dict) -> bytes:
+    """Sorted-key compact JSON of every field except "sig", raw UTF-8 (same rule as OmniCast signaling)."""
+    return json.dumps({k: v for k, v in card.items() if k != "sig"}, sort_keys=True, separators=(",", ":"),
+                      ensure_ascii=False).encode("utf-8")
+
+
+def _b64url_json(obj: dict) -> str:
+    import base64
+    raw = json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    return base64.urlsafe_b64encode(raw).decode("ascii").rstrip("=")
+
+
+def decode_qr_payload(text: str, kind: str) -> dict:
+    """'omni://<kind>?c=<base64url JSON>' -> the JSON object. Raises ValueError."""
+    import base64
+    prefix = f"omni://{kind}?c="
+    if not isinstance(text, str) or not text.startswith(prefix) or len(text) > 4096:
+        raise ValueError(f"QR text must start with {prefix}")
+    b = text[len(prefix):]
+    try:
+        obj = json.loads(base64.urlsafe_b64decode(b + "=" * (-len(b) % 4)).decode("utf-8"))
+    except Exception:
+        raise ValueError("QR payload is not base64url JSON")
+    if not isinstance(obj, dict):
+        raise ValueError("QR payload is not a JSON object")
+    return obj
+
+
+def verify_contact_card(card, now: int = None) -> dict:
+    """The card if it is well-formed and signed by its own pubkey, else ValueError."""
+    now = now_ms() if now is None else now
+    if not isinstance(card, dict):
+        raise ValueError("card must be a JSON object")
+    unknown = set(card) - CONTACT_CARD_FIELDS
+    if unknown:
+        raise ValueError(f"unknown card field(s): {', '.join(sorted(unknown))}")
+    if card.get("type") != CONTACT_CARD_TYPE:
+        raise ValueError(f"'type' must be {CONTACT_CARD_TYPE}")
+    pk = card.get("pubkey")
+    if not isinstance(pk, str) or not _PUBKEY_RE.fullmatch(pk):
+        raise ValueError("'pubkey' must be a 64-char lowercase hex Ed25519 public key")
+    if not isinstance(card.get("handle"), str) or not _HANDLE_RE.fullmatch(card["handle"]):
+        raise ValueError("'handle' must be 3-20 chars of a-z 0-9 _")
+    if "display_name" in card:
+        _clean_text(card["display_name"], "display_name", 48)
+    if "hub" in card:
+        hub = card["hub"]
+        if (not isinstance(hub, dict) or set(hub) - {"host", "ipc_port"} or not isinstance(hub.get("host"), str)
+                or not _PEER_HOST_RE.fullmatch(hub["host"])
+                or not isinstance(hub.get("ipc_port", 5000), int) or not 0 < hub.get("ipc_port", 5000) < 65536):
+            raise ValueError("'hub' must be {\"host\": <ip or name>, \"ipc_port\"?: <1-65535>}")
+    ts = card.get("ts")
+    if not isinstance(ts, int) or isinstance(ts, bool) or ts < 0:
+        raise ValueError("'ts' must be an integer (milliseconds since epoch)")
+    if ts > now + MAX_FUTURE_SKEW_S * 1000:
+        raise ValueError("card 'ts' is in the future")
+    if now - ts > CONTACT_CARD_MAX_AGE_MS:
+        raise ValueError("card is older than a year; ask for a fresh one")
+    sig = card.get("sig")
+    if not isinstance(sig, str) or not _USER_SIG_RE.fullmatch(sig):
+        raise ValueError("'sig' must be a 128-char lowercase hex Ed25519 signature")
+    if not _ed25519_ok(pk, sig, card_signing_bytes(card)):
+        raise ValueError("bad signature: the card must be signed by its own pubkey")
+    return card
+
+
+def contacts_verify(data) -> tuple:
+    """Body: a contact card, or {"qr": "omni://contact?c=..."}."""
+    try:
+        if isinstance(data, dict) and set(data) == {"qr"}:
+            data = decode_qr_payload(data["qr"], "contact")
+        card = verify_contact_card(data)
+    except ValueError as e:
+        return {"status": "ERROR", "valid": False, "message": str(e)}, 400
+    prof = latest_profiles(card["pubkey"]).get(card["pubkey"])
+    return {"status": "OK", "valid": True, "card": card,
+            "handle_display": handle_display(card["handle"], card["pubkey"]),
+            "qr": "omni://contact?c=" + _b64url_json(card),
+            "profile": _profile_view(prof) if prof else None}, 200
+
+
+def hub_card() -> dict:
+    """Node-signed card for a "join this hub" QR. Never carries the bearer token."""
+    addrs = [h for h in hub_listen_hosts() if h not in ("0.0.0.0", "::")]
+    ts_ip = tailscale_ip()
+    if ts_ip and ts_ip not in addrs:
+        addrs.append(ts_ip)
+    card = {"type": HUB_CARD_TYPE, "node_id": STATE.node_id, "mesh_id": STATE.mesh_id, "version": VERSION,
+            "ipc_port": CONTINUITY_IPC_PORT, "telemetry_port": TELEMETRY_PORT, "addresses": addrs,
+            "remote_hub": bool(HUB_REMOTE), "ts": now_ms()}
+    card["sig"] = STATE.signing_key.sign(card_signing_bytes(card)).hex()
+    return {"status": "OK", "card": card, "qr": "omni://hub?c=" + _b64url_json(card),
+            "note": "the bearer token is not in the card; copy ~/.omni/hub_token separately"}
+
+
+def _invites_db():
+    conn = sqlite3.connect(str(_db_path()), timeout=10.0)
+    conn.execute("CREATE TABLE IF NOT EXISTS invites (code TEXT PRIMARY KEY, card_json TEXT NOT NULL, "
+                 "pubkey TEXT NOT NULL, created_ms INTEGER NOT NULL, expires_ms INTEGER NOT NULL, "
+                 "max_uses INTEGER NOT NULL, uses INTEGER NOT NULL DEFAULT 0)")
+    return conn
+
+
+def _norm_code(code) -> str:
+    if not isinstance(code, str) or not _INVITE_CODE_RE.fullmatch(code.strip().upper()):
+        raise ValueError("invite code must look like ABCD-EFGH")
+    c = code.strip().upper().replace("-", "")
+    return f"{c[:4]}-{c[4:]}"
+
+
+def invites_create(data) -> tuple:
+    """Body: {"card": <contact card, ts within 10 min>, "ttl_s"?: <=604800, "max_uses"?: 1-100}."""
+    try:
+        if not isinstance(data, dict) or set(data) - {"card", "ttl_s", "max_uses"}:
+            raise ValueError("body must be {\"card\", \"ttl_s\"?, \"max_uses\"?}")
+        now = now_ms()
+        card = verify_contact_card(data.get("card"), now)
+        if abs(now - card["ts"]) > INVITE_CREATE_SKEW_MS:
+            raise ValueError("card 'ts' must be within 10 minutes of the hub clock (sign a fresh card)")
+        ttl = data.get("ttl_s", INVITE_TTL_DEFAULT_S)
+        uses = data.get("max_uses", 1)
+        if not isinstance(ttl, int) or isinstance(ttl, bool) or not 60 <= ttl <= INVITE_TTL_MAX_S:
+            raise ValueError(f"'ttl_s' must be 60-{INVITE_TTL_MAX_S}")
+        if not isinstance(uses, int) or isinstance(uses, bool) or not 1 <= uses <= INVITE_MAX_USES:
+            raise ValueError(f"'max_uses' must be 1-{INVITE_MAX_USES}")
+    except ValueError as e:
+        return {"status": "ERROR", "message": str(e)}, 400
+    if not USER_RATE.allow("invite:" + card["pubkey"]):
+        return {"status": "ERROR", "message": "rate limited: too many invites from this key"}, 429
+    with INVITES_LOCK:
+        conn = _invites_db()
+        try:
+            conn.execute("DELETE FROM invites WHERE expires_ms < ? OR uses >= max_uses", (now,))
+            if conn.execute("SELECT COUNT(*) FROM invites WHERE pubkey = ?", (card["pubkey"],)).fetchone()[0] >= 20:
+                return {"status": "ERROR", "message": "this key already has 20 live invites"}, 429
+            for _ in range(10):
+                raw = "".join(secrets.choice(INVITE_ALPHABET) for _ in range(8))
+                code = f"{raw[:4]}-{raw[4:]}"
+                try:
+                    conn.execute("INSERT INTO invites (code, card_json, pubkey, created_ms, expires_ms, max_uses) "
+                                 "VALUES (?, ?, ?, ?, ?, ?)", (code, json.dumps(card), card["pubkey"], now,
+                                                               now + ttl * 1000, uses))
+                    conn.commit()
+                    break
+                except sqlite3.IntegrityError:
+                    continue
+            else:
+                return {"status": "ERROR", "message": "could not allocate a code"}, 503
+        finally:
+            conn.close()
+    TELEMETRY.inc("invites_created")
+    return {"status": "OK", "code": code, "expires_ms": now + ttl * 1000, "max_uses": uses,
+            "qr": f"omni://invite?code={code}"}, 200
+
+
+def invites_redeem(query: str, client: str = "loopback") -> tuple:
+    try:
+        params = _query_args(query, {"code"})
+        code = _norm_code((params.get("code") or [""])[-1])
+    except ValueError as e:
+        return {"status": "ERROR", "message": str(e)}, 400
+    now = now_ms()
+    with INVITES_LOCK:
+        conn = _invites_db()
+        try:
+            row = conn.execute("SELECT card_json, expires_ms, max_uses, uses FROM invites WHERE code = ?",
+                               (code,)).fetchone()
+            if row and row[1] >= now and row[3] < row[2]:
+                conn.execute("UPDATE invites SET uses = uses + 1 WHERE code = ?", (code,))
+                conn.commit()
+        finally:
+            conn.close()
+    if not row or row[1] < now or row[3] >= row[2]:
+        if not INVITE_REDEEM_FAILS.allow(client):
+            return {"status": "ERROR", "message": "too many failed invite codes; wait a minute"}, 429
+        TELEMETRY.inc("invites_redeem_failed")
+        return {"status": "ERROR", "message": "unknown, expired or used-up invite code"}, 404
+    card = json.loads(row[0])
+    TELEMETRY.inc("invites_redeemed")
+    return {"status": "OK", "card": card, "handle_display": handle_display(card["handle"], card["pubkey"]),
+            "uses_left": row[2] - row[3] - 1, "expires_ms": row[1]}, 200
 
 # --- Omni Credits TEST ledger (v8.10.0): closed-loop, replayed from signed chain events -----------
 # Every ledger entry is a node-signed chain event with action "credit_entry", appended through the
@@ -2181,6 +2622,24 @@ class TelemetryHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+def _via(handler) -> str:
+    return "loopback" if _is_loopback(handler.client_address[0]) else "remote_hub"
+
+# Routes added from v8.13.0 on: path -> fn(handler, query) / (max_bytes, fn(handler, body)).
+# Same gate as every other :5000 path (remote_gate: loopback, or REMOTE_*_PATHS + bearer token).
+USER_GET_ROUTES = {
+    "/api/profile": lambda h, q: get_profile(q),
+    "/api/profile/list": lambda h, q: list_profiles(q),
+    "/api/hub/card": lambda h, q: (hub_card(), 200) if not q else ({"status": "ERROR", "message": "no parameters accepted"}, 400),
+    "/api/invites/redeem": lambda h, q: invites_redeem(q, h.client_address[0]),
+}
+USER_POST_ROUTES = {
+    "/api/profile/update": (USER_EVENT_MAX_BYTES, lambda h, d: store_user_event(d, {PROFILE_ACTION: validate_profile}, _via(h))),
+    "/api/contacts/verify": (8 * 1024, lambda h, d: contacts_verify(d)),
+    "/api/invites/create": (8 * 1024, lambda h, d: invites_create(d)),
+}
+
+
 class ContinuityIPCHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         return
@@ -2263,6 +2722,13 @@ class ContinuityIPCHandler(BaseHTTPRequestHandler):
             return
         if path == "/api/signal/ice-config":
             resp, status = signal_ice_config(query)
+            self._send_json(status, resp)
+            return
+        if path in USER_GET_ROUTES:
+            try:
+                resp, status = USER_GET_ROUTES[path](self, query)
+            except Exception as e:
+                resp, status = {"status": "ERROR", "message": f"{path} failed: {type(e).__name__}: {e}"}, 500
             self._send_json(status, resp)
             return
         if path == "/api/telemetry/summary":
@@ -2359,6 +2825,16 @@ class ContinuityIPCHandler(BaseHTTPRequestHandler):
                 resp, status = signal_send(data)
                 self._send_json(status, resp)
             return
+        if self.path in USER_POST_ROUTES:
+            max_bytes, fn = USER_POST_ROUTES[self.path]
+            data, ok = self._read_small_json(max_bytes)
+            if ok:
+                try:
+                    resp, status = fn(self, data)
+                except Exception as e:
+                    resp, status = {"status": "ERROR", "message": f"{self.path} failed: {type(e).__name__}: {e}"}, 500
+                self._send_json(status, resp)
+            return
         if self.path in ("/api/credits/transfer", "/api/credits/grant"):
             data, ok = self._read_small_json(CREDIT_BODY_MAX_BYTES)
             if ok:
@@ -2384,6 +2860,11 @@ class ContinuityIPCHandler(BaseHTTPRequestHandler):
                     # Ledger entries only come from /api/credits/*, where overdraft checks run.
                     resp_data, status_code = {"status": "ERROR", "message":
                                               "credit_entry events can only be written via /api/credits/*"}, 403
+                elif str(data.get("action", "")).strip() in RESERVED_USER_ACTIONS:
+                    # Schema-checked, person-signed types have their own endpoint (v8.13.0+).
+                    act = str(data.get("action", "")).strip()
+                    resp_data, status_code = {"status": "ERROR", "message":
+                                              f"{act} events can only be written via {RESERVED_USER_ACTIONS[act]}"}, 403
                 elif _is_loopback(self.client_address[0]):
                     resp_data, status_code = process_and_store_event(data, origin_peer=None)
                 else:

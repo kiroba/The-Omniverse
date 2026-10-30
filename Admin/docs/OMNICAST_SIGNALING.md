@@ -96,13 +96,13 @@ Body (exactly these fields; unknown or missing fields are 400):
 Errors: 400 bad field/JSON, 401 bad signature or `ts` outside ±120 s, 409 replay, 411 no
 Content-Length, 413 too big, 429 rate limit / mailbox full, 503 hub full, plus the remote gate's 401/403.
 
-### `GET /api/signal/poll?to=<pubkey>&ts=<ms>&sig=<hex>[&since=<cursor>][&wait=<0-25>]`
+### `GET /api/signal/poll?to=<pubkey>&ts=<ms>&sig=<hex>[&since=<cursor>][&epoch=<16 hex>][&wait=<0-25>]`
 Returns **and removes** every queued message for `to`. Messages with `seq <= since` are dropped as
 already received (pass the last `cursor` you got, so a lost response doesn't redeliver forever).
 With `wait=N` and nothing queued, the request is held up to N seconds (max 25) and returns as soon as
 a message arrives.
 ```json
-{"status":"OK","count":1,"cursor":42,
+{"status":"OK","count":1,"cursor":42,"epoch":"9f2c4be01a7d3e55","cursor_reset":false,
  "messages":[{"seq":42,"from":"…","to":"…","call_id":"call-7f3a","kind":"offer",
               "payload":"v=0…","ts":1793042651190,"sig":"…"}]}
 ```
@@ -110,7 +110,14 @@ a message arrives.
 at-most-once: a message is removed when it is handed out, so a response lost in transit is lost
 (the caller re-sends the offer, or the call times out).
 
-Errors: 400 missing/duplicate/unknown parameter, 401 bad signature / stale `ts`, 409 replay.
+**Cursor epoch (v8.17.0).** The cursor (`seq`) restarts at 0 whenever the hub restarts. Every poll
+and send answer carries `"epoch"` (16 hex, random per hub run). Send back the `epoch` you got with your
+`since`; if it differs from the hub's, or `since` is larger than anything this run has issued, the hub
+ignores `since` (treats it as 0) and answers `"cursor_reset": true`. Before v8.17.0 a phone holding
+cursor 40 after a hub restart silently dropped the first 40 new messages. `epoch` is not part of the
+signed poll bytes. Clients that don't send it still get the `since > seq` reset.
+
+Errors: 400 missing/duplicate/unknown parameter or malformed `epoch`, 401 bad signature / stale `ts`, 409 replay.
 
 ### `GET /api/signal/ice-config?pubkey=<pubkey>&ts=<ms>&sig=<hex>`
 ```json

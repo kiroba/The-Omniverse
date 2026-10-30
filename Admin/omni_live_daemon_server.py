@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ==============================================================================
-OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.14.0 - Hardened Mesh Spine]
+OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.15.0 - Hardened Mesh Spine]
 ==============================================================================
 Architecture:
 - Port 9100 (127.0.0.1): Node Health Telemetry & Agent Cache
@@ -57,6 +57,13 @@ events keyed to a post id (the app_event_id KickBack shows); GET /api/social/thr
 comments and reaction counts, GET /api/social/counts?post_ids=a,b returns per-post counts for a feed.
 Reactions toggle (latest signed ts per person+post+reaction wins). Remote hub allowed with the bearer
 token. See Admin/docs/SOCIAL.md.
+Signed credit transfers (v8.15.0): POST :5000/api/credits/send takes a transfer signed by the "from"
+key (kinds transfer/purchase/tip, optional ref such as a post id, unique nonce, ts within 10 min). The
+signature, nonce and ts are stored inside the ledger entry and re-verified on every replay; a reused
+nonce is refused (identical retry -> ALREADY_APPLIED), so a signed transfer can't be spent twice on
+this node. send/balance/history are allowed in remote hub mode; OMNI_CREDITS_REQUIRE_SIGNED=1 turns
+off the unsigned loopback /api/credits/transfer. Still TEST credits, still one ledger per node. See
+Admin/docs/CREDITS_LEDGER.md.
 ==============================================================================
 """
 
@@ -82,7 +89,7 @@ import urllib.parse
 from pathlib import Path
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
-VERSION = "8.14.0"
+VERSION = "8.15.0"
 def _env_port(name: str, default: int) -> int:
     """Port override (e.g. to run two nodes on one machine for tests). Bad values fall back."""
     raw = os.environ.get(name, "").strip()
@@ -142,10 +149,10 @@ HUB_BIND = os.environ.get(HUB_BIND_ENV, "").strip() or "127.0.0.1"
 REMOTE_GET_PATHS = {"/api/events/feed", "/api/events/stats", "/api/events/list", "/api/v1/telemetry/node-health",
                     "/api/signal/poll", "/api/signal/ice-config", "/api/telemetry/summary",
                     "/api/profile", "/api/profile/list", "/api/hub/card", "/api/invites/redeem",
-                    "/api/social/thread", "/api/social/counts"}
+                    "/api/social/thread", "/api/social/counts", "/api/credits/balance", "/api/credits/history"}
 REMOTE_POST_PATHS = {"/api/events/append", "/api/bugs/report", "/api/signal/send",
                      "/api/profile/update", "/api/contacts/verify", "/api/invites/create",
-                     "/api/social/comment", "/api/social/react"}
+                     "/api/social/comment", "/api/social/react", "/api/credits/send"}
 _APP_ENVELOPE_KEYS = ("app_event_id", "app_author_pubkey", "app_signature", "app_previous_hash",
                       "app_ts", "app_timestamp")
 
@@ -1553,7 +1560,14 @@ RESERVED_USER_ACTIONS[REACTION_ACTION] = "/api/social/react"
 # value, nothing is redeemable, and every endpoint is loopback only (see Admin/docs/CREDITS_LEDGER.md).
 CREDIT_ACTION = "credit_entry"
 CREDIT_TREASURY = "treasury"
-CREDIT_KINDS = ("grant", "transfer", "purchase", "reset")
+CREDIT_KINDS = ("grant", "transfer", "purchase", "reset", "tip")
+CREDIT_SIGNED_KINDS = ("transfer", "purchase", "tip")
+CREDIT_TRANSFER_TYPE = "omni.credits.transfer.v1"
+CREDIT_TRANSFER_FIELDS = {"type", "from", "to", "amount", "kind", "memo", "ref", "nonce", "ts", "sig"}
+CREDIT_TRANSFER_WINDOW_MS = 600_000          # signed ts must be within 10 min of the hub clock
+_CREDIT_NONCE_RE = re.compile(r"[0-9a-f]{16,64}")
+_CREDIT_REF_RE = re.compile(r"[A-Za-z0-9_.:-]{1,80}")
+CREDITS_REQUIRE_SIGNED = os.environ.get("OMNI_CREDITS_REQUIRE_SIGNED", "").strip().lower() in ("1", "true", "yes")
 CREDIT_MAX_AMOUNT = 1_000_000
 CREDIT_WELCOME_AMOUNT = 1000
 CREDIT_WELCOME_MEMO = "welcome grant: 1,000 test credits, no cash value"
@@ -1611,8 +1625,9 @@ def validate_credit_payload(p) -> dict:
     """Schema check used both before append and on every replayed entry."""
     if not isinstance(p, dict):
         raise ValueError("payload is not an object")
-    if set(p) != {"kind", "from", "to", "amount", "fee", "memo", "test_only"}:
-        raise ValueError("payload fields are not exactly kind/from/to/amount/fee/memo/test_only")
+    base = {"kind", "from", "to", "amount", "fee", "memo", "test_only"}
+    if not base <= set(p) or set(p) - base - {"ref", "auth"}:
+        raise ValueError("payload fields are not kind/from/to/amount/fee/memo/test_only[/ref/auth]")
     if p["kind"] not in CREDIT_KINDS:
         raise ValueError(f"unknown kind {p['kind']!r}")
     if p["test_only"] is not True:
@@ -1628,10 +1643,46 @@ def validate_credit_payload(p) -> dict:
         raise ValueError("a grant goes from treasury to a pubkey with no fee")
     if p["kind"] == "reset" and (frm == CREDIT_TREASURY or to != CREDIT_TREASURY or fee):
         raise ValueError("a reset returns a pubkey's balance to treasury with no fee")
-    if p["kind"] in ("transfer", "purchase") and frm == CREDIT_TREASURY:
-        raise ValueError("transfers and purchases must come from a pubkey")
+    if p["kind"] in CREDIT_SIGNED_KINDS and frm == CREDIT_TREASURY:
+        raise ValueError("transfers, purchases and tips must come from a pubkey")
+    if p["kind"] == "tip" and ("ref" not in p or to == CREDIT_TREASURY):
+        raise ValueError("a tip goes to a pubkey and names what it tips (ref, e.g. a post id)")
+    if "ref" in p and (not isinstance(p["ref"], str) or not _CREDIT_REF_RE.fullmatch(p["ref"])):
+        raise ValueError("'ref' must be 1-80 chars of A-Z a-z 0-9 _ . : -")
     credit_memo(p["memo"])
+    if "auth" in p:
+        verify_transfer_auth(p)
     return p
+
+def credit_transfer_message(p: dict, auth: dict) -> dict:
+    """The exact object the "from" key signed for a ledger entry (fee excluded: the hub sets it)."""
+    msg = {"type": auth["type"], "from": p["from"], "to": p["to"], "amount": p["amount"], "kind": p["kind"],
+           "memo": p["memo"], "nonce": auth["nonce"], "ts": auth["ts"]}
+    if "ref" in p:
+        msg["ref"] = p["ref"]
+    return msg
+
+def credit_signing_bytes(msg: dict) -> bytes:
+    return json.dumps({k: v for k, v in msg.items() if k != "sig"}, sort_keys=True, separators=(",", ":"),
+                      ensure_ascii=False).encode("utf-8")
+
+def verify_transfer_auth(p: dict):
+    """Raises ValueError unless entry p carries the "from" key's valid signature over its own fields."""
+    auth = p["auth"]
+    if not isinstance(auth, dict) or set(auth) != {"type", "nonce", "ts", "sig"}:
+        raise ValueError("auth must be exactly type/nonce/ts/sig")
+    if auth["type"] != CREDIT_TRANSFER_TYPE:
+        raise ValueError(f"auth type must be {CREDIT_TRANSFER_TYPE}")
+    if not isinstance(auth["nonce"], str) or not _CREDIT_NONCE_RE.fullmatch(auth["nonce"]):
+        raise ValueError("'nonce' must be 16-64 lowercase hex chars")
+    if not isinstance(auth["ts"], int) or isinstance(auth["ts"], bool) or auth["ts"] < 0:
+        raise ValueError("'ts' must be an integer (milliseconds)")
+    if not isinstance(auth["sig"], str) or not _USER_SIG_RE.fullmatch(auth["sig"]):
+        raise ValueError("'sig' must be a 128-char lowercase hex Ed25519 signature")
+    if p["kind"] not in CREDIT_SIGNED_KINDS or p["from"] == CREDIT_TREASURY:
+        raise ValueError("only transfers, purchases and tips from a pubkey are signed")
+    if not _ed25519_ok(p["from"], auth["sig"], credit_signing_bytes(credit_transfer_message(p, auth))):
+        raise ValueError("bad signature: must be by 'from' over type/from/to/amount/kind/memo/nonce/ts[/ref]")
 
 def _verify_credit_row(row):
     """Returns the payload of a stored credit_entry row, or raises LedgerIntegrityError."""
@@ -1685,9 +1736,14 @@ def replay_credit_ledger(db_path: Path = None) -> dict:
             raise LedgerIntegrityError("-", f"replayed balance for {acct[:12]}... is negative")
     return {"balances": balances, "welcomed": welcomed, "entries": entries}
 
-def _append_credit(kind: str, frm: str, to: str, amount: int, fee: int = 0, memo: str = "") -> tuple:
-    payload = validate_credit_payload({"kind": kind, "from": frm, "to": to, "amount": amount, "fee": fee,
-                                       "memo": memo, "test_only": True})
+def _append_credit(kind: str, frm: str, to: str, amount: int, fee: int = 0, memo: str = "",
+                   ref: str = None, auth: dict = None) -> tuple:
+    payload = {"kind": kind, "from": frm, "to": to, "amount": amount, "fee": fee, "memo": memo, "test_only": True}
+    if ref is not None:
+        payload["ref"] = ref
+    if auth is not None:
+        payload["auth"] = auth
+    payload = validate_credit_payload(payload)
     resp, status = process_and_store_event({"action": CREDIT_ACTION, "payload": payload},
                                            origin_peer=None, relay=False)
     if status == 200:
@@ -1703,14 +1759,21 @@ def _ensure_welcome_locked(pubkey: str, ledger: dict) -> dict:
         raise RuntimeError(f"welcome grant failed: {resp.get('message')}")
     return replay_credit_ledger()
 
-def credits_balance(pubkey) -> tuple:
+def credits_balance(pubkey, grant_welcome: bool = True) -> tuple:
+    """grant_welcome=False (remote hub lookups, v8.15.0): never writes; an unclaimed welcome grant is
+    reported as welcome_pending and counted in "available" (it is issued on the key's first signed send)."""
     try:
         acct = credit_account(pubkey)
     except ValueError as e:
         return {"status": "ERROR", "message": str(e)}, 400
     with CREDITS_LOCK:
-        ledger = _ensure_welcome_locked(acct, replay_credit_ledger())
-    return {"status": "OK", "pubkey": acct, "balance": ledger["balances"].get(acct, 0), "test_only": True,
+        ledger = replay_credit_ledger()
+        if grant_welcome:
+            ledger = _ensure_welcome_locked(acct, ledger)
+    bal = ledger["balances"].get(acct, 0)
+    pending = acct != CREDIT_TREASURY and acct not in ledger["welcomed"]
+    return {"status": "OK", "pubkey": acct, "balance": bal, "test_only": True,
+            "available": bal + (CREDIT_WELCOME_AMOUNT if pending else 0), "welcome_pending": pending,
             "note": "test credits, no cash value", "fee_bps": TREASURY_FEE_BPS,
             "entries_replayed": len(ledger["entries"]), "version": VERSION}, 200
 
@@ -1746,9 +1809,74 @@ def credits_history(query: str) -> tuple:
     return {"status": "OK", "pubkey": acct, "balance": ledger["balances"].get(acct, 0), "test_only": True,
             "count": min(len(mine), limit), "has_more": len(mine) > limit, "entries": mine[:limit]}, 200
 
+def credits_send(data) -> tuple:
+    """Signed transfer (v8.15.0). Body: {"type": "omni.credits.transfer.v1", "from", "to", "amount",
+    "kind": transfer|purchase|tip, "memo", "ref"?, "nonce", "ts", "sig"}; sig by "from" over every
+    field except sig (sorted-key compact JSON, raw UTF-8). Node-local double-spend rules: one ledger,
+    one lock; (from, nonce) can be applied once ever (identical retry -> ALREADY_APPLIED, same nonce with
+    other content -> 409); amount <= balance."""
+    if not isinstance(data, dict):
+        return {"status": "ERROR", "message": "body must be a JSON object"}, 400
+    try:
+        unknown = set(data) - CREDIT_TRANSFER_FIELDS
+        if unknown:
+            raise ValueError(f"unknown field(s): {', '.join(sorted(unknown))}")
+        missing = {"type", "from", "to", "amount", "kind", "memo", "nonce", "ts", "sig"} - set(data)
+        if missing:
+            raise ValueError(f"missing field(s): {', '.join(sorted(missing))}")
+        if data["kind"] not in CREDIT_SIGNED_KINDS:
+            raise ValueError("'kind' must be transfer, purchase or tip")
+        frm = credit_account(data["from"], allow_treasury=False)
+        to = credit_account(data["to"])
+        if frm != data["from"] or to != data["to"]:
+            raise ValueError("pubkeys must be lowercase (they are part of the signed bytes)")
+        amount = credit_amount(data["amount"])
+        if credit_memo(data["memo"]) != data["memo"]:
+            raise ValueError("'memo' must be trimmed with no control characters (it is signed as sent)")
+        if frm == to:
+            raise ValueError("from and to are the same account")
+        auth = {"type": data["type"], "nonce": data["nonce"], "ts": data["ts"], "sig": data["sig"]}
+        entry = {"kind": data["kind"], "from": frm, "to": to, "amount": amount, "fee": 0, "memo": data["memo"],
+                 "test_only": True, "auth": auth, **({"ref": data["ref"]} if "ref" in data else {})}
+        validate_credit_payload(entry)   # schema + tip/ref rules + the signature itself
+        if abs(now_ms() - data["ts"]) > CREDIT_TRANSFER_WINDOW_MS:
+            raise PermissionError("stale or future 'ts' (must be within 10 minutes of the hub clock)")
+    except PermissionError as e:
+        TELEMETRY.inc("credits_send_rejected")
+        return {"status": "ERROR", "message": str(e)}, 401
+    except ValueError as e:
+        TELEMETRY.inc("credits_send_rejected")
+        status = 401 if str(e).startswith("bad signature") else 400
+        return {"status": "ERROR", "message": str(e)}, status
+    fee = 0 if to == CREDIT_TREASURY else amount * TREASURY_FEE_BPS // 10000
+    with CREDITS_LOCK:
+        ledger = replay_credit_ledger()
+        for e in ledger["entries"]:
+            a = e.get("auth")
+            if a and e["from"] == frm and a["nonce"] == auth["nonce"]:
+                if a["sig"] == auth["sig"]:
+                    return {"status": "SUCCESS", "result": "ALREADY_APPLIED", "event_id": e["event_id"],
+                            "balance": ledger["balances"].get(frm, 0)}, 200
+                TELEMETRY.inc("credits_send_double_spend")
+                return {"status": "ERROR", "message": "nonce already used by another transfer from this key"}, 409
+        ledger = _ensure_welcome_locked(frm, ledger)
+        have = ledger["balances"].get(frm, 0)
+        if amount > have:
+            return {"status": "ERROR", "message": f"insufficient test credits: balance {have}, need {amount}",
+                    "balance": have}, 409
+        resp, status = _append_credit(data["kind"], frm, to, amount, fee, data["memo"],
+                                      ref=data.get("ref"), auth=auth)
+        if status == 200:
+            resp["balance"] = have - amount
+            TELEMETRY.inc("credits_send_ok")
+    return resp, status
+
 def credits_transfer(data) -> tuple:
-    """Body: {"from": pubkey, "to": pubkey|"treasury", "amount": int, "memo"?: str, "kind"?: transfer|purchase}.
+    """Unsigned, loopback only (v8.10.0; refused when OMNI_CREDITS_REQUIRE_SIGNED=1). Body: {"from": pubkey, "to": pubkey|"treasury", "amount": int, "memo"?: str, "kind"?: transfer|purchase}.
     The Treasury fee (OMNI_TREASURY_FEE_BPS of amount, rounded down) comes out of what the recipient gets."""
+    if CREDITS_REQUIRE_SIGNED:
+        return {"status": "ERROR", "message": "unsigned transfers are off (OMNI_CREDITS_REQUIRE_SIGNED=1); "
+                                              "use POST /api/credits/send"}, 403
     if not isinstance(data, dict):
         return {"status": "ERROR", "message": "body must be a JSON object"}, 400
     unknown = set(data) - {"from", "to", "amount", "memo", "kind"}
@@ -2489,7 +2617,7 @@ def _finance_summary() -> dict:
         kinds[e["kind"]] = kinds.get(e["kind"], 0) + 1
         if e["kind"] == "grant":
             issued += e["amount"]
-        elif e["kind"] in ("transfer", "purchase"):
+        elif e["kind"] in CREDIT_SIGNED_KINDS:
             moved += e["amount"]
         fees += e["fee"]
     accounts = [a for a in ledger["balances"] if a != CREDIT_TREASURY]
@@ -2885,8 +3013,9 @@ class ContinuityIPCHandler(BaseHTTPRequestHandler):
             return None, False
 
     def _credits_call(self, fn, *args):
-        """Runs a credits function and maps ledger tamper/corruption to 409. Loopback only: the
-        /api/credits/* paths are never in REMOTE_*_PATHS, so remote_gate already refused other callers."""
+        """Runs a credits function and maps ledger tamper/corruption to 409. Non-loopback callers only get
+        here on /api/credits/send, /balance and /history (remote hub + bearer token, v8.15.0);
+        /api/credits/transfer and /grant are not in REMOTE_*_PATHS, so remote_gate refused them."""
         try:
             resp, status = fn(*args)
         except LedgerIntegrityError as e:
@@ -2903,7 +3032,8 @@ class ContinuityIPCHandler(BaseHTTPRequestHandler):
             return
         if path == "/api/credits/balance":
             params = urllib.parse.parse_qs(query or "", keep_blank_values=True)
-            self._credits_call(credits_balance, (params.get("pubkey") or [""])[-1])
+            self._credits_call(credits_balance, (params.get("pubkey") or [""])[-1],
+                               _is_loopback(self.client_address[0]))
             return
         if path == "/api/credits/history":
             self._credits_call(credits_history, query)
@@ -3026,6 +3156,11 @@ class ContinuityIPCHandler(BaseHTTPRequestHandler):
                 except Exception as e:
                     resp, status = {"status": "ERROR", "message": f"{self.path} failed: {type(e).__name__}: {e}"}, 500
                 self._send_json(status, resp)
+            return
+        if self.path == "/api/credits/send":
+            data, ok = self._read_small_json(CREDIT_BODY_MAX_BYTES)
+            if ok:
+                self._credits_call(credits_send, data)
             return
         if self.path in ("/api/credits/transfer", "/api/credits/grant"):
             data, ok = self._read_small_json(CREDIT_BODY_MAX_BYTES)

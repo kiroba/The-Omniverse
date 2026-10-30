@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ==============================================================================
-OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.13.0 - Hardened Mesh Spine]
+OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.14.0 - Hardened Mesh Spine]
 ==============================================================================
 Architecture:
 - Port 9100 (127.0.0.1): Node Health Telemetry & Agent Cache
@@ -52,6 +52,11 @@ checks a signed contact card / "omni://contact?c=" QR; GET /api/hub/card is a no
 hub" card (no token in it); POST /api/invites/create + GET /api/invites/redeem?code= map a short code
 to a contact card for up to 7 days. All allowed in remote hub mode with the bearer token. See
 Admin/docs/PROFILES_AND_CONTACTS.md.
+Comments + reactions (v8.14.0): POST :5000/api/social/comment and /api/social/react take person-signed
+events keyed to a post id (the app_event_id KickBack shows); GET /api/social/thread?post_id= returns the
+comments and reaction counts, GET /api/social/counts?post_ids=a,b returns per-post counts for a feed.
+Reactions toggle (latest signed ts per person+post+reaction wins). Remote hub allowed with the bearer
+token. See Admin/docs/SOCIAL.md.
 ==============================================================================
 """
 
@@ -77,7 +82,7 @@ import urllib.parse
 from pathlib import Path
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
-VERSION = "8.13.0"
+VERSION = "8.14.0"
 def _env_port(name: str, default: int) -> int:
     """Port override (e.g. to run two nodes on one machine for tests). Bad values fall back."""
     raw = os.environ.get(name, "").strip()
@@ -136,9 +141,11 @@ HUB_BIND = os.environ.get(HUB_BIND_ENV, "").strip() or "127.0.0.1"
 # (e.g. POST /api/omnimind/telemetry, the local agent's cache).
 REMOTE_GET_PATHS = {"/api/events/feed", "/api/events/stats", "/api/events/list", "/api/v1/telemetry/node-health",
                     "/api/signal/poll", "/api/signal/ice-config", "/api/telemetry/summary",
-                    "/api/profile", "/api/profile/list", "/api/hub/card", "/api/invites/redeem"}
+                    "/api/profile", "/api/profile/list", "/api/hub/card", "/api/invites/redeem",
+                    "/api/social/thread", "/api/social/counts"}
 REMOTE_POST_PATHS = {"/api/events/append", "/api/bugs/report", "/api/signal/send",
-                     "/api/profile/update", "/api/contacts/verify", "/api/invites/create"}
+                     "/api/profile/update", "/api/contacts/verify", "/api/invites/create",
+                     "/api/social/comment", "/api/social/react"}
 _APP_ENVELOPE_KEYS = ("app_event_id", "app_author_pubkey", "app_signature", "app_previous_hash",
                       "app_ts", "app_timestamp")
 
@@ -1356,6 +1363,187 @@ def invites_redeem(query: str, client: str = "loopback") -> tuple:
     TELEMETRY.inc("invites_redeemed")
     return {"status": "OK", "card": card, "handle_display": handle_display(card["handle"], card["pubkey"]),
             "uses_left": row[2] - row[3] - 1, "expires_ms": row[1]}, 200
+
+# --- KickBack comments + reactions (v8.14.0): person-signed, keyed to a post id --------------------
+# Spec: "every post, comment, and reaction" is signed (launch notes) and the feed has reaction overlays
+# (spec Module 2). Both are person-signed events (same pattern as profiles). A post_id is the id the app
+# shows for a post: its app_event_id (the phone-signed id, HubFeedEvent.dedupeKey) or, for a post with no
+# app envelope, the node event id. The post does not have to be on this hub yet (it may arrive later by
+# sync); answers say whether it is. See Admin/docs/SOCIAL.md.
+COMMENT_ACTION = "kickback_comment"
+REACTION_ACTION = "kickback_reaction"
+POST_ACTION = "KICKBACK_POST"
+SOCIAL_SCHEMA = 1
+COMMENT_MAX_CHARS = 2000
+REACTION_MAX_CHARS = 16
+SOCIAL_COUNTS_MAX_IDS = 100
+
+
+def _event_id_field(v, name: str) -> str:
+    if not isinstance(v, str) or not _HEX_HASH_RE.fullmatch(v):
+        raise ValueError(f"'{name}' must be 0x + 64 lowercase hex (an event id)")
+    return v
+
+
+def validate_comment(p) -> dict:
+    if not isinstance(p, dict):
+        raise ValueError("payload must be an object")
+    unknown = set(p) - {"schema", "post_id", "text", "reply_to"}
+    if unknown:
+        raise ValueError(f"unknown comment field(s): {', '.join(sorted(unknown))}")
+    if p.get("schema") != SOCIAL_SCHEMA:
+        raise ValueError(f"'schema' must be {SOCIAL_SCHEMA}")
+    _event_id_field(p.get("post_id"), "post_id")
+    if "reply_to" in p:
+        _event_id_field(p["reply_to"], "reply_to")
+    text = p.get("text")
+    if not isinstance(text, str) or not text.strip():
+        raise ValueError("'text' must be a non-empty string")
+    if _clean_text(text, "text", COMMENT_MAX_CHARS, multiline=True) != text:
+        raise ValueError("'text' has control characters or surrounding spaces; send it trimmed")
+    return p
+
+
+def validate_reaction(p) -> dict:
+    if not isinstance(p, dict):
+        raise ValueError("payload must be an object")
+    if set(p) != {"schema", "post_id", "reaction", "on"}:
+        raise ValueError("reaction payload fields are exactly schema, post_id, reaction, on")
+    if p["schema"] != SOCIAL_SCHEMA:
+        raise ValueError(f"'schema' must be {SOCIAL_SCHEMA}")
+    _event_id_field(p["post_id"], "post_id")
+    r = p["reaction"]
+    if (not isinstance(r, str) or not 1 <= len(r) <= REACTION_MAX_CHARS
+            or any(ch.isspace() or ch < " " for ch in r)):
+        raise ValueError(f"'reaction' must be 1-{REACTION_MAX_CHARS} chars with no spaces (an emoji or short name)")
+    if not isinstance(p["on"], bool):
+        raise ValueError("'on' must be true (add) or false (remove)")
+    return p
+
+
+def _posts_known(post_ids, db_path: Path = None) -> dict:
+    """post_id -> {"author_pubkey", "text", "ts_ms"} for the ids this hub holds a KICKBACK_POST for."""
+    db_path = db_path or _db_path()
+    ids = list(post_ids)
+    if not ids or not db_path.exists():
+        return {}
+    marks = ",".join("?" for _ in ids)
+    conn = sqlite3.connect(str(db_path))
+    try:
+        rows = conn.execute(
+            "SELECT event_id, author_pubkey, payload_json, timestamp, ts_ms FROM events WHERE action = ? AND "
+            f"(event_id IN ({marks}) OR json_extract(payload_json, '$.app_event_id') IN ({marks}))",
+            (POST_ACTION, *ids, *ids)).fetchall()
+    finally:
+        conn.close()
+    out = {}
+    for eid, author, pj, ts, ts_ms in rows:
+        try:
+            p = json.loads(pj or "{}")
+        except ValueError:
+            continue
+        key = p.get("app_event_id") if p.get("app_event_id") in ids else eid
+        out[key] = {"author_pubkey": p.get("app_author_pubkey") or author, "text": str(p.get("text", ""))[:280],
+                    "ts_ms": int(ts_ms) if ts_ms is not None else int(round(float(ts) * 1000))}
+    return out
+
+
+def _social_rows(post_ids, db_path: Path = None):
+    """(comments, reactions) person-signed and schema-valid, for the given post ids, oldest first."""
+    ids = list(post_ids)
+    marks = ",".join("?" for _ in ids)
+    rows = _user_rows((COMMENT_ACTION, REACTION_ACTION), f"json_extract(payload_json, '$.post_id') IN ({marks})",
+                      tuple(ids), db_path)
+    comments, reactions = [], []
+    for e in rows:
+        try:
+            if e["action"] == COMMENT_ACTION:
+                validate_comment(e["payload"])
+                comments.append(e)
+            else:
+                validate_reaction(e["payload"])
+                reactions.append(e)
+        except ValueError:
+            continue
+    return comments, reactions
+
+
+def _reaction_state(reactions) -> dict:
+    """(post_id, author, reaction) -> on, latest signed ts wins (ties: later arrival)."""
+    state = {}
+    for e in reactions:
+        p = e["payload"]
+        k = (p["post_id"], e["author_pubkey"], p["reaction"])
+        cur = state.get(k)
+        if cur is None or e["ts"] >= cur[0]:
+            state[k] = (e["ts"], p["on"])
+    return state
+
+
+def _reaction_counts(state: dict, post_id: str, viewer: str = None) -> tuple:
+    counts, mine = {}, []
+    for (pid, author, r), (_ts, on) in state.items():
+        if pid == post_id and on:
+            counts[r] = counts.get(r, 0) + 1
+            if viewer and author == viewer:
+                mine.append(r)
+    return dict(sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))), sorted(mine)
+
+
+def social_thread(query: str) -> tuple:
+    try:
+        params = _query_args(query, {"post_id", "limit", "viewer"})
+        post_id = _event_id_field((params.get("post_id") or [""])[-1], "post_id")
+        limit = _feed_int(params, "limit")
+        viewer = (params.get("viewer") or [None])[-1]
+        if viewer is not None:
+            viewer = credit_account(viewer, allow_treasury=False)
+    except ValueError as e:
+        return {"status": "ERROR", "message": str(e)}, 400
+    limit = 200 if limit is None else max(1, min(limit, 500))
+    comments, reactions = _social_rows([post_id])
+    profiles = latest_profiles()
+    def who(pk):
+        prof = profiles.get(pk)
+        return handle_display(prof["payload"]["handle"], pk) if prof else None
+    out = [{"event_id": e["event_id"], "author_pubkey": e["author_pubkey"], "handle_display": who(e["author_pubkey"]),
+            "text": e["payload"]["text"], "reply_to": e["payload"].get("reply_to"), "ts_ms": e["ts"],
+            "origin": e["origin"], "verified": True} for e in comments]
+    out.sort(key=lambda c: (c["ts_ms"], c["event_id"]))
+    counts, mine = _reaction_counts(_reaction_state(reactions), post_id, viewer)
+    post = _posts_known([post_id]).get(post_id)
+    return {"status": "OK", "post_id": post_id, "post_known": post is not None, "post": post,
+            "comment_count": len(out), "has_more": len(out) > limit, "comments": out[:limit],
+            "reactions": counts, **({"my_reactions": mine} if viewer else {})}, 200
+
+
+def social_counts(query: str) -> tuple:
+    try:
+        params = _query_args(query, {"post_ids", "viewer"})
+        raw = (params.get("post_ids") or [""])[-1]
+        ids = [x for x in (s.strip() for s in raw.split(",")) if x]
+        if not ids:
+            raise ValueError("'post_ids' is required (comma-separated event ids)")
+        if len(ids) > SOCIAL_COUNTS_MAX_IDS:
+            raise ValueError(f"at most {SOCIAL_COUNTS_MAX_IDS} post_ids per call")
+        ids = list(dict.fromkeys(_event_id_field(i, "post_ids") for i in ids))
+        viewer = (params.get("viewer") or [None])[-1]
+        if viewer is not None:
+            viewer = credit_account(viewer, allow_treasury=False)
+    except ValueError as e:
+        return {"status": "ERROR", "message": str(e)}, 400
+    comments, reactions = _social_rows(ids)
+    state = _reaction_state(reactions)
+    per = {}
+    for pid in ids:
+        counts, mine = _reaction_counts(state, pid, viewer)
+        per[pid] = {"comments": sum(1 for c in comments if c["payload"]["post_id"] == pid), "reactions": counts,
+                    **({"my_reactions": mine} if viewer else {})}
+    return {"status": "OK", "posts": per}, 200
+
+
+RESERVED_USER_ACTIONS[COMMENT_ACTION] = "/api/social/comment"
+RESERVED_USER_ACTIONS[REACTION_ACTION] = "/api/social/react"
 
 # --- Omni Credits TEST ledger (v8.10.0): closed-loop, replayed from signed chain events -----------
 # Every ledger entry is a node-signed chain event with action "credit_entry", appended through the
@@ -2632,11 +2820,15 @@ USER_GET_ROUTES = {
     "/api/profile/list": lambda h, q: list_profiles(q),
     "/api/hub/card": lambda h, q: (hub_card(), 200) if not q else ({"status": "ERROR", "message": "no parameters accepted"}, 400),
     "/api/invites/redeem": lambda h, q: invites_redeem(q, h.client_address[0]),
+    "/api/social/thread": lambda h, q: social_thread(q),
+    "/api/social/counts": lambda h, q: social_counts(q),
 }
 USER_POST_ROUTES = {
     "/api/profile/update": (USER_EVENT_MAX_BYTES, lambda h, d: store_user_event(d, {PROFILE_ACTION: validate_profile}, _via(h))),
     "/api/contacts/verify": (8 * 1024, lambda h, d: contacts_verify(d)),
     "/api/invites/create": (8 * 1024, lambda h, d: invites_create(d)),
+    "/api/social/comment": (USER_EVENT_MAX_BYTES, lambda h, d: store_user_event(d, {COMMENT_ACTION: validate_comment}, _via(h))),
+    "/api/social/react": (USER_EVENT_MAX_BYTES, lambda h, d: store_user_event(d, {REACTION_ACTION: validate_reaction}, _via(h))),
 }
 
 

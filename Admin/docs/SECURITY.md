@@ -50,10 +50,19 @@ By operating entirely **offline-first and serverless**, the system completely el
 * **Canonical Byte-Level Hash Integrity:** Event envelopes (`SignedEventEnvelope`) enforce strict canonical JSON formatting (`json.dumps(..., sort_keys=True, separators=(',', ':'))`). This eliminates whitespace variations and float parsing discrepancies across Dart, Python, and Flet execution contexts.
 
 ### 2.2 Local IPC Gateway & Flet Desktop Control Protection
-* **Strict Loopback Binding:** All background daemons and local IPC APIs bind strictly to `127.0.0.1` and `localhost`. External WAN network interfaces are prohibited from listening.
-* **Ephemeral Bearer Authentication:** Every daemon execution creates an ephemeral 32-byte hex authorization token (`secrets.token_hex(32)`). All IPC calls must pass this token in an `Authorization: Bearer <token>` header, validated using constant-time string comparisons (`hmac.compare_digest`) to prevent timing side-channel attacks.
-* **DNS Rebinding & Cross-Site Protection:** Request headers are inspected on every incoming request; calls with `Host` or `Origin` headers not matching `127.0.0.1` or `localhost` are rejected with HTTP 403 Forbidden.
-* **Denial-of-Service (DoS) & Memory Exhaustion Defenses:** Incoming request payloads are capped at **5 MB**, and in-memory sliding-window rate limiters enforce a maximum of 120 requests per minute per local client IP.
+What `Admin/omni_live_daemon_server.py` actually enforces as of v8.17.1:
+
+* **Loopback binding by default:** the app API (`:5000`) and telemetry (`:9100`) bind to `127.0.0.1` only. Loopback callers are not authenticated: any local process can call them.
+* **Bearer token only in remote-hub mode:** with `OMNI_HUB_REMOTE=1` the same ports also listen on `OMNI_HUB_BIND`. A non-loopback caller must use a path in `REMOTE_GET_PATHS`/`REMOTE_POST_PATHS` (otherwise 403) and send `Authorization: Bearer <token>` (otherwise 401). The token is persistent, not per-run: `secrets.token_urlsafe(32)` stored owner-only at `~/.omni/hub_token`, compared with `hmac.compare_digest`. It authenticates the device; writes that act for a person also need that person's Ed25519 signature. Loopback-only even with the token: credit `transfer`/`grant`, `GET /api/bugs/list`, `POST /api/sync/catchup`, `:9100/api/omnimind/telemetry`.
+* **P2P port (`:5005`, binds `0.0.0.0`):** `/p2p/sync` requires the `X-Omni-Mesh` header to match this node's mesh id (403), then a valid event signature and the trusted-keys allowlist. `/p2p/reconcile` and `/p2p/events` also require the caller to be loopback, a fresh same-mesh discovered peer, or a host in `OMNI_SYNC_PEERS` (403).
+* **Rate limits that exist (per key or sender, not per IP):** signed user writes (profile, comment, reaction) max `OMNI_USER_RATE_MAX` (default 30) per author key per minute; invite creation shares that limit per key; signaling sends use a per-sender token bucket (burst 40, refill 10/s); app check-ins max 2 per install+app per minute. All answer 429.
+* **Body caps:** 5 MB on P2P sync and event appends; smaller per-route caps on the app API (e.g. 16 KB signaling, 8 KB contacts/invites, 4 KB credits and check-ins, 64 KB omnimind telemetry).
+
+**Planned, not implemented:**
+* A per-run bearer token required on every IPC call, including loopback.
+* `Host`/`Origin` header checks against DNS rebinding and cross-site requests (403).
+* A per-client-IP sliding-window limit of 120 requests per minute.
+* Rate limits on contact verification and on read endpoints.
 
 ### 2.3 Local State Immutability & Crash Resistance
 * **SQLite Write-Ahead Logging (WAL):** Local embedded event stores run with `PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL;`. This guarantees atomic state commits and instant database recovery from power loss, battery pulls, or OS crashes.

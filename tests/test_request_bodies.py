@@ -139,9 +139,11 @@ class LiveDaemonBodies(unittest.TestCase):
         self.assertNotIn("Content-Length", resp.get("message", ""))
 
     def test_chunked_oversize_signal_413(self):
-        big = b'{"pad":"' + b"x" * (20 * 1024) + b'"}'
-        code, _ = post_chunked(self.d.ipc_port, "/api/signal/send", raw_chunks=[big])
-        self.assertEqual(code, 413)
+        # Declares a 20 KB chunk (cap 16 KB) and sends only its start: the daemon answers 413 from the
+        # size line, before reading the data (a full upload races the server's close -> reset).
+        req = (b"POST /api/signal/send HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\n"
+               b"Connection: close\r\n\r\n5000\r\n" + b"x" * 64)
+        self.assertEqual(post_raw(self.d.ipc_port, req), 413)
 
 
 if __name__ == "__main__":

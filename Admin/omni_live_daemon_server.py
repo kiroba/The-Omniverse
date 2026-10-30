@@ -1888,7 +1888,7 @@ def build_telemetry_summary() -> dict:
     p2p_last = max([last.get(k) or 0 for k in ("p2p_sync_requests", "events_stored_peer")] or [0]) or None
 
     protocols = [
-        {"id": "tcp_api", "name": "TCP app API (:9100 telemetry, :5000 events)", "state": "up",
+        {"id": "tcp_api", "name": f"TCP app API (:{TELEMETRY_PORT} telemetry, :{CONTINUITY_IPC_PORT} events)", "state": "up",
          "listen": hub_listen_hosts(), "ports": [TELEMETRY_PORT, CONTINUITY_IPC_PORT],
          "remote_hub": HUB_REMOTE, "last_seen_ago_s": _ago(max(last.get("api_requests_loopback") or 0,
                                                                last.get("api_requests_remote") or 0) or None),

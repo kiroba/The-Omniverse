@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ==============================================================================
-OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.16.0 - Hardened Mesh Spine]
+OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.17.0 - Hardened Mesh Spine]
 ==============================================================================
 Architecture:
 - Port 9100 (127.0.0.1): Node Health Telemetry & Agent Cache
@@ -69,6 +69,10 @@ App check-ins (v8.16.0): POST :5000/api/telemetry/app-checkin takes a check-in s
 The hub keeps a salted key hash, never the key, IP or crash text; aggregates appear in
 /api/telemetry/summary (users.app_checkins, services.app_crashes). Remote hub allowed. See
 Admin/docs/APP_TELEMETRY.md.
+Signal poll epoch (v8.17.0): the mailbox cursor restarts at 0 when the hub restarts, so a client
+holding an old cursor used to drop new messages as "already received". Poll/send answers now carry
+"epoch" (random per hub run); a poll whose epoch differs, or whose since is beyond the current cursor,
+is treated as since=0 and answers "cursor_reset": true. See Admin/docs/OMNICAST_SIGNALING.md.
 ==============================================================================
 """
 
@@ -94,7 +98,7 @@ import urllib.parse
 from pathlib import Path
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
-VERSION = "8.16.0"
+VERSION = "8.17.0"
 def _env_port(name: str, default: int) -> int:
     """Port override (e.g. to run two nodes on one machine for tests). Bad values fall back."""
     raw = os.environ.get(name, "").strip()
@@ -1970,7 +1974,8 @@ SIGNAL_SEND_TYPE = "omnicast.signal.v1"
 SIGNAL_POLL_TYPE = "omnicast.poll.v1"
 SIGNAL_ICE_TYPE = "omnicast.ice-config.v1"
 SIGNAL_SEND_FIELDS = {"to", "from", "call_id", "kind", "payload", "ts", "sig"}
-_SIGNAL_POLL_ARGS = {"to", "since", "ts", "sig", "wait"}
+_SIGNAL_POLL_ARGS = {"to", "since", "ts", "sig", "wait", "epoch"}
+_SIGNAL_EPOCH_RE = re.compile(r"[0-9a-f]{16}")
 _SIGNAL_ICE_ARGS = {"pubkey", "ts", "sig"}
 _PUBKEY_RE = re.compile(r"[0-9a-f]{64}")
 _SIG_RE = re.compile(r"[0-9a-f]{128}")
@@ -2072,7 +2077,8 @@ class SignalMailbox:
         self.cond = threading.Condition()
         self.boxes = {}        # to -> list of queued messages (oldest first)
         self.total = 0
-        self.seq = 0           # global, monotonically increasing message cursor
+        self.seq = 0           # global, monotonically increasing message cursor (restarts at 0 per run)
+        self.epoch = secrets.token_hex(8)   # names this run's cursor space (v8.17.0)
         self.seen = {}         # signature -> forget-after (monotonic): replay guard for send + poll
         self.buckets = {}      # sender pubkey -> [tokens, last_refill]
         self.waiters = 0
@@ -2130,12 +2136,16 @@ class SignalMailbox:
             self.boxes.setdefault(msg["to"], []).append(dict(msg, seq=self.seq, expires=self.clock() + self.ttl))
             self.total += 1
             self.cond.notify_all()
-            return {"status": "QUEUED", "seq": self.seq, "expires_in": int(self.ttl)}
+            return {"status": "QUEUED", "seq": self.seq, "epoch": self.epoch, "expires_in": int(self.ttl)}
 
-    def poll(self, to: str, auth_sig: str, since: int = 0, wait: float = 0.0) -> dict:
+    def poll(self, to: str, auth_sig: str, since: int = 0, wait: float = 0.0, epoch: str = None) -> dict:
         """Removes and returns every queued message for `to` (seq > since); messages with
-        seq <= since are dropped as already received. Long-polls up to `wait` seconds when empty."""
+        seq <= since are dropped as already received. Long-polls up to `wait` seconds when empty.
+        A cursor from another hub run (epoch differs, or since > the current seq) is ignored: since=0."""
         with self.cond:
+            cursor_reset = bool(since) and ((epoch is not None and epoch != self.epoch) or since > self.seq)
+            if cursor_reset:
+                since = 0
             self._purge_locked()
             self._remember_sig_locked(auth_sig)
             deadline = self.clock() + max(0.0, min(wait, SIGNAL_MAX_LONG_POLL_S))
@@ -2161,7 +2171,8 @@ class SignalMailbox:
             msgs = [{k: m[k] for k in ("seq", "from", "to", "call_id", "kind", "payload", "ts", "sig")}
                     for m in out]
             cursor = max([since] + [m["seq"] for m in msgs])
-            return {"status": "OK", "messages": msgs, "count": len(msgs), "cursor": cursor}
+            return {"status": "OK", "messages": msgs, "count": len(msgs), "cursor": cursor, "epoch": self.epoch,
+                    "cursor_reset": cursor_reset}
 
     def stats(self) -> dict:
         with self.cond:
@@ -2224,7 +2235,12 @@ def signal_poll(query: str) -> tuple:
         params, to, _ts, sig = verify_signal_auth(query, SIGNAL_POLL_TYPE, "to", _SIGNAL_POLL_ARGS)
         since = _int_param(params, "since", required=False) or 0
         wait = _int_param(params, "wait", required=False) or 0
-        resp = SIGNAL_MAILBOX.poll(to, sig, since=since, wait=float(wait))
+        epoch = _one(params, "epoch", required=False)
+        if epoch is not None and not _SIGNAL_EPOCH_RE.fullmatch(epoch):
+            raise SignalError(400, "'epoch' must be the 16-hex epoch from an earlier poll/send answer")
+        resp = SIGNAL_MAILBOX.poll(to, sig, since=since, wait=float(wait), epoch=epoch)
+        if resp.get("cursor_reset"):
+            TELEMETRY.inc("signal_cursor_resets")
         TELEMETRY.inc("signal_polls_ok")
         if resp["count"]:
             TELEMETRY.inc("signal_delivered", resp["count"])

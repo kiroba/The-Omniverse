@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ==============================================================================
-OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.10.0 - Hardened Mesh Spine]
+OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.11.0 - Hardened Mesh Spine]
 ==============================================================================
 Architecture:
 - Port 9100 (127.0.0.1): Node Health Telemetry & Agent Cache
@@ -30,6 +30,12 @@ Omni Credits TEST ledger (v8.10.0): closed-loop test credits (no cash value) sto
 pubkey gets a one-time 1,000-credit welcome grant. GET :5000/api/credits/balance?pubkey=,
 GET /api/credits/history?pubkey=&limit=, POST /api/credits/transfer, POST /api/credits/grant (admin).
 All loopback only. Treasury fee: OMNI_TREASURY_FEE_BPS (default 0). See Admin/docs/CREDITS_LEDGER.md.
+OmniCast signaling (v8.11.0): POST :5000/api/signal/send and GET /api/signal/poll are an in-memory
+WebRTC signaling mailbox (offer/answer/ice/hangup/ring). Every message is Ed25519-signed by its sender,
+ts within +/-120 s, max 16 KB, 64 queued per recipient, expires after 60 s, removed on delivery, never
+stored in the event log or logged. Polls are signed by the recipient. GET /api/signal/ice-config returns
+STUN plus time-limited TURN REST credentials (OMNI_TURN_URLS + OMNI_TURN_SECRET). Same gate as the
+other hub endpoints (loopback, or bearer token in remote hub mode). See Admin/docs/OMNICAST_SIGNALING.md.
 ==============================================================================
 """
 
@@ -55,7 +61,7 @@ import urllib.parse
 from pathlib import Path
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
-VERSION = "8.10.0"
+VERSION = "8.11.0"
 def _env_port(name: str, default: int) -> int:
     """Port override (e.g. to run two nodes on one machine for tests). Bad values fall back."""
     raw = os.environ.get(name, "").strip()
@@ -112,8 +118,9 @@ HUB_REMOTE = os.environ.get(HUB_REMOTE_ENV, "").strip().lower() in ("1", "true",
 HUB_BIND = os.environ.get(HUB_BIND_ENV, "").strip() or "127.0.0.1"
 # Paths a remote (authenticated) app may use. Everything else stays loopback-only
 # (e.g. POST /api/omnimind/telemetry, the local agent's cache).
-REMOTE_GET_PATHS = {"/api/events/feed", "/api/events/stats", "/api/events/list", "/api/v1/telemetry/node-health"}
-REMOTE_POST_PATHS = {"/api/events/append", "/api/bugs/report"}
+REMOTE_GET_PATHS = {"/api/events/feed", "/api/events/stats", "/api/events/list", "/api/v1/telemetry/node-health",
+                    "/api/signal/poll", "/api/signal/ice-config"}
+REMOTE_POST_PATHS = {"/api/events/append", "/api/bugs/report", "/api/signal/send"}
 _APP_ENVELOPE_KEYS = ("app_event_id", "app_author_pubkey", "app_signature", "app_previous_hash",
                       "app_ts", "app_timestamp")
 
@@ -1118,6 +1125,345 @@ def credits_grant(data) -> tuple:
             return {"status": "SUCCESS", "result": "NOTHING_TO_RESET", "balance": 0}, 200
         return _append_credit("reset", acct, CREDIT_TREASURY, have, 0, memo)
 
+# --- OmniCast signaling mailbox (v8.11.0): short-lived, signed WebRTC signaling ---------------------
+# A tiny store-and-forward mailbox so two phones that can only reach the hub (Tailscale node sharing)
+# can swap WebRTC offer/answer/ICE. Memory only: never written to the event log or SQLite, never
+# relayed to peers, gone after SIGNAL_TTL_S or on delivery, and gone on restart. Every message is
+# Ed25519-signed by its sender over canonical fields and the signature is handed to the recipient, so
+# the recipient can re-verify end to end (the hub can't alter an SDP without breaking it). Payloads
+# are never logged. See Admin/docs/OMNICAST_SIGNALING.md.
+SIGNAL_TTL_S = min(300.0, max(1.0, _env_float("OMNI_SIGNAL_TTL", 60.0)))  # undelivered messages expire (tests shorten it)
+SIGNAL_TS_WINDOW_MS = 120_000           # request ts must be within +/-120 s of the hub clock
+SIGNAL_MAX_BODY_BYTES = 16 * 1024       # whole POST body
+SIGNAL_MAX_PAYLOAD_CHARS = 14 * 1024    # SDP / ICE JSON string inside it
+SIGNAL_MAX_PER_RECIPIENT = 64           # queued, undelivered messages per recipient
+SIGNAL_MAX_TOTAL = 4096                 # queued messages across all recipients
+SIGNAL_MAX_LONG_POLL_S = 25.0
+SIGNAL_MAX_WAITERS = 64                 # concurrent long-polls; beyond this a poll returns at once
+SIGNAL_RATE_BURST = 40.0                # per-sender token bucket: burst of 40 sends ...
+SIGNAL_RATE_PER_S = 10.0                # ... refilled at 10 per second (ICE trickle is bursty)
+SIGNAL_SEEN_MAX = 50_000                # remembered signatures (replay guard)
+SIGNAL_KINDS = ("offer", "answer", "ice", "hangup", "ring")
+SIGNAL_SEND_TYPE = "omnicast.signal.v1"
+SIGNAL_POLL_TYPE = "omnicast.poll.v1"
+SIGNAL_ICE_TYPE = "omnicast.ice-config.v1"
+SIGNAL_SEND_FIELDS = {"to", "from", "call_id", "kind", "payload", "ts", "sig"}
+_SIGNAL_POLL_ARGS = {"to", "since", "ts", "sig", "wait"}
+_SIGNAL_ICE_ARGS = {"pubkey", "ts", "sig"}
+_PUBKEY_RE = re.compile(r"[0-9a-f]{64}")
+_SIG_RE = re.compile(r"[0-9a-f]{128}")
+_CALL_ID_RE = re.compile(r"[A-Za-z0-9_.:-]{1,64}")
+
+TURN_URLS_ENV = "OMNI_TURN_URLS"        # e.g. "turn:100.101.102.103:3478?transport=udp,turn:100.101.102.103:3478?transport=tcp"
+TURN_SECRET_ENV = "OMNI_TURN_SECRET"    # same value as the TURN server's shared secret (eturnal "secret")
+STUN_URLS_ENV = "OMNI_STUN_URLS"        # optional override of the default public STUN server
+TURN_TTL_ENV = "OMNI_TURN_TTL"          # seconds the TURN credential is valid (default 3600)
+DEFAULT_STUN_URLS = ("stun:stun.l.google.com:19302",)
+TURN_TTL_DEFAULT = 3600
+
+
+class SignalError(Exception):
+    def __init__(self, status: int, message: str):
+        super().__init__(message)
+        self.status, self.message = status, message
+
+
+def signal_send_bytes(msg: dict) -> bytes:
+    """Bytes the sender signs for POST /api/signal/send (sorted-key compact JSON, raw UTF-8, int-ms ts)."""
+    return json.dumps({"type": SIGNAL_SEND_TYPE, "to": msg["to"], "from": msg["from"],
+                       "call_id": msg["call_id"], "kind": msg["kind"], "payload": msg["payload"],
+                       "ts": msg["ts"]}, sort_keys=True, separators=(",", ":"),
+                      ensure_ascii=False).encode("utf-8")   # raw UTF-8, like Dart's jsonEncode
+
+
+def signal_auth_bytes(kind_type: str, pubkey: str, ts: int) -> bytes:
+    """Bytes a key owner signs to poll its mailbox (SIGNAL_POLL_TYPE, field "to") or fetch ICE config
+    (SIGNAL_ICE_TYPE, field "pubkey")."""
+    field = "to" if kind_type == SIGNAL_POLL_TYPE else "pubkey"
+    return json.dumps({"type": kind_type, field: pubkey, "ts": ts},
+                      sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+
+
+def _ed25519_ok(pubkey: str, sig: str, data: bytes) -> bool:
+    try:
+        from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
+        Ed25519PublicKey.from_public_bytes(bytes.fromhex(pubkey)).verify(bytes.fromhex(sig), data)
+        return True
+    except Exception:
+        return False
+
+
+def _signal_ts(value, now: int) -> int:
+    if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+        raise SignalError(400, "'ts' must be an integer (milliseconds since epoch)")
+    if abs(now - value) > SIGNAL_TS_WINDOW_MS:
+        raise SignalError(401, "stale or future 'ts' (must be within 120 s of the hub clock)")
+    return value
+
+
+def _signal_pubkey(value, name: str) -> str:
+    if not isinstance(value, str) or not _PUBKEY_RE.fullmatch(value):
+        raise SignalError(400, f"'{name}' must be a 64-char lowercase hex Ed25519 public key")
+    return value
+
+
+def _signal_sig(value) -> str:
+    if not isinstance(value, str) or not _SIG_RE.fullmatch(value):
+        raise SignalError(400, "'sig' must be a 128-char lowercase hex Ed25519 signature")
+    return value
+
+
+def validate_signal_message(data, now: int = None) -> dict:
+    """The message to queue for a POST /api/signal/send body, or SignalError. Field whitelist, types,
+    sizes, ts window, then the sender's signature (checked last, after the cheap checks)."""
+    now = now_ms() if now is None else now
+    if not isinstance(data, dict):
+        raise SignalError(400, "body must be a JSON object")
+    unknown = set(data) - SIGNAL_SEND_FIELDS
+    if unknown:
+        raise SignalError(400, f"unknown field(s): {', '.join(sorted(unknown))}")
+    missing = SIGNAL_SEND_FIELDS - set(data)
+    if missing:
+        raise SignalError(400, f"missing field(s): {', '.join(sorted(missing))}")
+    msg = {"to": _signal_pubkey(data["to"], "to"), "from": _signal_pubkey(data["from"], "from")}
+    if not isinstance(data["call_id"], str) or not _CALL_ID_RE.fullmatch(data["call_id"]):
+        raise SignalError(400, "'call_id' must be 1-64 chars of A-Z a-z 0-9 _ . : -")
+    if data["kind"] not in SIGNAL_KINDS:
+        raise SignalError(400, f"'kind' must be one of: {', '.join(SIGNAL_KINDS)}")
+    if not isinstance(data["payload"], str):
+        raise SignalError(400, "'payload' must be a string (SDP, or ICE candidate JSON)")
+    if len(data["payload"]) > SIGNAL_MAX_PAYLOAD_CHARS:
+        raise SignalError(413, f"'payload' is longer than {SIGNAL_MAX_PAYLOAD_CHARS} characters")
+    msg.update(call_id=data["call_id"], kind=data["kind"], payload=data["payload"])
+    msg["ts"] = _signal_ts(data["ts"], now)
+    msg["sig"] = _signal_sig(data["sig"])
+    if not _ed25519_ok(msg["from"], msg["sig"], signal_send_bytes(msg)):
+        raise SignalError(401, "bad signature (must be by 'from' over the canonical fields)")
+    return msg
+
+
+class SignalMailbox:
+    """In-memory mailboxes keyed by recipient pubkey. Thread-safe; one Condition wakes long-polls."""
+
+    def __init__(self, ttl: float = SIGNAL_TTL_S, clock=time.monotonic):
+        self.ttl, self.clock = ttl, clock
+        self.cond = threading.Condition()
+        self.boxes = {}        # to -> list of queued messages (oldest first)
+        self.total = 0
+        self.seq = 0           # global, monotonically increasing message cursor
+        self.seen = {}         # signature -> forget-after (monotonic): replay guard for send + poll
+        self.buckets = {}      # sender pubkey -> [tokens, last_refill]
+        self.waiters = 0
+
+    def _purge_locked(self):
+        now = self.clock()
+        for to in list(self.boxes):
+            q = [m for m in self.boxes[to] if m["expires"] > now]
+            self.total -= len(self.boxes[to]) - len(q)
+            if q:
+                self.boxes[to] = q
+            else:
+                del self.boxes[to]
+        if len(self.seen) > SIGNAL_SEEN_MAX // 2:
+            self.seen = {s: t for s, t in self.seen.items() if t > now}
+        if len(self.buckets) > 10_000:
+            self.buckets = {k: b for k, b in self.buckets.items() if now - b[1] < 60}
+
+    def _check_sig_locked(self, sig: str):
+        """409 for a signature already used inside the ts window. Ed25519 is deterministic, so
+        clients must use a fresh millisecond ts for every request."""
+        if self.seen.get(sig, 0) > self.clock():
+            raise SignalError(409, "replayed request (this signature was already used)")
+        if len(self.seen) >= SIGNAL_SEEN_MAX:
+            raise SignalError(503, "signaling replay cache full, try again shortly")
+
+    def _mark_sig_locked(self, sig: str):
+        self.seen[sig] = self.clock() + 2 * SIGNAL_TS_WINDOW_MS / 1000.0 + 1
+
+    def _remember_sig_locked(self, sig: str):
+        self._check_sig_locked(sig)
+        self._mark_sig_locked(sig)
+
+    def _take_token_locked(self, sender: str):
+        now = self.clock()
+        tokens, last = self.buckets.get(sender, [SIGNAL_RATE_BURST, now])
+        tokens = min(SIGNAL_RATE_BURST, tokens + (now - last) * SIGNAL_RATE_PER_S)
+        if tokens < 1.0:
+            self.buckets[sender] = [tokens, now]
+            raise SignalError(429, "rate limited: too many signaling messages from this sender")
+        self.buckets[sender] = [tokens - 1.0, now]
+
+    def send(self, msg: dict) -> dict:
+        with self.cond:
+            self._purge_locked()
+            self._check_sig_locked(msg["sig"])
+            self._take_token_locked(msg["from"])
+            box = self.boxes.get(msg["to"], [])
+            if len(box) >= SIGNAL_MAX_PER_RECIPIENT:
+                raise SignalError(429, f"recipient mailbox full ({SIGNAL_MAX_PER_RECIPIENT} queued)")
+            if self.total >= SIGNAL_MAX_TOTAL:
+                raise SignalError(503, "signaling mailbox full, try again shortly")
+            self._mark_sig_locked(msg["sig"])
+            self.seq += 1
+            self.boxes.setdefault(msg["to"], []).append(dict(msg, seq=self.seq, expires=self.clock() + self.ttl))
+            self.total += 1
+            self.cond.notify_all()
+            return {"status": "QUEUED", "seq": self.seq, "expires_in": int(self.ttl)}
+
+    def poll(self, to: str, auth_sig: str, since: int = 0, wait: float = 0.0) -> dict:
+        """Removes and returns every queued message for `to` (seq > since); messages with
+        seq <= since are dropped as already received. Long-polls up to `wait` seconds when empty."""
+        with self.cond:
+            self._purge_locked()
+            self._remember_sig_locked(auth_sig)
+            deadline = self.clock() + max(0.0, min(wait, SIGNAL_MAX_LONG_POLL_S))
+            waiting = False
+            try:
+                while True:
+                    box = self.boxes.pop(to, [])
+                    self.total -= len(box)
+                    out = [m for m in box if m["seq"] > since]
+                    remaining = deadline - self.clock()
+                    if out or remaining <= 0:
+                        break
+                    if not waiting:
+                        if self.waiters >= SIGNAL_MAX_WAITERS:
+                            break
+                        self.waiters += 1
+                        waiting = True
+                    self.cond.wait(remaining)
+                    self._purge_locked()
+            finally:
+                if waiting:
+                    self.waiters -= 1
+            msgs = [{k: m[k] for k in ("seq", "from", "to", "call_id", "kind", "payload", "ts", "sig")}
+                    for m in out]
+            cursor = max([since] + [m["seq"] for m in msgs])
+            return {"status": "OK", "messages": msgs, "count": len(msgs), "cursor": cursor}
+
+    def stats(self) -> dict:
+        with self.cond:
+            self._purge_locked()
+            return {"queued": self.total, "recipients": len(self.boxes)}
+
+
+SIGNAL_MAILBOX = SignalMailbox()
+
+
+def _one(params: dict, name: str, required: bool = True):
+    vals = params.get(name)
+    if not vals:
+        if required:
+            raise SignalError(400, f"'{name}' is required")
+        return None
+    if len(vals) > 1:
+        raise SignalError(400, f"'{name}' given more than once")
+    return vals[0]
+
+
+def _int_param(params: dict, name: str, required: bool = True):
+    raw = _one(params, name, required)
+    if raw is None:
+        return None
+    if not re.fullmatch(r"\d{1,16}", raw):
+        raise SignalError(400, f"'{name}' must be a non-negative integer")
+    return int(raw)
+
+
+def verify_signal_auth(query: str, kind_type: str, key_field: str, allowed: set, now: int = None) -> tuple:
+    """(params, pubkey, ts, sig) for a signed GET (poll / ice-config), or SignalError."""
+    now = now_ms() if now is None else now
+    params = urllib.parse.parse_qs(query or "", keep_blank_values=True)
+    unknown = set(params) - allowed
+    if unknown:
+        raise SignalError(400, f"unknown parameter(s): {', '.join(sorted(unknown))}")
+    pubkey = _signal_pubkey(_one(params, key_field), key_field)
+    ts = _signal_ts(_int_param(params, "ts"), now)
+    sig = _signal_sig(_one(params, "sig"))
+    if not _ed25519_ok(pubkey, sig, signal_auth_bytes(kind_type, pubkey, ts)):
+        raise SignalError(401, f"bad signature (must be by '{key_field}' over type, {key_field} and ts)")
+    return params, pubkey, ts, sig
+
+
+def signal_send(data) -> tuple:
+    try:
+        msg = validate_signal_message(data)
+        return SIGNAL_MAILBOX.send(msg), 200
+    except SignalError as e:
+        return {"status": "ERROR", "message": e.message}, e.status
+
+
+def signal_poll(query: str) -> tuple:
+    try:
+        params, to, _ts, sig = verify_signal_auth(query, SIGNAL_POLL_TYPE, "to", _SIGNAL_POLL_ARGS)
+        since = _int_param(params, "since", required=False) or 0
+        wait = _int_param(params, "wait", required=False) or 0
+        return SIGNAL_MAILBOX.poll(to, sig, since=since, wait=float(wait)), 200
+    except SignalError as e:
+        return {"status": "ERROR", "message": e.message}, e.status
+
+
+def _split_urls(raw: str, schemes: tuple) -> list:
+    urls = [u.strip() for u in (raw or "").split(",") if u.strip()]
+    bad = [u for u in urls if not u.lower().startswith(schemes) or len(u) > 255 or any(c.isspace() for c in u)]
+    if bad:
+        raise ValueError(f"bad ICE url(s): {', '.join(bad)}")
+    return urls
+
+
+def turn_rest_credential(secret: str, pubkey: str, ttl: int, now_s: int = None) -> tuple:
+    """coturn use-auth-secret / eturnal "secret" scheme (draft-uberti-behave-turn-rest-00):
+    username = "<unix expiry>:<pubkey>", credential = base64(HMAC-SHA1(secret, username))."""
+    import base64
+    now_s = int(time.time()) if now_s is None else now_s
+    username = f"{now_s + int(ttl)}:{pubkey}"
+    mac = hmac.new(secret.encode("utf-8"), username.encode("utf-8"), hashlib.sha1).digest()
+    return username, base64.b64encode(mac).decode("ascii")
+
+
+def build_ice_config(pubkey: str, env=None) -> dict:
+    """ICE servers for a client. The TURN secret never leaves the hub; only a derived, expiring
+    credential does. No TURN env -> STUN only."""
+    env = os.environ if env is None else env
+    try:
+        stun = _split_urls(env.get(STUN_URLS_ENV, ""), ("stun:",)) or list(DEFAULT_STUN_URLS)
+    except ValueError:
+        stun = list(DEFAULT_STUN_URLS)
+    servers = [{"urls": stun}]
+    resp = {"status": "OK", "ice_servers": servers, "turn": False, "ice_transport_policy": "all"}
+    try:
+        turn_urls = _split_urls(env.get(TURN_URLS_ENV, ""), ("turn:", "turns:"))
+    except ValueError as e:
+        resp["warning"] = f"{TURN_URLS_ENV} ignored: {e}"
+        return resp
+    secret = (env.get(TURN_SECRET_ENV) or "").strip()
+    if not turn_urls:
+        return resp
+    if not secret:
+        resp["warning"] = f"{TURN_URLS_ENV} is set but {TURN_SECRET_ENV} is not: TURN disabled"
+        return resp
+    try:
+        ttl = int(env.get(TURN_TTL_ENV, "") or TURN_TTL_DEFAULT)
+    except ValueError:
+        ttl = TURN_TTL_DEFAULT
+    ttl = max(60, min(ttl, 24 * 3600))
+    username, credential = turn_rest_credential(secret, pubkey, ttl)
+    servers.append({"urls": turn_urls, "username": username, "credential": credential})
+    resp.update(turn=True, ttl=ttl, expires_at=int(username.split(":", 1)[0]),
+                ice_transport_policy="relay")   # testers can only reach the hub, so relay is the path
+    return resp
+
+
+def signal_ice_config(query: str) -> tuple:
+    try:
+        _params, pubkey, _ts, sig = verify_signal_auth(query, SIGNAL_ICE_TYPE, "pubkey", _SIGNAL_ICE_ARGS)
+        with SIGNAL_MAILBOX.cond:
+            SIGNAL_MAILBOX._remember_sig_locked(sig)
+        return build_ice_config(pubkey), 200
+    except SignalError as e:
+        return {"status": "ERROR", "message": e.message}, e.status
+
+
 # --- Catch-up sync (v8.8.0): negentropy range-based set reconciliation ---------------------------
 
 def _db_path() -> Path:
@@ -1566,6 +1912,14 @@ class ContinuityIPCHandler(BaseHTTPRequestHandler):
         if path == "/api/credits/history":
             self._credits_call(credits_history, query)
             return
+        if path == "/api/signal/poll":
+            resp, status = signal_poll(query)
+            self._send_json(status, resp)
+            return
+        if path == "/api/signal/ice-config":
+            resp, status = signal_ice_config(query)
+            self._send_json(status, resp)
+            return
         if path == "/api/events/feed":
             try:
                 q = parse_feed_query(query)
@@ -1644,6 +1998,12 @@ class ContinuityIPCHandler(BaseHTTPRequestHandler):
             return
         if self.path == "/api/bugs/report":
             self._handle_bug_report()
+            return
+        if self.path == "/api/signal/send":
+            data, ok = self._read_small_json(SIGNAL_MAX_BODY_BYTES)
+            if ok:
+                resp, status = signal_send(data)
+                self._send_json(status, resp)
             return
         if self.path in ("/api/credits/transfer", "/api/credits/grant"):
             data, ok = self._read_small_json(CREDIT_BODY_MAX_BYTES)
@@ -1801,6 +2161,9 @@ def main():
     print(f"[✓] Bug Reports:          POST http://{IPC_HOST}:{CONTINUITY_IPC_PORT}/api/bugs/report  (list: GET /api/bugs/list)")
     print(f"[✓] Omni Credits (TEST):  GET http://{IPC_HOST}:{CONTINUITY_IPC_PORT}/api/credits/balance?pubkey=  "
           f"(loopback only, fee {TREASURY_FEE_BPS} bps)")
+    turn_on = bool(os.environ.get(TURN_URLS_ENV, "").strip() and os.environ.get(TURN_SECRET_ENV, "").strip())
+    print(f"[✓] OmniCast signaling:   POST http://{IPC_HOST}:{CONTINUITY_IPC_PORT}/api/signal/send  (poll: GET /api/signal/poll; "
+          f"memory only, {int(SIGNAL_TTL_S)}s TTL; ICE: {'STUN + TURN' if turn_on else 'STUN only (set OMNI_TURN_URLS + OMNI_TURN_SECRET for TURN)'})")
     print(f"[✓] P2P Sync Server Bound: http://{P2P_HOST}:{P2P_SYNC_PORT}/p2p/sync")
     print(f"[✓] UDP Subnet Discovery: Listening on port {UDP_DISCOVERY_PORT}...")
     if STATE.trusted_keys is None:

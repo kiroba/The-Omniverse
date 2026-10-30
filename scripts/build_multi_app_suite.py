@@ -590,8 +590,11 @@ def build_all_apps():
         "com.omniverse.mesh_monitor",
         "Omniverse Mesh Monitor",
         "omni_mobile_mesh_monitor_ui.dart",
-        [],
-        search_paths
+        # Telemetry dashboard: pure-Dart summary client + Hub setting (This phone / Remote hub).
+        ["omni_mesh_telemetry.dart", "omni_mesh_monitor_hub_settings.dart"],
+        search_paths,
+        extra_dependencies={"flutter_secure_storage": "^9.2.4"},  # hub token, Keystore-encrypted
+        remote_hub_cleartext=True,  # Hub settings > Remote hub (http://100.x.y.z:5000, bearer token)
     )
 
     # 5. Omniverse Unified Superapp Master

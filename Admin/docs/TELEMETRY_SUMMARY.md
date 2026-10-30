@@ -33,8 +33,9 @@ recipients, sends ok/rejected, polls, deliveries), `turn` (`configured` yes/no o
 
 ## Not reported (nothing in the daemon produces it yet)
 
-- Consent: the first-launch agreement is stored only on the phone (`omni_consent_gate.dart`), so the
-  hub cannot count acceptances.
+- ~~Consent~~, app versions, crash counts: reported since v8.16.0 when apps send signed check-ins
+  (`users.app_checkins`, `services.app_crashes`; see `APP_TELEMETRY.md`). Until the apps send them
+  these read 0.
 - Subscriptions, cash payments, payouts: not built. Credits are test-only and closed-loop.
 - GossipSub, BLE discovery, NAT hole punching, WebRTC media: modules exist under `Admin/` but are not
   wired into this daemon, so they have no telemetry.

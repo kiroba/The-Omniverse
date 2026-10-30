@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ==============================================================================
-OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.15.0 - Hardened Mesh Spine]
+OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.16.0 - Hardened Mesh Spine]
 ==============================================================================
 Architecture:
 - Port 9100 (127.0.0.1): Node Health Telemetry & Agent Cache
@@ -64,6 +64,11 @@ nonce is refused (identical retry -> ALREADY_APPLIED), so a signed transfer can'
 this node. send/balance/history are allowed in remote hub mode; OMNI_CREDITS_REQUIRE_SIGNED=1 turns
 off the unsigned loopback /api/credits/transfer. Still TEST credits, still one ledger per node. See
 Admin/docs/CREDITS_LEDGER.md.
+App check-ins (v8.16.0): POST :5000/api/telemetry/app-checkin takes a check-in signed by the app's key
+(app, version, platform, consent version/accepted, crash count + exception type since the last one).
+The hub keeps a salted key hash, never the key, IP or crash text; aggregates appear in
+/api/telemetry/summary (users.app_checkins, services.app_crashes). Remote hub allowed. See
+Admin/docs/APP_TELEMETRY.md.
 ==============================================================================
 """
 
@@ -89,7 +94,7 @@ import urllib.parse
 from pathlib import Path
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
-VERSION = "8.15.0"
+VERSION = "8.16.0"
 def _env_port(name: str, default: int) -> int:
     """Port override (e.g. to run two nodes on one machine for tests). Bad values fall back."""
     raw = os.environ.get(name, "").strip()
@@ -152,7 +157,8 @@ REMOTE_GET_PATHS = {"/api/events/feed", "/api/events/stats", "/api/events/list",
                     "/api/social/thread", "/api/social/counts", "/api/credits/balance", "/api/credits/history"}
 REMOTE_POST_PATHS = {"/api/events/append", "/api/bugs/report", "/api/signal/send",
                      "/api/profile/update", "/api/contacts/verify", "/api/invites/create",
-                     "/api/social/comment", "/api/social/react", "/api/credits/send"}
+                     "/api/social/comment", "/api/social/react", "/api/credits/send",
+                     "/api/telemetry/app-checkin"}
 _APP_ENVELOPE_KEYS = ("app_event_id", "app_author_pubkey", "app_signature", "app_previous_hash",
                       "app_ts", "app_timestamp")
 
@@ -2626,6 +2632,191 @@ def _finance_summary() -> dict:
                 fees_collected=fees, entries_by_kind=kinds,
                 last_entry_ms=entries[-1]["ts_ms"] if entries else None)
 
+# --- App check-ins (v8.16.0): consent version, app version, crash summary -> telemetry summary ------
+# Fills the Mesh Monitor tiles that said "Not wired yet" (consent acceptances, app versions in the field,
+# app crash rates). Privacy rules: the phone signs the check-in with its key so nobody can post for it,
+# but the hub stores only a salted hash of the key (install id), never the key itself; no device model,
+# no IP, no crash messages or stack traces: a crash is counted with an optional short kind
+# ("FlutterError", "StateError"). Rows: installs not seen for 90 days and crash buckets older than
+# 30 days are deleted; at most 10,000 installs. See Admin/docs/APP_TELEMETRY.md.
+CHECKIN_TYPE = "omni.app-checkin.v1"
+CHECKIN_FIELDS = {"type", "pubkey", "app", "app_version", "platform", "os_major", "consent_version",
+                  "consent_accepted", "crashes", "ts", "sig"}
+CHECKIN_PLATFORMS = ("android", "windows", "ios", "linux", "macos", "web")
+CHECKIN_WINDOW_MS = 600_000
+CHECKIN_MAX_INSTALLS = 10_000
+CHECKIN_INSTALL_TTL_MS = 90 * 86_400_000
+CRASH_BUCKET_TTL_MS = 30 * 86_400_000
+_APP_ID_RE = re.compile(r"[a-z0-9_]{1,32}")
+_APP_VERSION_RE = re.compile(r"[0-9A-Za-z.+-]{1,32}")
+_CONSENT_VERSION_RE = re.compile(r"[0-9A-Za-z._-]{1,16}")
+_CRASH_KIND_RE = re.compile(r"[A-Za-z0-9_.:]{1,64}")
+CHECKIN_RATE = SlidingWindowLimiter(2, 60.0)     # per install: a check-in on start + one retry
+CHECKIN_LOCK = threading.Lock()
+
+
+def install_id(pubkey: str) -> str:
+    """Salted, truncated hash of the app key: stable per install, not the key, not linkable to events
+    without knowing the key."""
+    return hashlib.sha256(b"omni-checkin-v1:" + bytes.fromhex(pubkey)).hexdigest()[:20]
+
+
+def validate_checkin(data, now: int = None) -> dict:
+    now = now_ms() if now is None else now
+    if not isinstance(data, dict):
+        raise ValueError("body must be a JSON object")
+    unknown = set(data) - CHECKIN_FIELDS
+    if unknown:
+        raise ValueError(f"unknown field(s): {', '.join(sorted(unknown))} (no device ids, names or messages)")
+    if data.get("type") != CHECKIN_TYPE:
+        raise ValueError(f"'type' must be {CHECKIN_TYPE}")
+    pk = data.get("pubkey")
+    if not isinstance(pk, str) or not _PUBKEY_RE.fullmatch(pk):
+        raise ValueError("'pubkey' must be a 64-char lowercase hex Ed25519 public key")
+    for name, rx in (("app", _APP_ID_RE), ("app_version", _APP_VERSION_RE)):
+        if not isinstance(data.get(name), str) or not rx.fullmatch(data[name]):
+            raise ValueError(f"'{name}' is missing or malformed")
+    if data.get("platform") not in CHECKIN_PLATFORMS:
+        raise ValueError(f"'platform' must be one of {', '.join(CHECKIN_PLATFORMS)}")
+    if "os_major" in data and (not isinstance(data["os_major"], int) or isinstance(data["os_major"], bool)
+                               or not 0 <= data["os_major"] <= 99):
+        raise ValueError("'os_major' must be an integer 0-99 (e.g. Android 15 -> 15)")
+    cv = data.get("consent_version")
+    if cv is not None and (not isinstance(cv, str) or not _CONSENT_VERSION_RE.fullmatch(cv)):
+        raise ValueError("'consent_version' must be null or 1-16 chars")
+    if not isinstance(data.get("consent_accepted"), bool):
+        raise ValueError("'consent_accepted' must be true or false")
+    cr = data.get("crashes")
+    if cr is not None:
+        if not isinstance(cr, dict) or set(cr) - {"count", "last_kind"} or "count" not in cr:
+            raise ValueError("'crashes' must be {\"count\": n, \"last_kind\"?: \"ExceptionType\"}")
+        if not isinstance(cr["count"], int) or isinstance(cr["count"], bool) or not 0 <= cr["count"] <= 1000:
+            raise ValueError("'crashes.count' must be 0-1000 (crashes since the last check-in)")
+        if "last_kind" in cr and (not isinstance(cr["last_kind"], str) or not _CRASH_KIND_RE.fullmatch(cr["last_kind"])):
+            raise ValueError("'crashes.last_kind' must be an exception type name only (no message, no stack)")
+    ts = data.get("ts")
+    if not isinstance(ts, int) or isinstance(ts, bool):
+        raise ValueError("'ts' must be an integer (milliseconds)")
+    sig = data.get("sig")
+    if not isinstance(sig, str) or not _USER_SIG_RE.fullmatch(sig):
+        raise ValueError("'sig' must be a 128-char lowercase hex Ed25519 signature")
+    if abs(now - ts) > CHECKIN_WINDOW_MS:
+        raise PermissionError("stale or future 'ts' (must be within 10 minutes of the hub clock)")
+    if not _ed25519_ok(pk, sig, card_signing_bytes(data)):
+        raise PermissionError("bad signature: must be by 'pubkey' over every field except sig")
+    return data
+
+
+def _checkins_db():
+    conn = sqlite3.connect(str(_db_path()), timeout=10.0)
+    conn.execute("CREATE TABLE IF NOT EXISTS app_checkins (install TEXT NOT NULL, app TEXT NOT NULL, "
+                 "app_version TEXT NOT NULL, platform TEXT NOT NULL, os_major INTEGER, consent_version TEXT, "
+                 "consent_accepted INTEGER NOT NULL, first_seen_ms INTEGER NOT NULL, last_seen_ms INTEGER NOT NULL, "
+                 "PRIMARY KEY (install, app))")
+    conn.execute("CREATE TABLE IF NOT EXISTS app_crashes (day TEXT NOT NULL, app TEXT NOT NULL, "
+                 "app_version TEXT NOT NULL, kind TEXT NOT NULL, count INTEGER NOT NULL, "
+                 "PRIMARY KEY (day, app, app_version, kind))")
+    return conn
+
+
+def app_checkin(data) -> tuple:
+    try:
+        c = validate_checkin(data)
+    except PermissionError as e:
+        TELEMETRY.inc("app_checkins_rejected")
+        return {"status": "ERROR", "message": str(e)}, 401
+    except ValueError as e:
+        TELEMETRY.inc("app_checkins_rejected")
+        return {"status": "ERROR", "message": str(e)}, 400
+    inst = install_id(c["pubkey"])
+    if not CHECKIN_RATE.allow(inst + ":" + c["app"]):
+        return {"status": "ERROR", "message": "rate limited: one check-in per app start"}, 429
+    now = now_ms()
+    day = time.strftime("%Y-%m-%d", time.gmtime(now / 1000))
+    crashes = (c.get("crashes") or {}).get("count", 0)
+    with CHECKIN_LOCK:
+        conn = _checkins_db()
+        try:
+            conn.execute("DELETE FROM app_checkins WHERE last_seen_ms < ?", (now - CHECKIN_INSTALL_TTL_MS,))
+            cutoff = time.strftime("%Y-%m-%d", time.gmtime((now - CRASH_BUCKET_TTL_MS) / 1000))
+            conn.execute("DELETE FROM app_crashes WHERE day < ?", (cutoff,))
+            known = conn.execute("SELECT 1 FROM app_checkins WHERE install = ? AND app = ?", (inst, c["app"])).fetchone()
+            if not known and conn.execute("SELECT COUNT(*) FROM app_checkins").fetchone()[0] >= CHECKIN_MAX_INSTALLS:
+                return {"status": "ERROR", "message": "check-in table full"}, 503
+            conn.execute("INSERT INTO app_checkins (install, app, app_version, platform, os_major, consent_version, "
+                         "consent_accepted, first_seen_ms, last_seen_ms) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) "
+                         "ON CONFLICT(install, app) DO UPDATE SET app_version = excluded.app_version, "
+                         "platform = excluded.platform, os_major = excluded.os_major, "
+                         "consent_version = excluded.consent_version, consent_accepted = excluded.consent_accepted, "
+                         "last_seen_ms = excluded.last_seen_ms",
+                         (inst, c["app"], c["app_version"], c["platform"], c.get("os_major"),
+                          c.get("consent_version"), int(c["consent_accepted"]), now, now))
+            if crashes:
+                kind = (c.get("crashes") or {}).get("last_kind", "unknown")
+                conn.execute("INSERT INTO app_crashes (day, app, app_version, kind, count) VALUES (?, ?, ?, ?, ?) "
+                             "ON CONFLICT(day, app, app_version, kind) DO UPDATE SET count = count + excluded.count",
+                             (day, c["app"], c["app_version"], kind, crashes))
+            conn.commit()
+        finally:
+            conn.close()
+    TELEMETRY.inc("app_checkins_ok")
+    return {"status": "OK", "install_id": inst, "recorded": {"crashes": crashes}}, 200
+
+
+def app_telemetry_summary(db_path: Path = None) -> tuple:
+    """(users_part, services_part) for /api/telemetry/summary. Aggregates only."""
+    db_path = db_path or _db_path()
+    empty_u = {"installs": 0, "active_24h": 0, "active_7d": 0, "consent": {"accepted": 0, "not_accepted": 0,
+               "by_version": {}}, "app_versions": {}, "platforms": {}, "basis": "signed app check-ins "
+               "(POST /api/telemetry/app-checkin), one row per install+app, 90-day retention"}
+    empty_s = {"last_24h": 0, "last_7d": 0, "by_app": {}, "top_kinds": {}, "basis": "crash counts reported in "
+               "app check-ins (no messages or stacks), daily buckets, 30-day retention"}
+    if not db_path.exists():
+        return empty_u, empty_s
+    now = now_ms()
+    conn = sqlite3.connect(str(db_path))
+    try:
+        tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        if "app_checkins" not in tables:
+            return empty_u, empty_s
+        rows = conn.execute("SELECT install, app, app_version, platform, consent_version, consent_accepted, "
+                            "last_seen_ms FROM app_checkins WHERE last_seen_ms >= ?",
+                            (now - CHECKIN_INSTALL_TTL_MS,)).fetchall()
+        crash_rows = conn.execute("SELECT day, app, kind, count FROM app_crashes").fetchall() \
+            if "app_crashes" in tables else []
+    finally:
+        conn.close()
+    u = json.loads(json.dumps(empty_u))
+    installs = {r[0] for r in rows}
+    u["installs"] = len(installs)
+    u["active_24h"] = len({r[0] for r in rows if now - r[6] <= 86_400_000})
+    u["active_7d"] = len({r[0] for r in rows if now - r[6] <= 7 * 86_400_000})
+    latest = {}
+    for r in rows:   # per install, the most recent check-in decides consent
+        if r[0] not in latest or r[6] > latest[r[0]][6]:
+            latest[r[0]] = r
+    for r in latest.values():
+        u["consent"]["accepted" if r[5] else "not_accepted"] += 1
+        if r[4]:
+            u["consent"]["by_version"][r[4]] = u["consent"]["by_version"].get(r[4], 0) + 1
+    for r in rows:
+        av = u["app_versions"].setdefault(r[1], {})
+        av[r[2]] = av.get(r[2], 0) + 1
+        u["platforms"][r[3]] = u["platforms"].get(r[3], 0) + 1
+    s = json.loads(json.dumps(empty_s))
+    today = time.strftime("%Y-%m-%d", time.gmtime(now / 1000))
+    week = {time.strftime("%Y-%m-%d", time.gmtime((now - i * 86_400_000) / 1000)) for i in range(7)}
+    for day, app, kind, n in crash_rows:
+        if day in week:
+            s["last_7d"] += n
+            s["by_app"][app] = s["by_app"].get(app, 0) + n
+            s["top_kinds"][kind] = s["top_kinds"].get(kind, 0) + n
+        if day == today:
+            s["last_24h"] += n
+    s["top_kinds"] = dict(sorted(s["top_kinds"].items(), key=lambda kv: -kv[1])[:10])
+    s["last_24h_note"] = "today's UTC bucket"
+    return u, s
+
 def build_telemetry_summary() -> dict:
     counts, last = TELEMETRY.snapshot()
     c = lambda k: counts.get(k, 0)
@@ -2725,7 +2916,12 @@ def build_telemetry_summary() -> dict:
         "basis": "distinct signing pubkeys in stored events (author or app_author_pubkey), "
                  "this node excluded; activity by signed event time",
     }
+    try:
+        users["app_checkins"], app_crashes = app_telemetry_summary()
+    except Exception as e:
+        users["app_checkins"], app_crashes = {"state": "error", "detail": type(e).__name__}, {"state": "error"}
     services = {
+        "app_crashes": app_crashes,
         "daemon_version": VERSION, "uptime_seconds": round(now - STATE.start_time, 1),
         "node_id_prefix": _prefix(STATE.node_id), "mesh_id": STATE.mesh_id,
         "event_store": {"total_events": store["total_events"], "db_bytes": store["db_bytes"],
@@ -2957,6 +3153,7 @@ USER_POST_ROUTES = {
     "/api/invites/create": (8 * 1024, lambda h, d: invites_create(d)),
     "/api/social/comment": (USER_EVENT_MAX_BYTES, lambda h, d: store_user_event(d, {COMMENT_ACTION: validate_comment}, _via(h))),
     "/api/social/react": (USER_EVENT_MAX_BYTES, lambda h, d: store_user_event(d, {REACTION_ACTION: validate_reaction}, _via(h))),
+    "/api/telemetry/app-checkin": (4 * 1024, lambda h, d: app_checkin(d)),
 }
 
 

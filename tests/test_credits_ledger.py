@@ -141,7 +141,7 @@ class CreditsLedgerTests(unittest.TestCase):
         shutil.rmtree(cls.tmp, ignore_errors=True)
 
     def test_version(self):
-        self.assertEqual(self.d.version, "8.11.0")
+        self.assertEqual(self.d.version, "8.12.0")
 
     def test_grant_once(self):
         a = _pk(0xA1)

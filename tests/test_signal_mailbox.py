@@ -431,6 +431,92 @@ class IceConfigTurnTests(unittest.TestCase):
         self.assertNotIn(TURN_SECRET, json.dumps(cfg))
 
 
+
+# --- Cross-language test vectors (OmniCast step 2, Dart client) ----------------------------------
+# Fixed seeds and a message whose canonical bytes and signatures are pinned here AND in
+# packages/omni_core_ui/test/omni_signal_client_test.dart on `main` (Dart). If either side changes
+# how it builds the signed bytes, one of the two suites fails. Seed A = bytes 0..31 (the same key as
+# the signed-event interop vectors), seed B = bytes 32..63. The payload covers CRLF, non-ASCII,
+# a non-BMP emoji, quote, backslash, slash, tab, U+2028, a C0 control char and DEL.
+VEC_SEED_A = bytes(range(32))
+VEC_SEED_B = bytes(range(32, 64))
+VEC_PUB_A = "03a107bff3ce10be1d70dd18e74bc09967e4d6309ba50d5f1ddc8664125531b8"
+VEC_PUB_B = "29acbae141bccaf0b22e1a94d34d0bc7361e526d0bfe12c89794bc9322966dd7"
+VEC_TS = 1793042651190
+VEC_MSG = {"to": VEC_PUB_B, "from": VEC_PUB_A, "call_id": "call-vector_1.a:b", "kind": "offer",
+           "payload": 'v=0\r\no=- 46117 2 IN IP4 127.0.0.1\r\ns=K\u00edro \U0001F3A7 "q" \\ /\t\u2028\u0001\u007f\r\n',
+           "ts": VEC_TS}
+VEC_SEND_BYTES_HEX = (
+    "7b2263616c6c5f6964223a2263616c6c2d766563746f725f312e613a62222c2266726f6d223a22303361313037626666336365"
+    "3130626531643730646431386537346263303939363765346436333039626135306435663164646338363634313235353331"
+    "6238222c226b696e64223a226f66666572222c227061796c6f6164223a22763d305c725c6e6f3d2d203436313137203220494e"
+    "20495034203132372e302e302e315c725c6e733d4bc3ad726f20f09f8ea7205c22715c22205c5c202f5c74e280a85c753030"
+    "30317f5c725c6e222c22746f223a223239616362616531343162636361663062323265316139346433346430626337333631"
+    "6535323664306266653132633839373934626339333232393636646437222c227473223a313739333034323635313139302c"
+    "2274797065223a226f6d6e69636173742e7369676e616c2e7631227d")
+VEC_SEND_SIG = ("afe1e65c40101a39de0e9f12882ff6fc42bcee1f1d2839637ad27664f5cc7d6b"
+                "67fe3f3e923d7bbd5aa643a71ff0e322c733aea0435c0a96eefe96c210060209")
+VEC_POLL_TEXT = '{"to":"%s","ts":1793042651191,"type":"omnicast.poll.v1"}' % VEC_PUB_B
+VEC_POLL_SIG = ("ddfd60d8474e6e45f06cd64dbbcdcfda042dbe0f1604a9f9b644807c6fccc915"
+                "65d1c4a68875262a536a3457ef00ea752d36999c2ba5550a2dc9192499763702")
+VEC_ICE_TEXT = '{"pubkey":"%s","ts":1793042651192,"type":"omnicast.ice-config.v1"}' % VEC_PUB_A
+VEC_ICE_SIG = ("8ad5e9c912765e54c0050122176af04b440e69bfde3dc50e0564ef479f32327d"
+               "5dda34c195fc9ebf216e37d39663d827bf14eac1a11eada842233fcaa7c37803")
+
+
+class SignalVectorTests(unittest.TestCase):
+    """Pinned bytes + signatures shared with the Dart client (no daemon process needed, except the
+    one test that asks the daemon module itself for its canonical bytes)."""
+
+    @staticmethod
+    def _key(seed: bytes):
+        sk = Ed25519PrivateKey.from_private_bytes(seed)
+        return sk, sk.public_key().public_bytes(serialization.Encoding.Raw, serialization.PublicFormat.Raw).hex()
+
+    def test_seeds_give_pinned_pubkeys(self):
+        self.assertEqual(self._key(VEC_SEED_A)[1], VEC_PUB_A)
+        self.assertEqual(self._key(VEC_SEED_B)[1], VEC_PUB_B)
+
+    def test_send_bytes_and_signature(self):
+        b = send_bytes(VEC_MSG)
+        self.assertEqual(b.hex(), VEC_SEND_BYTES_HEX)
+        self.assertIn("\u2028".encode("utf-8"), b)       # raw, like Dart's jsonEncode
+        self.assertIn(b"\\u0001", b)                     # C0 controls escaped, lowercase hex
+        self.assertEqual(self._key(VEC_SEED_A)[0].sign(b).hex(), VEC_SEND_SIG)
+
+    def test_auth_bytes_and_signatures(self):
+        pb = auth_bytes("omnicast.poll.v1", "to", VEC_PUB_B, VEC_TS + 1)
+        ib = auth_bytes("omnicast.ice-config.v1", "pubkey", VEC_PUB_A, VEC_TS + 2)
+        self.assertEqual(pb.decode(), VEC_POLL_TEXT)
+        self.assertEqual(ib.decode(), VEC_ICE_TEXT)
+        self.assertEqual(self._key(VEC_SEED_B)[0].sign(pb).hex(), VEC_POLL_SIG)
+        self.assertEqual(self._key(VEC_SEED_A)[0].sign(ib).hex(), VEC_ICE_SIG)
+
+    def test_daemon_functions_produce_the_vector(self):
+        """The daemon's own signal_send_bytes / signal_auth_bytes (not just this file's mirror)."""
+        tmp = Path(tempfile.mkdtemp(prefix="omni_signal_vec_"))
+        try:
+            code = (
+                "import importlib.util, json, sys\n"
+                "spec = importlib.util.spec_from_file_location('d', sys.argv[1])\n"
+                "d = importlib.util.module_from_spec(spec); spec.loader.exec_module(d)\n"
+                "m = json.loads(sys.argv[2])\n"
+                "print(json.dumps({'send': d.signal_send_bytes(m).hex(),\n"
+                "  'poll': d.signal_auth_bytes(d.SIGNAL_POLL_TYPE, m['to'], m['ts'] + 1).decode(),\n"
+                "  'ice': d.signal_auth_bytes(d.SIGNAL_ICE_TYPE, m['from'], m['ts'] + 2).decode()}))\n")
+            env = dict(os.environ, HOME=str(tmp), USERPROFILE=str(tmp), PYTHONPATH=_PYPATH, PYTHONUTF8="1")
+            out = subprocess.run([sys.executable, "-c", code, str(ADMIN / "omni_live_daemon_server.py"),
+                                  json.dumps(VEC_MSG)], cwd=tmp, env=env, capture_output=True, text=True,
+                                 timeout=60)
+            self.assertEqual(out.returncode, 0, out.stderr[-2000:])
+            got = json.loads(out.stdout.strip().splitlines()[-1])
+            self.assertEqual(got["send"], VEC_SEND_BYTES_HEX)
+            self.assertEqual(got["poll"], VEC_POLL_TEXT)
+            self.assertEqual(got["ice"], VEC_ICE_TEXT)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
 REMOTE_IP = _local_ip()
 
 

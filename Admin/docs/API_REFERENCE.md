@@ -1,12 +1,13 @@
-# Hub daemon API reference (daemon v8.17.0)
+# Hub daemon API reference (daemon v8.17.1)
 
-Every HTTP endpoint and the UDP beacon served by `Admin/omni_live_daemon_server.py` (`VERSION = "8.17.0"`).
+Every HTTP endpoint and the UDP beacon served by `Admin/omni_live_daemon_server.py` (`VERSION = "8.17.1"`).
 This page is the map; the feature docs linked from each section hold the design notes, limits and tests.
 When this page and the code disagree, the code wins. Please file an issue.
 
 **Example labels.** Examples marked **live (v8.17.0)** were captured from a real daemon in the sandbox
 (a temp copy with ports moved to 19100/15000/15005/19101, fresh `HOME`, empty DB) and trimmed with `…`.
-That is why those responses show test ports. Every other example is marked **from code, not live-tested**:
+That is why those responses show test ports. They were captured on v8.17.0; v8.17.1 only fixes the
+double-written omnimind body and the query-string 404s, so apart from `"version"` the responses are the same. Every other example is marked **from code, not live-tested**:
 it was built from the handler code and the feature docs' examples, and its keys match what the handler
 returns. Values are made up.
 
@@ -134,9 +135,9 @@ The bearer token authenticates the **device**, not a person. Writes that act for
 that person's Ed25519 signature: remote appends, profiles, comments, reactions, signaling, signed credit
 sends and app check-ins. The hub never signs on a remote person's behalf.
 
-> `SECURITY.md` §2.2 describes a per-run bearer token on every IPC call, Host/Origin checks and a
-> 120 req/min limiter. Those are targets, not v8.17.0 behaviour: loopback calls carry no token and
-> there is no Host/Origin check. The per-key limits that exist are listed on each endpoint below.
+> Loopback calls carry no token and there is no Host/Origin check or per-IP request limit
+> ([SECURITY.md §2.2](SECURITY.md) lists what is enforced and what is only planned). The per-key
+> limits that exist are listed on each endpoint below.
 
 ---
 
@@ -216,7 +217,7 @@ Errors: **400** for an unknown parameter, a non-integer cursor or a bad `type`; 
 
 #### GET /api/events/stats · /api/events/list
 - **Port / auth:** 5000; loopback, or bearer when remote. Both paths return the same counts (no event list).
-- **Quirk:** these match on the full raw path, so **any query string gets 404**.
+- Query strings are ignored (before v8.17.1 any query string got **404**).
 
 Response: **live (v8.17.0)**, `GET /api/events/stats`:
 ```json
@@ -478,7 +479,7 @@ Without TURN: `"turn": false`, `"ice_transport_policy": "all"`, STUN only. Error
 ### Telemetry
 
 #### GET /api/v1/telemetry/node-health (port 9100)
-9100; loopback, or bearer when remote. Exact-path match: a query string gets **404**. `catchup` is the last
+9100; loopback, or bearer when remote. Query strings are ignored (before v8.17.1 they got **404**). `catchup` is the last
 catch-up run (`null` until one has run).
 
 Response: **live (v8.17.0)**:
@@ -537,9 +538,7 @@ Errors: POST **413** for a missing or oversized body, **400** for bad JSON or a 
 ```
 (The payload is whatever the agent posted; the hub doesn't check its keys.)
 
-> Known issue (v8.17.0): the GET handler writes the response body twice (`self.wfile.write(body)` and
-> then again inside `try`), so a client can read the JSON followed by trailing bytes past `Content-Length`.
-> Not fixed in this docs PR.
+Before v8.17.1 the GET handler wrote the body twice (trailing bytes past `Content-Length`); fixed in v8.17.1.
 
 ### Bugs
 
@@ -627,7 +626,7 @@ there. **From code, not live-tested.**
 
 ---
 
-## 5. Not in the hub (v8.17.0)
+## 5. Not in the hub (v8.17.1)
 
 None of these has an endpoint. Apps must not assume one exists.
 

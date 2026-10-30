@@ -98,7 +98,7 @@ import urllib.parse
 from pathlib import Path
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
-VERSION = "8.17.0"
+VERSION = "8.17.1"
 def _env_port(name: str, default: int) -> int:
     """Port override (e.g. to run two nodes on one machine for tests). Bad values fall back."""
     raw = os.environ.get(name, "").strip()
@@ -3072,9 +3072,10 @@ class TelemetryHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        if not remote_gate(self, "GET", self.path.partition("?")[0]):
+        path = self.path.partition("?")[0]
+        if not remote_gate(self, "GET", path):
             return
-        if self.path == "/api/v1/telemetry/node-health":
+        if path == "/api/v1/telemetry/node-health":
             with STATE.lock:
                 now = time.time()
                 STATE.active_peers = {k: v for k, v in STATE.active_peers.items() if now - v["last_seen"] < 15.0}
@@ -3101,7 +3102,7 @@ class TelemetryHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
             self.wfile.write(body)
-        elif self.path == "/api/omnimind/telemetry":
+        elif path == "/api/omnimind/telemetry":
             with STATE.lock:
                 fresh = STATE.omnimind_telemetry is not None and time.time() - STATE.omnimind_received_at < OMNIMIND_STALE_SECONDS
                 payload = dict(STATE.omnimind_telemetry) if fresh else None
@@ -3114,7 +3115,6 @@ class TelemetryHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Type", "application/json")
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
-            self.wfile.write(body)
             try:
                 self.wfile.write(body)
             except Exception:
@@ -3300,7 +3300,7 @@ class ContinuityIPCHandler(BaseHTTPRequestHandler):
             except Exception as e:
                 self._send_json(500, {"status": "ERROR", "message": f"bug list read failed: {e}"})
             return
-        if self.path in ["/api/events/stats", "/api/events/list"]:
+        if path in ("/api/events/stats", "/api/events/list"):
             db_path = Path.cwd() / "continuity_events.db"
             count = 0
             last_hash = "0x" + "0" * 64

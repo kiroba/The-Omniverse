@@ -40,22 +40,27 @@ Each pubkey gets **1,000 test credits once** (memo `welcome grant: 1,000 test cr
 issued the first time it is looked up (`GET balance`) or sends a transfer. It is never issued twice,
 including after a reset. A pubkey that only *receives* credits gets its welcome grant at its first lookup.
 
-## Endpoints (`:5000`, loopback only)
+## Endpoints (`:5000`)
 
-| Method | Path | Body / query | Answer |
-|---|---|---|---|
-| GET | `/api/credits/balance?pubkey=` | 64-hex pubkey or `treasury` | `{"balance", "fee_bps", "test_only": true, ...}` |
-| GET | `/api/credits/history?pubkey=&limit=` | limit 1-200, default 50 | entries newest first with `delta`, `balance_after`, `event_id`, `ts_ms` |
-| POST | `/api/credits/transfer` | `{"from", "to", "amount", "memo"?, "kind"?: "transfer"\|"purchase"}` | `{"event_id", "entry", "balance"}`; 409 on overdraft |
-| POST | `/api/credits/grant` (admin) | `{"to", "amount", "memo"?}` or `{"kind": "reset", "pubkey", "memo"?}` | `{"event_id", "entry"}` |
+| Method | Path | Access | Body / query | Answer |
+|---|---|---|---|---|
+| GET | `/api/credits/balance?pubkey=` | loopback, or remote hub + bearer (v8.15.0) | 64-hex pubkey or `treasury` | `{"balance", "fee_bps", "test_only": true, ...}` |
+| GET | `/api/credits/history?pubkey=&limit=` | loopback, or remote hub + bearer (v8.15.0) | limit 1-200, default 50 | entries newest first with `delta`, `balance_after`, `event_id`, `ts_ms` |
+| POST | `/api/credits/send` | loopback, or remote hub + bearer (v8.15.0) | transfer signed by `from` ([below](#signed-transfers-v8150)) | see [Signed transfers](#signed-transfers-v8150) |
+| POST | `/api/credits/transfer` | **loopback only** | `{"from", "to", "amount", "memo"?, "kind"?: "transfer"\|"purchase"}` | `{"event_id", "entry", "balance"}`; 409 on overdraft |
+| POST | `/api/credits/grant` (admin) | **loopback only** | `{"to", "amount", "memo"?}` or `{"kind": "reset", "pubkey", "memo"?}` | `{"event_id", "entry"}` |
 
-Errors: 400 bad input, 403 non-loopback, 409 overdraft or integrity failure, 411/413 missing/oversized body (max 4 KB).
+Remote access needs `OMNI_HUB_REMOTE=1` and `Authorization: Bearer <token>` (see `REMOTE_GET_PATHS` /
+`REMOTE_POST_PATHS` in the daemon). Errors: 400 bad input, 401 missing/invalid bearer (remote),
+403 non-loopback on a loopback-only path, 409 overdraft or integrity failure, 411/413 missing/oversized
+body (max 4 KB).
 
-**Why loopback only, even in remote-hub mode:** the remote-hub pattern (bearer token + the phone's own
+**Why `/transfer` and `/grant` stay loopback only, even in remote-hub mode** (this was the reason all of
+`/api/credits/*` was loopback-only before v8.15.0): the remote-hub pattern (bearer token + the phone's own
 signature on appends) authenticates the *device*, not the owner of the `from` pubkey. A transfer
 needs proof that the `from` identity authorized it (a request signed by that pubkey), which the
-daemon doesn't check yet. So `/api/credits/*` is not in `REMOTE_GET_PATHS`/`REMOTE_POST_PATHS`, and any
-loopback process can currently move test credits between any pubkeys. That is acceptable for test
+daemon doesn't check on those two. So they are not in `REMOTE_POST_PATHS`, and any loopback process can
+move test credits between any pubkeys with them. Phones use the signed `/api/credits/send` instead. That is acceptable for test
 credits on a tester's own machine and not for anything else.
 
 ## Storefront wiring (not done in this PR)
@@ -70,8 +75,7 @@ the user's pubkey in those screens, so it's a follow-up:
    column; on buy, `POST /api/credits/transfer {"from": me, "to": merchant, "amount": price, "kind": "purchase"}`
    and show `entry.fee` as the platform fee (set `OMNI_TREASURY_FEE_BPS=2000` to match the UI's 20%).
 2. Wallet screens: replace hard-coded balances with the balance endpoint; history tab from `/api/credits/history`.
-3. Before phones use it over the remote hub: signed transfer requests from the `from` key, then add the
-   paths to the remote allow-list.
+3. Over the remote hub, use the signed `POST /api/credits/send` (v8.15.0) rather than `/transfer`.
 
 ## Signed transfers (v8.15.0)
 

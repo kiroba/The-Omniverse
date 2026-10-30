@@ -1,4 +1,4 @@
-# Omni Credits TEST ledger (daemon v8.10.0)
+# Omni Credits TEST ledger (daemon v8.10.0; signed transfers v8.15.0)
 
 Issue #29, first slice. **Test credits only: no cash value, not redeemable, not purchasable.**
 This is a closed loop on one daemon. It is not yet safe for real value (see "Not done yet").
@@ -73,9 +73,71 @@ the user's pubkey in those screens, so it's a follow-up:
 3. Before phones use it over the remote hub: signed transfer requests from the `from` key, then add the
    paths to the remote allow-list.
 
+## Signed transfers (v8.15.0)
+
+`POST /api/credits/send` is the transfer phones use. The **owner of `from` signs it**, so the ledger
+records who authorized each debit, and it is allowed over the remote hub (bearer token) as well as
+loopback.
+
+```json
+{"type": "omni.credits.transfer.v1", "from": "<64 hex>", "to": "<64 hex>|treasury", "amount": 250,
+ "kind": "transfer|purchase|tip", "memo": "for lunch", "ref": "0x<post id> (tip: required)",
+ "nonce": "<16-64 lowercase hex, random per transfer>", "ts": 1793334636472, "sig": "<128 hex>"}
+```
+
+- `sig` = Ed25519 by `from` over sorted-key compact JSON of every field except `sig`, raw UTF-8
+  (same rule as contact cards and OmniCast signaling). The fee is **not** signed: the hub sets it from
+  `OMNI_TREASURY_FEE_BPS` as before. Pubkeys must be lowercase and `memo` trimmed, because they are
+  signed as sent.
+- `kind: "tip"` needs `ref` (what is tipped, e.g. a KickBack post id) and a pubkey recipient;
+  `purchase` may carry `ref` (an item id). `ref`: 1-80 chars `A-Z a-z 0-9 _ . : -`.
+- `ts` must be within **10 minutes** of the hub clock (401 otherwise); bad signature 401.
+- The ledger entry stores `auth: {type, nonce, ts, sig}` (and `ref`) inside the node-signed
+  `credit_entry`. **Every replay re-verifies that signature** against the entry's own from/to/amount/
+  kind/memo/ref, so a hub bug or a DB edit that redirects or changes a signed transfer fails integrity
+  (409) like any other tampering.
+
+### Double-spend rules (node-local)
+
+1. One ledger per daemon, one lock: replay → nonce check → balance check → append is a single critical
+   section, so concurrent sends can't overspend (tested with 8 parallel sends).
+2. `(from, nonce)` can be applied **once, ever** on this node. An identical retry (same signature)
+   answers `200 {"result": "ALREADY_APPLIED", "event_id"}`, so clients can retry safely; the same nonce
+   with different content answers **409**.
+3. `amount` ≤ balance (welcome grant included), else 409.
+
+### What this does NOT give you (cross-node)
+
+Each daemon's ledger is its own (entries authored by other nodes are ignored on replay). The same signed
+transfer, or two different transfers spending the same 1,000 welcome credits, can be applied on **two
+different hubs**, because nothing makes hubs agree on one ordering of spends. Preventing that needs
+either one designated ledger hub for a mesh (simplest: point every phone's credits calls at the Windows
+hub) or real cross-node consensus / per-author chains with fork detection. **Deferred**: out of scope
+while credits are test-only (issue #29).
+
+### Balance lookups over the remote hub
+
+`GET /api/credits/balance` from another device never writes: if the key's welcome grant hasn't been
+issued yet it answers `"balance": 0, "welcome_pending": true, "available": 1000`. The grant is issued
+on that key's first **signed** send (which proves the caller owns the key). Loopback lookups behave as
+before (they issue it). `/api/credits/history` is also allowed remotely; `/transfer` and `/grant`
+stay loopback only.
+
+### Turning off unsigned transfers
+
+`OMNI_CREDITS_REQUIRE_SIGNED=1` makes the old unsigned `POST /api/credits/transfer` answer 403 (point
+callers at `/api/credits/send`). Default is off so existing tools keep working.
+
+### Storefront / wallet wiring (app side, not in this PR)
+
+Storefront buy = `POST /api/credits/send` with `kind: "purchase"`, `ref: <item id>`, `to: <merchant
+key>`; wallet = `GET /api/credits/balance` (show `available`) + `/api/credits/history`; KickBack tip
+button = `kind: "tip"`, `ref: <post id>`. The phone signs with its StargateIdentity key
+(`signBytes`), exactly like OmniCast signaling requests.
+
 ## Not done yet (issue #29)
 
 - Per-author chains + convergent sync, and double-spend protection across nodes (each daemon's ledger is its own).
-- Signed-by-owner transfers (see above).
+- ~~Signed-by-owner transfers~~: done in v8.15.0 (`/api/credits/send`).
 - Subscriptions as recurring transfers.
 - Any real money in or out. The credit bundles in `kickback_gift_and_credit_engine.py` remain mock.

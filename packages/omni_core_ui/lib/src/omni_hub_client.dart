@@ -166,7 +166,13 @@ class OmniHubClient {
       final req = await client.postUrl(Uri.parse('http://${_hostForUrl()}:$port$path')).timeout(timeout);
       _auth(req);
       req.headers.contentType = ContentType.json;
-      req.write(jsonEncode(body));
+      // Always send Content-Length. Without it dart:io sends "Transfer-Encoding: chunked", which
+      // daemons up to v8.12.0 read as an empty body: every post was stored as an empty
+      // USER_ACTION event and never showed up in ?type=KICKBACK_POST (see
+      // Admin/docs/REQUEST_BODIES.md on the desktop branch).
+      final bytes = utf8.encode(jsonEncode(body));
+      req.contentLength = bytes.length;
+      req.add(bytes);
       final res = await req.close().timeout(timeout);
       final text = await res.transform(utf8.decoder).join().timeout(timeout);
       try {

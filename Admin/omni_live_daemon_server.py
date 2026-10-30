@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ==============================================================================
-OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.12.0 - Hardened Mesh Spine]
+OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.12.1 - Hardened Mesh Spine]
 ==============================================================================
 Architecture:
 - Port 9100 (127.0.0.1): Node Health Telemetry & Agent Cache
@@ -40,6 +40,11 @@ Telemetry summary (v8.12.0): GET :5000/api/telemetry/summary returns aggregate c
 security, finance, users, services) for the Mesh Monitor app. In-memory counters reset on restart; no
 message contents, no keys beyond 12-char pubkey prefixes, no IPs. Same gate as the other hub endpoints.
 See Admin/docs/TELEMETRY_SUMMARY.md.
+Request bodies (v8.12.1): every :5000 POST accepts a Content-Length body or a "Transfer-Encoding: chunked"
+body (what Dart's HttpClient sends when contentLength isn't set). Before this, a chunked append was read
+as "{}" and stored as an EMPTY "USER_ACTION" event with status SUCCESS: every KickBack post ever sent to
+a daemon arrived that way. /api/events/append now answers 400 for an empty body. See
+Admin/docs/REQUEST_BODIES.md.
 ==============================================================================
 """
 
@@ -65,7 +70,7 @@ import urllib.parse
 from pathlib import Path
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
-VERSION = "8.12.0"
+VERSION = "8.12.1"
 def _env_port(name: str, default: int) -> int:
     """Port override (e.g. to run two nodes on one machine for tests). Bad values fall back."""
     raw = os.environ.get(name, "").strip()
@@ -1980,6 +1985,71 @@ def build_telemetry_summary() -> dict:
             "protocols": protocols, "security": security, "finance": _finance_summary(),
             "users": users, "services": services}
 
+class BodyError(Exception):
+    def __init__(self, status: int, message: str):
+        super().__init__(message)
+        self.status, self.message = status, message
+
+
+def read_request_body(handler, max_bytes: int) -> bytes:
+    """The raw request body, from Content-Length or "Transfer-Encoding: chunked" (RFC 9112 7.1).
+    No body at all -> b"". Raises BodyError(413) past max_bytes and BodyError(400) for a malformed
+    length or chunk framing. Trailers after the last chunk are read and ignored."""
+    te = (handler.headers.get("Transfer-Encoding") or "").strip().lower()
+    if te:
+        if te.split(",")[-1].strip() != "chunked":
+            raise BodyError(400, f"unsupported Transfer-Encoding: {te}")
+        out = bytearray()
+        while True:
+            line = handler.rfile.readline(1024)
+            if not line.endswith(b"\n"):
+                raise BodyError(400, "malformed chunk size line")
+            size_txt = line.split(b";", 1)[0].strip()
+            if not re.fullmatch(rb"[0-9A-Fa-f]{1,8}", size_txt):
+                raise BodyError(400, "malformed chunk size")
+            size = int(size_txt, 16)
+            if size == 0:
+                for _ in range(64):   # optional trailer fields, then the empty line
+                    t = handler.rfile.readline(8192)
+                    if t in (b"\r\n", b"\n", b""):
+                        break
+                return bytes(out)
+            if len(out) + size > max_bytes:
+                raise BodyError(413, f"body too large (max {max_bytes} bytes)")
+            chunk = handler.rfile.read(size)
+            if len(chunk) != size or handler.rfile.readline(8) not in (b"\r\n", b"\n"):
+                raise BodyError(400, "truncated chunk")
+            out += chunk
+    raw = handler.headers.get("Content-Length")
+    if raw is None or raw.strip() == "":
+        return b""
+    try:
+        n = int(raw.strip())
+    except ValueError:
+        raise BodyError(400, "Content-Length is not a number")
+    if n < 0:
+        raise BodyError(400, "Content-Length is negative")
+    if n > max_bytes:
+        raise BodyError(413, f"body too large (max {max_bytes} bytes)")
+    data = handler.rfile.read(n) if n else b""
+    if len(data) != n:
+        raise BodyError(400, "body shorter than Content-Length")
+    return data
+
+
+def read_json_body(handler, max_bytes: int, allow_empty: bool = False):
+    """Parsed JSON body. Raises BodyError (400 empty/invalid, 413 too large)."""
+    raw = read_request_body(handler, max_bytes)
+    if not raw.strip():
+        if allow_empty:
+            return None
+        raise BodyError(400, "empty request body: send a JSON object (Content-Length or chunked)")
+    try:
+        return json.loads(raw.decode("utf-8"))
+    except (ValueError, UnicodeDecodeError):
+        raise BodyError(400, "body must be valid UTF-8 JSON")
+
+
 def _is_loopback(ip: str) -> bool:
     return ip in ("127.0.0.1", "::1", "::ffff:127.0.0.1") or ip.startswith("127.")
 
@@ -2133,20 +2203,8 @@ class ContinuityIPCHandler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def _handle_bug_report(self):
-        try:
-            content_len = int(self.headers.get("Content-Length", "") or -1)
-        except ValueError:
-            content_len = -1
-        if content_len < 0:
-            _deny(self, 411, "Content-Length required")
-            return
-        if content_len > BUG_REPORT_MAX_BYTES:
-            _deny(self, 413, f"bug report too large (max {BUG_REPORT_MAX_BYTES} bytes)")
-            return
-        try:
-            data = json.loads(self.rfile.read(content_len).decode("utf-8") if content_len else "")
-        except (ValueError, UnicodeDecodeError):
-            self._send_json(400, {"status": "ERROR", "message": "body must be valid UTF-8 JSON"})
+        data, ok = self._read_small_json(BUG_REPORT_MAX_BYTES)
+        if not ok:
             return
         via = "loopback" if _is_loopback(self.client_address[0]) else "remote_hub"
         try:
@@ -2156,19 +2214,21 @@ class ContinuityIPCHandler(BaseHTTPRequestHandler):
         self._send_json(status, resp)
 
     def _read_small_json(self, max_bytes: int):
-        """(data, ok). Sends the error itself when not ok."""
+        """(data, ok). Content-Length or chunked body (v8.12.1). Sends the error itself when not ok:
+        411 when there is no body at all (same answer as before for a missing Content-Length),
+        413 too large, 400 malformed."""
         try:
-            content_len = int(self.headers.get("Content-Length", "") or -1)
-        except ValueError:
-            content_len = -1
-        if content_len < 0:
-            _deny(self, 411, "Content-Length required")
+            raw = read_request_body(self, max_bytes)
+        except BodyError as e:
+            if e.status == 413:
+                self.close_connection = True   # rest of the oversized body is never read
+            self._send_json(e.status, {"status": "ERROR", "message": e.message})
             return None, False
-        if content_len > max_bytes:
-            _deny(self, 413, f"body too large (max {max_bytes} bytes)")
+        if not raw.strip():
+            self._send_json(411, {"status": "ERROR", "message": "request body required (Content-Length or chunked)"})
             return None, False
         try:
-            return json.loads(self.rfile.read(content_len).decode("utf-8") if content_len else ""), True
+            return json.loads(raw.decode("utf-8")), True
         except (ValueError, UnicodeDecodeError):
             self._send_json(400, {"status": "ERROR", "message": "body must be valid UTF-8 JSON"})
             return None, False
@@ -2305,15 +2365,22 @@ class ContinuityIPCHandler(BaseHTTPRequestHandler):
                 self._credits_call(credits_transfer if self.path.endswith("transfer") else credits_grant, data)
             return
         if self.path == "/api/events/append":
-            content_len = int(self.headers.get("Content-Length", 0))
-            if content_len > MAX_PAYLOAD_SIZE:
-                self.send_error(413, "Payload Too Large (Max 5MB)")
-                return
-
-            post_body = self.rfile.read(content_len).decode("utf-8") if content_len > 0 else "{}"
+            # v8.12.1: Content-Length or chunked; an empty body is refused instead of being stored
+            # as an empty USER_ACTION event (the KickBack "posts never show up" bug).
             try:
-                data = json.loads(post_body)
-                if isinstance(data, dict) and str(data.get("action", "")).strip() == CREDIT_ACTION:
+                data = read_json_body(self, MAX_PAYLOAD_SIZE)
+            except BodyError as e:
+                if e.status == 413:
+                    self.close_connection = True
+                TELEMETRY.inc("append_rejected_body")
+                self._send_json(e.status, {"status": "ERROR", "message": e.message})
+                return
+            if not isinstance(data, dict) or not data:
+                TELEMETRY.inc("append_rejected_body")
+                self._send_json(400, {"status": "ERROR", "message": "body must be a non-empty JSON object"})
+                return
+            try:
+                if str(data.get("action", "")).strip() == CREDIT_ACTION:
                     # Ledger entries only come from /api/credits/*, where overdraft checks run.
                     resp_data, status_code = {"status": "ERROR", "message":
                                               "credit_entry events can only be written via /api/credits/*"}, 403

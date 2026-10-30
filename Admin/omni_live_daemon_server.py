@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ==============================================================================
-OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.11.0 - Hardened Mesh Spine]
+OMNIVERSE LIVE LOCAL DAEMON ENGINE [v8.12.0 - Hardened Mesh Spine]
 ==============================================================================
 Architecture:
 - Port 9100 (127.0.0.1): Node Health Telemetry & Agent Cache
@@ -36,6 +36,10 @@ ts within +/-120 s, max 16 KB, 64 queued per recipient, expires after 60 s, remo
 stored in the event log or logged. Polls are signed by the recipient. GET /api/signal/ice-config returns
 STUN plus time-limited TURN REST credentials (OMNI_TURN_URLS + OMNI_TURN_SECRET). Same gate as the
 other hub endpoints (loopback, or bearer token in remote hub mode). See Admin/docs/OMNICAST_SIGNALING.md.
+Telemetry summary (v8.12.0): GET :5000/api/telemetry/summary returns aggregate counts only (protocols,
+security, finance, users, services) for the Mesh Monitor app. In-memory counters reset on restart; no
+message contents, no keys beyond 12-char pubkey prefixes, no IPs. Same gate as the other hub endpoints.
+See Admin/docs/TELEMETRY_SUMMARY.md.
 ==============================================================================
 """
 
@@ -61,7 +65,7 @@ import urllib.parse
 from pathlib import Path
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
-VERSION = "8.11.0"
+VERSION = "8.12.0"
 def _env_port(name: str, default: int) -> int:
     """Port override (e.g. to run two nodes on one machine for tests). Bad values fall back."""
     raw = os.environ.get(name, "").strip()
@@ -119,7 +123,7 @@ HUB_BIND = os.environ.get(HUB_BIND_ENV, "").strip() or "127.0.0.1"
 # Paths a remote (authenticated) app may use. Everything else stays loopback-only
 # (e.g. POST /api/omnimind/telemetry, the local agent's cache).
 REMOTE_GET_PATHS = {"/api/events/feed", "/api/events/stats", "/api/events/list", "/api/v1/telemetry/node-health",
-                    "/api/signal/poll", "/api/signal/ice-config"}
+                    "/api/signal/poll", "/api/signal/ice-config", "/api/telemetry/summary"}
 REMOTE_POST_PATHS = {"/api/events/append", "/api/bugs/report", "/api/signal/send"}
 _APP_ENVELOPE_KEYS = ("app_event_id", "app_author_pubkey", "app_signature", "app_previous_hash",
                       "app_ts", "app_timestamp")
@@ -300,6 +304,31 @@ def tailscale_ip():
     except Exception:
         return None
 
+class TelemetryCounters:
+    """In-memory, since-start counters and last-seen times for GET /api/telemetry/summary (v8.12.0).
+    Numbers only: nothing here holds message contents, keys or addresses. Reset on restart."""
+
+    def __init__(self):
+        self.lock = threading.Lock()
+        self.counts = {}
+        self.last = {}     # name -> unix seconds of the last occurrence
+
+    def inc(self, name: str, n: int = 1, touch: bool = True):
+        with self.lock:
+            self.counts[name] = self.counts.get(name, 0) + n
+            if touch:
+                self.last[name] = time.time()
+
+    def touch(self, name: str):
+        with self.lock:
+            self.last[name] = time.time()
+
+    def snapshot(self) -> tuple:
+        with self.lock:
+            return dict(self.counts), dict(self.last)
+
+TELEMETRY = TelemetryCounters()
+
 class EngineState:
     def __init__(self):
         try:
@@ -331,6 +360,7 @@ class EngineState:
         self.catchup_lock = threading.Lock()   # one catch-up run at a time
         self.catchup_wake = threading.Event()  # set when a new peer shows up
         self.last_catchup = None               # summary of the last run, shown in node-health
+        self.udp_listener = "starting"         # "listening" / "bind failed: ..." (telemetry summary)
 
 STATE = EngineState()
 
@@ -481,6 +511,21 @@ def _chain_and_insert(c, data, action, author, payload_obj, time_fields, timesta
     return {"status": "SUCCESS", "_event_id": event_id, "_prev_hash": prev_hash, "_signature": signature}, 200
 
 def process_and_store_event(data: dict, origin_peer: str = None, relay: bool = True) -> tuple[dict, int]:
+    """Stores one event (see _process_and_store_event) and counts the outcome for the telemetry summary.
+    Local events are signed by this node; peer/remote events had their author signature verified."""
+    resp, status = _process_and_store_event(data, origin_peer, relay)
+    src = "local" if origin_peer is None else "peer"
+    if status == 200:
+        TELEMETRY.inc("events_duplicate" if resp.get("result") == "ALREADY_EXISTS" else f"events_stored_{src}")
+    elif status == 401:
+        TELEMETRY.inc("events_rejected_signature")
+    elif status == 403:
+        TELEMETRY.inc("events_rejected_untrusted")
+    else:
+        TELEMETRY.inc("events_rejected_invalid")
+    return resp, status
+
+def _process_and_store_event(data: dict, origin_peer: str = None, relay: bool = True) -> tuple[dict, int]:
     action = str(data.get("action", "USER_ACTION")).strip()
     if origin_peer is None:
         author = STATE.node_id   # local app: this node is the author, never trust a client-supplied name
@@ -568,8 +613,9 @@ def relay_event_to_peers(event_envelope: dict, origin_peer: str = None):
                                          headers={'Content-Type': 'application/json', MESH_HEADER: STATE.mesh_id})
             with urllib.request.urlopen(req, timeout=2.0) as resp:
                 pass
+            TELEMETRY.inc("relay_ok")
         except Exception:
-            pass
+            TELEMETRY.inc("relay_failed")
 
 BEACON_DOMAIN = b"OMNI_BEACON_V1\n"   # domain-separates beacon signatures from event signatures
 BEACON_MAX_AGE_MS = 60_000
@@ -636,8 +682,9 @@ def udp_discovery_broadcaster():
         try:
             payload = json.dumps(build_beacon()).encode('utf-8')
             sock.sendto(payload, ('<broadcast>', UDP_DISCOVERY_PORT))
+            TELEMETRY.inc("beacons_sent")
         except Exception:
-            pass
+            TELEMETRY.inc("beacons_send_failed")
         time.sleep(3.0)
 
 def log_mesh_reject_once(peer_ip: str, their_mesh, where: str):
@@ -660,14 +707,19 @@ def handle_discovery_packet(msg: dict, peer_ip: str) -> bool:
         with STATE.lock:
             STATE.active_peers.pop(peer_ip, None)  # a peer that moved to another mesh is dropped
         log_mesh_reject_once(peer_ip, their_mesh, "UDP discovery")
+        TELEMETRY.inc("beacons_rejected_mesh")
         return False
     if not beacon_allowed(msg, peer_ip):
+        TELEMETRY.inc("beacons_rejected_signature")
         return False
+    TELEMETRY.inc("beacons_accepted")
     peer_port = int(msg.get("port", P2P_SYNC_PORT))
     with STATE.lock:
         old = STATE.active_peers.get(peer_ip)
         is_new = old is None or time.time() - old["last_seen"] >= 15.0   # new or back after a gap
-        STATE.active_peers[peer_ip] = {"ip": peer_ip, "port": peer_port, "last_seen": time.time()}
+        STATE.active_peers[peer_ip] = {"ip": peer_ip, "port": peer_port, "last_seen": time.time(),
+                                       "node_id": str(msg.get("node_id", ""))[:64],
+                                       "signed": "sig" in msg}
     if is_new:
         STATE.catchup_wake.set()   # (re)connected peer: reconcile with it soon
     return True
@@ -678,8 +730,10 @@ def udp_discovery_listener():
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     try:
         sock.bind(('0.0.0.0', UDP_DISCOVERY_PORT))
-    except Exception:
+    except Exception as e:
+        STATE.udp_listener = f"bind failed: {type(e).__name__}"
         return
+    STATE.udp_listener = "listening"
 
     while True:
         try:
@@ -1388,8 +1442,12 @@ def verify_signal_auth(query: str, kind_type: str, key_field: str, allowed: set,
 def signal_send(data) -> tuple:
     try:
         msg = validate_signal_message(data)
-        return SIGNAL_MAILBOX.send(msg), 200
+        resp = SIGNAL_MAILBOX.send(msg)
+        TELEMETRY.inc("signal_sends_ok")
+        return resp, 200
     except SignalError as e:
+        TELEMETRY.inc("signal_sends_rejected")
+        TELEMETRY.inc(f"signal_sends_rejected_{e.status}", touch=False)
         return {"status": "ERROR", "message": e.message}, e.status
 
 
@@ -1398,8 +1456,13 @@ def signal_poll(query: str) -> tuple:
         params, to, _ts, sig = verify_signal_auth(query, SIGNAL_POLL_TYPE, "to", _SIGNAL_POLL_ARGS)
         since = _int_param(params, "since", required=False) or 0
         wait = _int_param(params, "wait", required=False) or 0
-        return SIGNAL_MAILBOX.poll(to, sig, since=since, wait=float(wait)), 200
+        resp = SIGNAL_MAILBOX.poll(to, sig, since=since, wait=float(wait))
+        TELEMETRY.inc("signal_polls_ok")
+        if resp["count"]:
+            TELEMETRY.inc("signal_delivered", resp["count"])
+        return resp, 200
     except SignalError as e:
+        TELEMETRY.inc("signal_polls_rejected")
         return {"status": "ERROR", "message": e.message}, e.status
 
 
@@ -1459,8 +1522,10 @@ def signal_ice_config(query: str) -> tuple:
         _params, pubkey, _ts, sig = verify_signal_auth(query, SIGNAL_ICE_TYPE, "pubkey", _SIGNAL_ICE_ARGS)
         with SIGNAL_MAILBOX.cond:
             SIGNAL_MAILBOX._remember_sig_locked(sig)
+        TELEMETRY.inc("signal_ice_config_ok")
         return build_ice_config(pubkey), 200
     except SignalError as e:
+        TELEMETRY.inc("signal_ice_config_rejected")
         return {"status": "ERROR", "message": e.message}, e.status
 
 
@@ -1699,6 +1764,222 @@ def answer_events(data: dict) -> tuple:
         size += n
     return {"status": "OK", "events": events, "truncated": truncated}, 200
 
+
+# --- Telemetry summary (v8.12.0): GET :5000/api/telemetry/summary ----------------------------------
+# Aggregates only, for the Mesh Monitor app. Since-start counters come from TELEMETRY (in memory,
+# reset on restart); store-wide numbers are read from SQLite and cached for a few seconds so a
+# monitor polling every 10-15 s costs almost nothing. Never included: message/SDP contents, event
+# payloads, peer IPs, the hub token, or any full key (pubkeys are cut to 12-char prefixes).
+TELEMETRY_SCHEMA = 1
+TELEMETRY_DB_CACHE_S = min(60.0, _env_float("OMNI_TELEMETRY_CACHE_S", 5.0))   # tests set 0
+_TELEMETRY_DB_CACHE = {"at": 0.0, "value": None}
+_TELEMETRY_DB_LOCK = threading.Lock()
+DAY_MS = 86_400_000
+
+def _ago(ts):
+    """Seconds since a unix time, or None."""
+    return None if not ts else round(max(0.0, time.time() - ts), 1)
+
+def _prefix(key) -> str:
+    return str(key or "")[:12]
+
+def _store_stats(db_path: Path = None) -> dict:
+    """Event-store-wide aggregates (cached TELEMETRY_DB_CACHE_S). Users = distinct signing identities:
+    event authors plus payload.app_author_pubkey (the phone key inside a local app's envelope),
+    this node's own key excluded. Activity uses each event's signed time."""
+    db_path = db_path or _db_path()
+    with _TELEMETRY_DB_LOCK:
+        cached = _TELEMETRY_DB_CACHE["value"]
+        if cached is not None and time.time() - _TELEMETRY_DB_CACHE["at"] < TELEMETRY_DB_CACHE_S:
+            return cached
+        out = {"total_events": 0, "unsigned_rows": 0, "last_event_ms": None, "db_bytes": 0,
+               "by_action": {}, "identities": 0, "active_24h": 0, "active_7d": 0, "bug_reports": 0,
+               "first_seen_7d": 0}
+        if db_path.exists():
+            out["db_bytes"] = sum(f.stat().st_size for f in (db_path, Path(str(db_path) + "-wal"))
+                                  if f.exists())
+            conn = sqlite3.connect(str(db_path))
+            try:
+                c = conn.cursor()
+                out["total_events"] = c.execute("SELECT COUNT(*) FROM events;").fetchone()[0]
+                out["unsigned_rows"] = c.execute(
+                    "SELECT COUNT(*) FROM events WHERE signature IS NULL OR signature = '';").fetchone()[0]
+                for action, n in c.execute("SELECT action, COUNT(*) FROM events GROUP BY action;"):
+                    out["by_action"][str(action)[:64]] = n
+                out["bug_reports"] = out["by_action"].get(BUG_REPORT_ACTION, 0)
+                last = {}   # identity -> latest signed time (ms)
+                first = {}
+                for author, payload_json, ts_ms, ts in c.execute(
+                        "SELECT author_pubkey, payload_json, ts_ms, timestamp FROM events WHERE id > 0;"):
+                    t = int(ts_ms) if ts_ms is not None else int(round(float(ts or 0) * 1000))
+                    if out["last_event_ms"] is None or t > out["last_event_ms"]:
+                        out["last_event_ms"] = t
+                    ids = {author}
+                    if payload_json and "app_author_pubkey" in payload_json:
+                        try:
+                            app_key = json.loads(payload_json).get("app_author_pubkey")
+                            if isinstance(app_key, str):
+                                ids.add(app_key)
+                        except (ValueError, AttributeError):
+                            pass
+                    for k in ids:
+                        if not k or k == STATE.node_id or not _PUBKEY_RE.fullmatch(str(k)):
+                            continue
+                        last[k] = max(last.get(k, 0), t)
+                        first[k] = min(first.get(k, t), t)
+            finally:
+                conn.close()
+            now = now_ms()
+            out["identities"] = len(last)
+            out["active_24h"] = sum(1 for t in last.values() if now - t <= DAY_MS)
+            out["active_7d"] = sum(1 for t in last.values() if now - t <= 7 * DAY_MS)
+            out["first_seen_7d"] = sum(1 for t in first.values() if now - t <= 7 * DAY_MS)
+        _TELEMETRY_DB_CACHE.update(at=time.time(), value=out)
+        return out
+
+def _finance_summary() -> dict:
+    """Totals from the TEST credits ledger (replayed and re-verified like /api/credits/*). No
+    per-account balances or pubkeys leave the hub here."""
+    base = {"state": "ok", "test_only": True, "note": "test credits, no cash value",
+            "treasury_fee_bps": TREASURY_FEE_BPS}
+    try:
+        ledger = replay_credit_ledger()
+    except LedgerIntegrityError as e:
+        return dict(base, state="integrity_failed", integrity="FAILED", detail=e.reason[:120])
+    except Exception as e:
+        return dict(base, state="error", detail=f"{type(e).__name__}"[:80])
+    entries = ledger["entries"]
+    kinds = {k: 0 for k in CREDIT_KINDS}
+    issued = moved = fees = 0
+    for e in entries:
+        kinds[e["kind"]] = kinds.get(e["kind"], 0) + 1
+        if e["kind"] == "grant":
+            issued += e["amount"]
+        elif e["kind"] in ("transfer", "purchase"):
+            moved += e["amount"]
+        fees += e["fee"]
+    accounts = [a for a in ledger["balances"] if a != CREDIT_TREASURY]
+    return dict(base, integrity="VERIFIED", entries=len(entries), accounts=len(accounts),
+                welcome_grants=len(ledger["welcomed"]), total_issued=issued, total_transferred=moved,
+                fees_collected=fees, entries_by_kind=kinds,
+                last_entry_ms=entries[-1]["ts_ms"] if entries else None)
+
+def build_telemetry_summary() -> dict:
+    counts, last = TELEMETRY.snapshot()
+    c = lambda k: counts.get(k, 0)
+    now = time.time()
+    with STATE.lock:
+        peers = [p for p in STATE.active_peers.values() if now - p["last_seen"] < 15.0]
+        peer_prefixes = sorted({_prefix(p.get("node_id")) for p in peers if p.get("node_id")})
+        omnimind_age = (now - STATE.omnimind_received_at) if STATE.omnimind_telemetry is not None else None
+        last_catchup = STATE.last_catchup
+    sig = SIGNAL_MAILBOX.stats()
+    turn_urls = os.environ.get(TURN_URLS_ENV, "").strip()
+    turn_secret = os.environ.get(TURN_SECRET_ENV, "").strip()
+    store = _store_stats()
+
+    catchup = None
+    if last_catchup and last_catchup.get("status") == "OK":
+        runs = last_catchup.get("peers", [])
+        catchup = {"at_ago_s": _ago(last_catchup.get("at")), "peers": len(runs),
+                   "errors": sum(1 for r in runs if r.get("error")),
+                   **{k: sum(int(r.get(k) or 0) for r in runs)
+                      for k in ("need", "have", "stored", "rejected", "pushed", "push_failed", "rounds")}}
+    p2p_last = max([last.get(k) or 0 for k in ("p2p_sync_requests", "events_stored_peer")] or [0]) or None
+
+    protocols = [
+        {"id": "tcp_api", "name": "TCP app API (:9100 telemetry, :5000 events)", "state": "up",
+         "listen": hub_listen_hosts(), "ports": [TELEMETRY_PORT, CONTINUITY_IPC_PORT],
+         "remote_hub": HUB_REMOTE, "last_seen_ago_s": _ago(max(last.get("api_requests_loopback") or 0,
+                                                               last.get("api_requests_remote") or 0) or None),
+         "counts": {"loopback_requests": c("api_requests_loopback"), "remote_requests": c("api_requests_remote")}},
+        {"id": "p2p_sync", "name": "P2P event sync (HTTP :%d /p2p/sync)" % P2P_SYNC_PORT, "state": "up",
+         "listen": [P2P_HOST], "ports": [P2P_SYNC_PORT], "last_seen_ago_s": _ago(p2p_last),
+         "counts": {"requests": c("p2p_sync_requests"), "events_from_peers": c("events_stored_peer"),
+                    "relay_ok": c("relay_ok"), "relay_failed": c("relay_failed"),
+                    "rejected_mesh": c("p2p_rejected_mesh")}},
+        {"id": "udp_discovery", "name": "UDP LAN discovery beacons (:%d)" % UDP_DISCOVERY_PORT,
+         "state": "up" if STATE.udp_listener == "listening" else "down", "detail": STATE.udp_listener,
+         "ports": [UDP_DISCOVERY_PORT], "last_seen_ago_s": _ago(last.get("beacons_accepted")),
+         "last_sent_ago_s": _ago(last.get("beacons_sent")), "active_peers": len(peers),
+         "peer_pubkey_prefixes": peer_prefixes[:32], "require_signed": REQUIRE_SIGNED_BEACONS,
+         "counts": {"sent": c("beacons_sent"), "accepted": c("beacons_accepted"),
+                    "rejected_signature": c("beacons_rejected_signature"),
+                    "rejected_mesh": c("beacons_rejected_mesh")}},
+        {"id": "negentropy", "name": "Catch-up sync (negentropy v1)",
+         "state": "idle" if catchup is None else ("degraded" if catchup["errors"] else "up"),
+         "static_peers": len(STATE.sync_peers), "interval_s": _env_float(CATCHUP_INTERVAL_ENV, 60.0),
+         "last_run": catchup,
+         "last_seen_ago_s": _ago(max(last.get("catchup_served_reconcile") or 0,
+                                     last_catchup.get("at") if last_catchup and last_catchup.get("at") else 0) or None),
+         "counts": {"served_reconcile": c("catchup_served_reconcile"), "served_events": c("catchup_served_events"),
+                    "denied_unknown_peer": c("catchup_denied_unknown_peer")}},
+        {"id": "signaling", "name": "OmniCast signaling mailbox (memory only)", "state": "up",
+         "queued": sig["queued"], "recipients": sig["recipients"], "ttl_s": int(SIGNAL_TTL_S),
+         "last_seen_ago_s": _ago(max(last.get("signal_sends_ok") or 0, last.get("signal_polls_ok") or 0) or None),
+         "counts": {"sends_ok": c("signal_sends_ok"), "sends_rejected": c("signal_sends_rejected"),
+                    "polls_ok": c("signal_polls_ok"), "delivered": c("signal_delivered"),
+                    "ice_config_ok": c("signal_ice_config_ok")}},
+        {"id": "turn", "name": "TURN relay credentials (ice-config)",
+         "state": "configured" if (turn_urls and turn_secret) else "off",
+         "configured": bool(turn_urls and turn_secret),
+         "detail": None if (turn_urls and turn_secret) else (
+             f"{TURN_URLS_ENV} set but {TURN_SECRET_ENV} missing" if turn_urls else "STUN only"),
+         "last_seen_ago_s": _ago(last.get("signal_ice_config_ok"))},
+    ]
+
+    hub_token_age = None
+    if HUB_REMOTE:
+        try:
+            hub_token_age = round(now - hub_token_path().stat().st_mtime, 1)
+        except OSError:
+            hub_token_age = None
+    rejected_sig_by_code = {k.rsplit("_", 1)[1]: v for k, v in counts.items()
+                            if k.startswith("signal_sends_rejected_")}
+    security = {
+        "events_stored_local_signed": c("events_stored_local"),
+        "events_verified_from_peers": c("events_stored_peer"),
+        "events_rejected_signature": c("events_rejected_signature"),
+        "events_rejected_untrusted": c("events_rejected_untrusted"),
+        "events_rejected_invalid": c("events_rejected_invalid"),
+        "events_duplicate": c("events_duplicate"),
+        "last_signature_reject_ago_s": _ago(last.get("events_rejected_signature")),
+        "signal_sends_rejected": c("signal_sends_rejected"),
+        "signal_sends_rejected_by_status": rejected_sig_by_code,
+        "signal_polls_rejected": c("signal_polls_rejected"),
+        "beacons_rejected_signature": c("beacons_rejected_signature"),
+        "bearer_auth_failures": c("bearer_auth_failures"),
+        "last_bearer_failure_ago_s": _ago(last.get("bearer_auth_failures")),
+        "remote_denied_loopback_only": c("api_denied_loopback_only"),
+        "trusted_keys_allowlist": None if STATE.trusted_keys is None else len(STATE.trusted_keys),
+        "remote_hub": HUB_REMOTE,
+        "hub_token_age_s": hub_token_age,
+        "unsigned_rows_in_store": store["unsigned_rows"],
+    }
+    users = {
+        "identities_seen": store["identities"], "active_24h": store["active_24h"],
+        "active_7d": store["active_7d"], "new_7d": store["first_seen_7d"],
+        "bug_reports": store["bug_reports"],
+        "basis": "distinct signing pubkeys in stored events (author or app_author_pubkey), "
+                 "this node excluded; activity by signed event time",
+    }
+    services = {
+        "daemon_version": VERSION, "uptime_seconds": round(now - STATE.start_time, 1),
+        "node_id_prefix": _prefix(STATE.node_id), "mesh_id": STATE.mesh_id,
+        "event_store": {"total_events": store["total_events"], "db_bytes": store["db_bytes"],
+                        "last_event_ago_s": None if store["last_event_ms"] is None
+                        else round(max(0, now_ms() - store["last_event_ms"]) / 1000.0, 1),
+                        "events_by_action": dict(sorted(store["by_action"].items(),
+                                                        key=lambda kv: -kv[1])[:20])},
+        "omnimind_agent": {"live": omnimind_age is not None and omnimind_age < OMNIMIND_STALE_SECONDS,
+                           "last_report_ago_s": None if omnimind_age is None else round(omnimind_age, 1)},
+    }
+    return {"status": "OK", "schema": TELEMETRY_SCHEMA, "version": VERSION, "generated_at_ms": now_ms(),
+            "counters_since_ms": int(STATE.start_time * 1000),
+            "counters_note": "since-start counters are in memory and reset when the daemon restarts",
+            "protocols": protocols, "security": security, "finance": _finance_summary(),
+            "users": users, "services": services}
+
 def _is_loopback(ip: str) -> bool:
     return ip in ("127.0.0.1", "::1", "::ffff:127.0.0.1") or ip.startswith("127.")
 
@@ -1706,14 +1987,18 @@ def remote_gate(handler, method: str, path: str) -> bool:
     """True if the request may proceed. Loopback: always (unchanged behavior). Non-loopback: only
     with remote hub enabled, an allowed path and a valid bearer token; otherwise sends 403/401."""
     if _is_loopback(handler.client_address[0]):
+        TELEMETRY.inc("api_requests_loopback")
         return True
     allowed = REMOTE_POST_PATHS if method == "POST" else REMOTE_GET_PATHS
     if not HUB_REMOTE or STATE.hub_token is None or path not in allowed:
+        TELEMETRY.inc("api_denied_loopback_only")
         _deny(handler, 403, "loopback only")
         return False
     if not check_bearer(handler.headers.get("Authorization"), STATE.hub_token):
+        TELEMETRY.inc("bearer_auth_failures")
         _deny(handler, 401, "missing or invalid bearer token")
         return False
+    TELEMETRY.inc("api_requests_remote")
     return True
 
 def _deny(handler, code: int, message: str):
@@ -1920,6 +2205,15 @@ class ContinuityIPCHandler(BaseHTTPRequestHandler):
             resp, status = signal_ice_config(query)
             self._send_json(status, resp)
             return
+        if path == "/api/telemetry/summary":
+            if query:
+                self._send_json(400, {"status": "ERROR", "message": "no parameters accepted"})
+                return
+            try:
+                self._send_json(200, build_telemetry_summary())
+            except Exception as e:
+                self._send_json(500, {"status": "ERROR", "message": f"telemetry summary failed: {type(e).__name__}"})
+            return
         if path == "/api/events/feed":
             try:
                 q = parse_feed_query(query)
@@ -2057,6 +2351,7 @@ class P2PSyncHandler(BaseHTTPRequestHandler):
         """403 before any parsing/verification/storage. The body is drained unread (capped) so the
         client gets the response instead of a connection reset."""
         log_mesh_reject_once(self.client_address[0], their_mesh, "P2P sync")
+        TELEMETRY.inc("p2p_rejected_mesh")
         try:
             remaining = min(int(self.headers.get("Content-Length", 0) or 0), MAX_PAYLOAD_SIZE)
         except ValueError:
@@ -2094,6 +2389,7 @@ class P2PSyncHandler(BaseHTTPRequestHandler):
                 self.reject_mesh(their_mesh)
                 return
             if not catchup_peer_allowed(self.client_address[0]):
+                TELEMETRY.inc("catchup_denied_unknown_peer")
                 _deny(self, 403, "catch-up is only served to known peers on this mesh")
                 return
             try:
@@ -2113,6 +2409,7 @@ class P2PSyncHandler(BaseHTTPRequestHandler):
                 resp_data, status_code = handler(data)
             except Exception as e:
                 resp_data, status_code = {"status": "ERROR", "message": f"catch-up failed: {e}"}, 500
+            TELEMETRY.inc("catchup_served_reconcile" if self.path == "/p2p/reconcile" else "catchup_served_events")
             self._json_reply(status_code, resp_data)
             return
         if self.path == "/p2p/sync":
@@ -2127,6 +2424,7 @@ class P2PSyncHandler(BaseHTTPRequestHandler):
 
             post_body = self.rfile.read(content_len).decode("utf-8") if content_len > 0 else "{}"
             origin_ip = self.client_address[0]
+            TELEMETRY.inc("p2p_sync_requests")
 
             try:
                 data = json.loads(post_body)
@@ -2164,6 +2462,7 @@ def main():
     turn_on = bool(os.environ.get(TURN_URLS_ENV, "").strip() and os.environ.get(TURN_SECRET_ENV, "").strip())
     print(f"[✓] OmniCast signaling:   POST http://{IPC_HOST}:{CONTINUITY_IPC_PORT}/api/signal/send  (poll: GET /api/signal/poll; "
           f"memory only, {int(SIGNAL_TTL_S)}s TTL; ICE: {'STUN + TURN' if turn_on else 'STUN only (set OMNI_TURN_URLS + OMNI_TURN_SECRET for TURN)'})")
+    print(f"[✓] Telemetry summary:    GET http://{IPC_HOST}:{CONTINUITY_IPC_PORT}/api/telemetry/summary  (aggregates only)")
     print(f"[✓] P2P Sync Server Bound: http://{P2P_HOST}:{P2P_SYNC_PORT}/p2p/sync")
     print(f"[✓] UDP Subnet Discovery: Listening on port {UDP_DISCOVERY_PORT}...")
     if STATE.trusted_keys is None:

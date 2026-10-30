@@ -201,7 +201,7 @@ class SignalMailboxTests(unittest.TestCase):
         shutil.rmtree(cls.tmp, ignore_errors=True)
 
     def test_version(self):
-        self.assertEqual(self.d.version, "8.11.0")
+        self.assertEqual(self.d.version, "8.12.0")
 
     def test_send_poll_delivers_once_and_verifies_end_to_end(self):
         alice, bob = Key(), Key()

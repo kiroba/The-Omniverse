@@ -32,6 +32,9 @@ _PYPATH = os.pathsep.join(p for p in sys.path if p)
 
 import omni_signing as sig  # noqa: E402
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from daemon_version import DAEMON_VERSION  # noqa: E402
+
 MESH = "catchup-test"
 PORTS = {
     "A": {"TELEMETRY_PORT": 19100, "CONTINUITY_IPC_PORT": 15000, "P2P_SYNC_PORT": 15005, "UDP_DISCOVERY_PORT": 19101},
@@ -301,7 +304,7 @@ class GateTests(unittest.TestCase):
         os.environ.pop("OMNI_SYNC_PEERS", None)
 
     def test_version(self):
-        self.assertEqual(self.d.VERSION, "8.8.1")
+        self.assertEqual(self.d.VERSION, DAEMON_VERSION)
 
     def test_parse_sync_peers(self):
         p = self.d.parse_sync_peers

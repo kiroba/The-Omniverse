@@ -34,6 +34,9 @@ os.chdir(_TMP)
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey  # noqa: E402
 import omni_signing as sig  # noqa: E402
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from daemon_version import DAEMON_VERSION  # noqa: E402
 daemon = importlib.import_module("omni_live_daemon_server")  # noqa: E402
 daemon.relay_event_to_peers = lambda *a, **k: None  # no network in tests
 
@@ -161,7 +164,7 @@ class RemoteHubTests(unittest.TestCase):
     def test_remote_good_token_200(self):
         code, body = _http(self.remote(self.ipc, "/api/events/feed?limit=5"), headers=self.auth())
         self.assertEqual(code, 200, body)
-        self.assertEqual(body["version"], "8.8.1")
+        self.assertEqual(body["version"], DAEMON_VERSION)
         code, body = _http(self.remote(self.tel, "/api/v1/telemetry/node-health"), headers=self.auth())
         self.assertEqual(code, 200, body)
 

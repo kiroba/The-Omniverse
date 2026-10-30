@@ -19,6 +19,9 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from daemon_version import DAEMON_VERSION  # noqa: E402
+
 ROOT = Path(__file__).resolve().parent.parent
 ADMIN = ROOT / "Admin"
 
@@ -141,7 +144,7 @@ class CreditsLedgerTests(unittest.TestCase):
         shutil.rmtree(cls.tmp, ignore_errors=True)
 
     def test_version(self):
-        self.assertEqual(self.d.version, "8.12.0")
+        self.assertEqual(self.d.version, DAEMON_VERSION)
 
     def test_grant_once(self):
         a = _pk(0xA1)

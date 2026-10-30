@@ -130,7 +130,7 @@ class BugReportDaemonTests(unittest.TestCase):
         shutil.rmtree(cls.tmp, ignore_errors=True)
 
     def test_version(self):
-        self.assertEqual(self.d.version, "8.10.0")
+        self.assertEqual(self.d.version, "8.11.0")
 
     def test_post_list_and_triage_verifies(self):
         code, body = self.d.report(SAMPLE)

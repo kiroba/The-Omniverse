@@ -28,6 +28,9 @@ ADMIN = ROOT / "Admin"
 sys.path.insert(0, str(ADMIN))
 from omni_signing import canonical_event_bytes  # noqa: E402  (pure function, no key files touched)
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from daemon_version import DAEMON_VERSION  # noqa: E402
+
 _OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 _PYPATH = os.pathsep.join(p for p in [os.environ.get("PYTHONPATH", ""), str(ADMIN)] if p)
 TURN_SECRET = "telemetry-test-secret-not-real"
@@ -176,10 +179,10 @@ class TelemetrySummaryTests(unittest.TestCase):
         shutil.rmtree(cls.tmp, ignore_errors=True)
 
     def test_version_and_shape(self):
-        self.assertEqual(self.d.version, "8.12.0")
+        self.assertEqual(self.d.version, DAEMON_VERSION)
         code, s, _ = self.d.summary()
         self.assertEqual(code, 200, s)
-        self.assertEqual((s["status"], s["schema"], s["version"]), ("OK", 1, "8.12.0"))
+        self.assertEqual((s["status"], s["schema"], s["version"]), ("OK", 1, DAEMON_VERSION))
         for section in ("protocols", "security", "finance", "users", "services"):
             self.assertIn(section, s)
         ids = [p["id"] for p in s["protocols"]]
@@ -187,7 +190,7 @@ class TelemetrySummaryTests(unittest.TestCase):
         for p in s["protocols"]:
             self.assertIn("state", p)
             self.assertIn("last_seen_ago_s", p)
-        self.assertEqual(s["services"]["daemon_version"], "8.12.0")
+        self.assertEqual(s["services"]["daemon_version"], DAEMON_VERSION)
         self.assertEqual(s["services"]["node_id_prefix"], self.d.node_id[:12])
         self.assertGreater(s["services"]["event_store"]["total_events"], 0)   # genesis
         self.assertEqual(self.d.proto(s, "turn")["configured"], False)

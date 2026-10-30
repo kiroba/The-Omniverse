@@ -28,6 +28,9 @@ from pathlib import Path
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from daemon_version import DAEMON_VERSION  # noqa: E402
+
 ROOT = Path(__file__).resolve().parent.parent
 ADMIN = ROOT / "Admin"
 
@@ -201,7 +204,7 @@ class SignalMailboxTests(unittest.TestCase):
         shutil.rmtree(cls.tmp, ignore_errors=True)
 
     def test_version(self):
-        self.assertEqual(self.d.version, "8.12.0")
+        self.assertEqual(self.d.version, DAEMON_VERSION)
 
     def test_send_poll_delivers_once_and_verifies_end_to_end(self):
         alice, bob = Key(), Key()

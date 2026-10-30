@@ -23,6 +23,9 @@ ADMIN = ROOT / "Admin"
 sys.path.insert(0, str(ADMIN))
 import omnimind_bug_triage_utility as triage  # noqa: E402
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from daemon_version import DAEMON_VERSION  # noqa: E402
+
 _OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 _PYPATH = os.pathsep.join(p for p in [os.environ.get("PYTHONPATH", ""), str(ADMIN)] if p)
 
@@ -130,7 +133,7 @@ class BugReportDaemonTests(unittest.TestCase):
         shutil.rmtree(cls.tmp, ignore_errors=True)
 
     def test_version(self):
-        self.assertEqual(self.d.version, "8.12.0")
+        self.assertEqual(self.d.version, DAEMON_VERSION)
 
     def test_post_list_and_triage_verifies(self):
         code, body = self.d.report(SAMPLE)

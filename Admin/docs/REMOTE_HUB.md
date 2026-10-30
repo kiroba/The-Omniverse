@@ -5,6 +5,8 @@ run on the same phone as the daemon. Remote hub mode lets **phone A** run the da
 **phone B** use it over the internet through **Tailscale** (free personal plan). Nothing changes
 unless you turn it on.
 
+Remote testers with their own Tailscale accounts: see [TESTER_GUIDE.md](TESTER_GUIDE.md).
+
 ## What it does
 
 | Setting | Meaning |

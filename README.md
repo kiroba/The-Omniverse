@@ -26,7 +26,7 @@ Signed builds are on the [Releases page](https://github.com/kiroba/The-Omniverse
 | Omni-Hub daemon | Local hub: signed event log, peer sync (negentropy catch-up), remote hub over Tailscale, test-credits ledger, OmniCast signaling | [kiroba/The-Omni-Hub](https://github.com/kiroba/The-Omni-Hub) |
 | Omni-Core-UI | Shared Flutter package: Ed25519 identity, local event store, hub client, signed OTA updates, status badges | [kiroba/Omni-Core-UI](https://github.com/kiroba/Omni-Core-UI) |
 | OmniMind | AI agent that maintains the worlds and runs every game NPC, including NPCs built by community devs | [kiroba/OmniMind](https://github.com/kiroba/OmniMind) |
-| Continuity Engine | Newsfeed-based profiles | [kiroba/Continuity-Engine](https://github.com/kiroba/Continuity-Engine) |
+| Continuity Engine | Part of the ingestion system: brings content and linked social profiles into the mesh as newsfeed-based profiles | [kiroba/Continuity-Engine](https://github.com/kiroba/Continuity-Engine) |
 
 ## How it fits together
 

@@ -14,6 +14,7 @@
 <header class="nav">
   <a class="brand" href="#">◎ The Omniverse</a>
   <nav>
+    <a href="#test">Test now</a>
     <a href="#apps">Apps</a>
     <a href="#releases">Releases</a>
     <a href="#roadmap">Roadmap</a>
@@ -29,10 +30,33 @@
     <h1>The Omniverse<br><span>& The KickBack</span></h1>
     <p class="lede">A social hub that runs on your devices, not someone's cloud. Every event is signed, chained, and synced directly between peers.</p>
     <div class="cta">
-      <a id="primary-dl" class="btn primary" href="#apps">Get the app</a>
-      <a class="btn ghost" href="#releases">All downloads</a>
+      <a class="btn primary" href="#test">Start testing</a>
+      <a id="primary-dl" class="btn ghost" href="#releases">All downloads</a>
     </div>
     <p id="detect" class="muted small"></p>
+  </section>
+
+  <section id="test">
+    <div class="section-head"><h2>Tester steps · Round 1 (Oct 31 2026)</h2></div>
+    <p class="muted">Pre-alpha. Android only. Do these in order. Only the apps in this round are listed here; everything else under Apps is for later rounds.</p>
+    <div class="grid">
+      <div class="card"><div class="icon">①</div><h3>Omni Node (the daemon)</h3>
+        <p>Install it, open it and turn the <b>Network</b> switch on. Allow notifications and "keep running in background". You should see "Looking for nearby people..." or "Connected to N nearby". If it says "Problem:" or the switch won't stay on, report it (step 5) before going further.</p>
+        <div class="actions"><a class="btn sm primary" href="https://github.com/kiroba/Omni-Node-Daemon/releases/download/v0.1.0-prealpha/app-debug.apk">Download Omni Node</a></div></div>
+      <div class="card"><div class="icon">②</div><h3>KickBack Social</h3>
+        <p>Install, accept the tester consent screen, make a post and react to one. Use the in-app Bug report button for anything odd.</p>
+        <div class="actions"><a class="btn sm primary" href="https://github.com/kiroba/The-Omniverse/releases/download/v0.1.14/kickback-social-android-arm64.apk">Download KickBack</a></div></div>
+      <div class="card"><div class="icon">③</div><h3>OmniCast (look only)</h3>
+        <p>Open it and look around Classroom Mode. Video calls are <b>not working yet</b>; tell us what you think of the screens.</p>
+        <div class="actions"><a class="btn sm primary" href="https://github.com/kiroba/The-Omniverse/releases/download/v0.1.14/omnicast-android-arm64.apk">Download OmniCast</a></div></div>
+      <div class="card"><div class="icon">④</div><h3>Omni Hub (preview of the final look)</h3>
+        <p>Last step. If the Omniverse Superapp is installed, uninstall it first (they share an app ID). This shows where everything is heading.</p>
+        <div class="actions"><a class="btn sm primary" href="https://github.com/kiroba/The-Omni-Hub/releases/download/v5.4.0-prealpha/omniverse-superapp-android-arm64.apk">Download Omni Hub</a></div></div>
+      <div class="card"><div class="icon">⑤</div><h3>Report a problem</h3>
+        <p>Say which app and step, what you expected, what happened, and your phone model and Android version. A screenshot helps.</p>
+        <div class="actions"><a class="btn sm" href="https://github.com/kiroba/The-Omniverse/issues/new?title=%5BTester%5D%20&labels=tester-report">Open a report</a></div></div>
+    </div>
+    <p class="muted small">Android may warn about installing from your browser: allow "Install unknown apps" for it, then install.</p>
   </section>
 
   <section id="apps">

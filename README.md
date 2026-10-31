@@ -1,6 +1,8 @@
 # The Omniverse
 
-A peer-to-peer social and gaming ecosystem. Each person's phone or PC runs a small local hub, and the hubs sync signed events directly with each other, over LAN or Tailscale, with no central server. The apps only talk to their own local hub.
+**Rule one: human first. Simple, human first.**
+
+The Omniverse is the whole ecosystem, a peer-to-peer social and gaming world. Each person's phone or PC runs a small local hub, and the hubs sync signed events directly with each other, over LAN or Tailscale, with no central server. The apps only talk to their own local hub.
 
 **Status: pre-alpha.** Android only (arm64, Android 8.0+). Testing with a small, invited group. Test credits have no cash value.
 
@@ -17,26 +19,35 @@ Signed builds are on the [Releases page](https://github.com/kiroba/The-Omniverse
 | Idle Plaza | Halo Plaza idle and brawler game | [kiroba/Idle-Plaza](https://github.com/kiroba/Idle-Plaza) |
 | Phaser Studio | 2D creator suite for games and mods | [kiroba/Phaser-Studio](https://github.com/kiroba/Phaser-Studio) |
 | Mesh Monitor | Health and telemetry dashboard for your hub and the mesh | [kiroba/Mesh-Monitor](https://github.com/kiroba/Mesh-Monitor) |
-| Omniverse Superapp | Every experience in one app | [kiroba/Omniverse-Superapp](https://github.com/kiroba/Omniverse-Superapp) |
+| The Omni-Hub | The superapp: one container that holds every Omniverse experience | [kiroba/The-Omni-Hub](https://github.com/kiroba/The-Omni-Hub) |
 
 ## Core pieces
 
 | Piece | What it does | Repo |
 | --- | --- | --- |
-| Omni-Hub daemon | Local hub: signed event log, peer sync (negentropy catch-up), remote hub over Tailscale, test-credits ledger, OmniCast signaling | [kiroba/The-Omni-Hub](https://github.com/kiroba/The-Omni-Hub) |
+| Omni daemon | The networked protocol on each device: signed event log, peer sync (negentropy catch-up), remote access over Tailscale, test-credits ledger, OmniCast signaling | [kiroba/Omni-Daemon](https://github.com/kiroba/Omni-Daemon) |
 | Omni-Core-UI | Shared Flutter package: Ed25519 identity, local event store, hub client, signed OTA updates, status badges | [kiroba/Omni-Core-UI](https://github.com/kiroba/Omni-Core-UI) |
 | OmniMind | AI agent that maintains the worlds and runs every game NPC, including NPCs built by community devs | [kiroba/OmniMind](https://github.com/kiroba/OmniMind) |
-| Continuity Engine | Newsfeed-based profiles | [kiroba/Continuity-Engine](https://github.com/kiroba/Continuity-Engine) |
+| Continuity Engine | Profile ingestion: takes profiles from the daemons on each device and combines them into one | [kiroba/Continuity-Engine](https://github.com/kiroba/Continuity-Engine) |
 
 ## How it fits together
 
+| Level | What it is |
+| --- | --- |
+| The Omniverse | The whole ecosystem |
+| The Omni-Hub | The superapp people open: the container for every experience |
+| Apps | KickBack, OmniCast, Idle Plaza, Phaser Studio, Mesh Monitor |
+| Continuity Engine | Combines a person's profile across their devices' daemons |
+| Omni daemon | The network protocol on each device |
+| OmniMind | Runs the worlds and every NPC |
+
 ```
- App (Flutter)  ──loopback──▶  Local Omni-Hub  ◀──signed sync──▶  Other hubs
+ App (Flutter)  ──loopback──▶  Local Omni daemon  ◀──signed sync──▶  Other daemons
    uses Omni-Core-UI            (:5000 / :9100)     (:5005, LAN or Tailscale)
 ```
 
 - Every event is Ed25519-signed and hash-chained, and every hub verifies it.
-- Apps never talk to peers directly. Only the hub does.
+- Apps never talk to peers directly. Only the daemon does.
 - Hosting costs about $0: GitHub Pages for the site, GitHub Releases for binaries, and the free Actions tier for builds.
 
 ## This repo

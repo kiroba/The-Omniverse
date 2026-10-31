@@ -1,11 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.omniverse.omnicast.omnicast">
     <application
-        android:name="android.app.Application"
         android:label="omnicast"
         android:icon="@mipmap/ic_launcher">
         <activity
-            android:name="com.omniverse.omnicast.omnicast.MainActivity"
+            android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
             android:taskAffinity=""

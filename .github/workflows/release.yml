@@ -3,6 +3,10 @@ name: Publish Release (APKs + Windows)
 # Push a tag like v0.9.0 (or run manually) to build every app and publish
 # a GitHub Release. Releases are free hosting for binaries on public repos,
 # and the Pages site picks up new downloads automatically.
+#
+# Each app is built from its own repo (kiroba/<repo>, branch `main` unless the
+# run names another ref), not generated from mobile/lib. This repo only holds the
+# release: one tag, one signing key, one update manifest, stable download links.
 on:
   push:
     tags: ["v*"]
@@ -11,6 +15,10 @@ on:
       tag:
         description: "Release tag (e.g. v0.9.0)"
         required: true
+      app_ref:
+        description: "Branch, tag or commit to build in every app repo"
+        required: false
+        default: main
 
 permissions:
   contents: write
@@ -21,6 +29,7 @@ env:
   # android job). The committed signing/omniverse-test.p12 is only for CI/test builds
   # (build_apk.yml and the install-test workflows), never for GitHub Releases.
   OMNI_VERSION_CODE: ${{ github.run_number }}
+  APP_REF: ${{ github.event.inputs.app_ref || 'main' }}
 
 jobs:
   android:
@@ -38,19 +47,24 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { folder: omniverse_superapp_master, slug: omniverse-superapp }
-          - { folder: kickback_main_standalone,  slug: kickback-social }
-          - { folder: idle_plaza_standalone,     slug: idle-plaza }
-          - { folder: mesh_monitor_standalone,   slug: mesh-monitor }
-          - { folder: phaser_studio_standalone,  slug: phaser-studio }
+          # slug = asset name, unchanged so download links and installed apps keep working.
+          - { repo: The-Omni-Hub,  slug: omniverse-superapp }
+          - { repo: KickBack,      slug: kickback-social }
+          - { repo: Idle-Plaza,    slug: idle-plaza }
+          - { repo: Mesh-Monitor,  slug: mesh-monitor }
+          - { repo: Phaser-Studio, slug: phaser-studio }
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out ${{ matrix.repo }}
+        uses: actions/checkout@v4
+        with:
+          repository: kiroba/${{ matrix.repo }}
+          ref: ${{ env.APP_REF }}
+          path: app
+      - name: Record source commit
+        run: |
+          echo "- ${{ matrix.slug }} from kiroba/${{ matrix.repo }}@$(git -C app rev-parse --short HEAD)" > "${{ matrix.slug }}.source"
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
-      - name: Generate app workspaces
-        run: |
-          python3 organize_project.py || true
-          python3 build_multi_app_suite.py || python3 scripts/build_multi_app_suite.py
       - uses: actions/setup-java@v4
         with: { java-version: "17", distribution: temurin }
       - name: Release signing key (fails the release if the secrets are missing)
@@ -119,7 +133,7 @@ jobs:
             echo "::warning::OMNI_OTA_SIGNING_KEY not set: update manifests are unsigned (HTTPS + SHA-256 only)"
           fi
       - name: Build APK
-        working-directory: apps/${{ matrix.folder }}/mobile
+        working-directory: app
         run: |
           flutter pub get
           flutter build apk --release --target-platform android-arm64 --android-skip-build-dependency-validation \
@@ -147,7 +161,9 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.slug }}
-          path: ${{ matrix.slug }}-android-arm64.apk
+          path: |
+            ${{ matrix.slug }}-android-arm64.apk
+            ${{ matrix.slug }}.source
           retention-days: 3
 
   windows:
@@ -160,27 +176,27 @@ jobs:
       matrix:
         include:
           # Superapp: unchanged asset name (omniverse-windows-x64.zip).
-          - { folder: omniverse_superapp_master, slug: omniverse-superapp, zip: omniverse-windows-x64.zip, title: The Omniverse }
-          # KickBack desktop: talks to the daemon on this PC (127.0.0.1) or a remote hub over Tailscale.
-          - { folder: kickback_main_standalone,  slug: kickback-social,    zip: kickback-social-windows-x64.zip, title: The KickBack }
+          # project = the app repo's pubspec name.
+          - { repo: The-Omni-Hub, project: omniverse_superapp, slug: omniverse-superapp, zip: omniverse-windows-x64.zip, title: The Omni-Hub }
+          # KickBack desktop: talks to the daemon on this PC (127.0.0.1) or a remote one over Tailscale.
+          - { repo: KickBack,     project: kickback,           slug: kickback-social,    zip: kickback-social-windows-x64.zip, title: The KickBack }
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: { python-version: "3.11" }
-      - name: Generate app workspaces
-        shell: pwsh
-        env: { PYTHONIOENCODING: utf-8 }
-        run: python build_multi_app_suite.py
+      - name: Check out ${{ matrix.repo }}
+        uses: actions/checkout@v4
+        with:
+          repository: kiroba/${{ matrix.repo }}
+          ref: ${{ env.APP_REF }}
+          path: app
       - uses: subosito/flutter-action@v2
         with: { channel: stable, cache: true }
       - name: Build Windows
-        # The generator only scaffolds Android; add a Windows runner to the generated app.
-        working-directory: apps/${{ matrix.folder }}/mobile
+        # App repos only carry Android; add a Windows runner at build time.
+        working-directory: app
         shell: pwsh
         run: |
           flutter config --enable-windows-desktop
-          flutter create --platforms=windows --project-name ${{ matrix.folder }} .
-          (Get-Content windows\runner\main.cpp) -replace 'L"${{ matrix.folder }}"', 'L"${{ matrix.title }}"' | Set-Content windows\runner\main.cpp
+          flutter create --platforms=windows --project-name ${{ matrix.project }} .
+          (Get-Content windows\runner\main.cpp) -replace 'L"${{ matrix.project }}"', 'L"${{ matrix.title }}"' | Set-Content windows\runner\main.cpp
           # local_auth_windows compiles with /await (experimental coroutines), a hard error (STL1011) on
           # MSVC 14.5x / VS 2026 runners. Silence it for every plugin target until upstream moves to C++20 <coroutine>.
           $cm = Get-Content windows\CMakeLists.txt -Raw
@@ -208,6 +224,11 @@ jobs:
         with: { path: dist, merge-multiple: true }
       - name: List binaries
         run: ls -la dist
+      - name: Release notes (which app commit each APK came from)
+        run: |
+          { echo "Built from the app repos:"; cat dist/*.source; } > notes.md
+          rm -f dist/*.source
+          cat notes.md
       - name: Check every asset is present (releases are immutable)
         run: |
           missing=0
@@ -253,5 +274,6 @@ jobs:
         with:
           tag_name: ${{ env.TAG }}
           name: The Omniverse ${{ env.TAG }}
+          body_path: notes.md
           generate_release_notes: true
           files: dist/*

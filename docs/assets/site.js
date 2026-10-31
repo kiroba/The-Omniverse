@@ -5,7 +5,7 @@ const API = `https://api.github.com/repos/${REPO}`;
 
 // Each app maps to a release asset file name (set in .github/workflows/release.yml).
 const APPS = [
-  { id: "superapp", name: "Omniverse Superapp", icon: "◎", platform: "android", asset: "omniverse-superapp-android-arm64.apk",
+  { id: "superapp", name: "The Omni-Hub", icon: "◎", platform: "android", asset: "omniverse-superapp-android-arm64.apk",
     desc: "Every Omniverse experience in one app." },
   { id: "kickback", name: "The KickBack", icon: "💬", platform: "android", asset: "kickback-social-android-arm64.apk",
     desc: "The human-verified social feed." },
@@ -15,8 +15,12 @@ const APPS = [
     desc: "Watch your peers and mesh health live." },
   { id: "phaser", name: "OmniPhaser Studio", icon: "🎨", platform: "android", asset: "phaser-studio-android-arm64.apk",
     desc: "2D creation studio." },
-  { id: "windows", name: "Omniverse for Windows", icon: "🪟", platform: "windows", asset: "omniverse-windows-x64.zip",
+  { id: "omnicast", name: "OmniCast", icon: "📺", platform: "android", asset: "omnicast-android-arm64.apk",
+    desc: "Classroom Mode preview. Live calls aren't wired yet." },
+  { id: "windows", name: "The Omni-Hub for Windows", icon: "🪟", platform: "windows", asset: "omniverse-windows-x64.zip",
     desc: "Desktop app for Windows 10 and 11 (x64)." },
+  { id: "kickback-win", name: "The KickBack for Windows", icon: "💬", platform: "windows", asset: "kickback-social-windows-x64.zip",
+    desc: "KickBack on your PC, talking to the daemon here or over Tailscale." },
   { id: "builder", name: "Interactive GUI Builder", icon: "🛠", platform: "tools", href: "downloads/omniverse_interactive_gui_builder.py",
     desc: "Python desktop panel for standalone builds." },
 ];

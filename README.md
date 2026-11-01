@@ -25,7 +25,8 @@ Signed builds are on the [Releases page](https://github.com/kiroba/The-Omniverse
 
 | Piece | What it does | Repo |
 | --- | --- | --- |
-| Omni daemon | The networked protocol on each device: signed event log, peer sync (negentropy catch-up), remote access over Tailscale, test-credits ledger, OmniCast signaling | [kiroba/Omni-Daemon](https://github.com/kiroba/Omni-Daemon) |
+| Omni daemon | The networked protocol on each device: signed event log, peer sync (negentropy catch-up), Internet reach without Tailscale, self-hosted call relay (STUN/TURN), test-credits ledger, OmniCast signaling | [kiroba/Omni-Daemon](https://github.com/kiroba/Omni-Daemon) |
+| Omni Node | The daemon as its own Android app: one Network switch, nearby radios (BLE, Wi-Fi Aware), Connect apps token, opt-in Relay calls | [kiroba/Omni-Node-Daemon](https://github.com/kiroba/Omni-Node-Daemon) |
 | Omni-Core-UI | Shared Flutter package: Ed25519 identity, local event store, hub client, signed OTA updates, status badges | [kiroba/Omni-Core-UI](https://github.com/kiroba/Omni-Core-UI) |
 | OmniMind | AI agent that maintains the worlds and runs every game NPC, including NPCs built by community devs | [kiroba/OmniMind](https://github.com/kiroba/OmniMind) |
 | Continuity Engine | Profile ingestion: takes profiles from the daemons on each device and combines them into one | [kiroba/Continuity-Engine](https://github.com/kiroba/Continuity-Engine) |
@@ -48,6 +49,7 @@ Signed builds are on the [Releases page](https://github.com/kiroba/The-Omniverse
 
 - Every event is Ed25519-signed and hash-chained, and every hub verifies it.
 - Apps never talk to peers directly. Only the daemon does.
+- No third-party servers, calls included: OmniCast connects directly when it can, otherwise through another Omni node's built-in relay (desktops by default; phones opt in, Wi-Fi + charging only). In review and not field-tested yet.
 - Hosting costs about $0: GitHub Pages for the site, GitHub Releases for binaries, and the free Actions tier for builds.
 
 ## This repo

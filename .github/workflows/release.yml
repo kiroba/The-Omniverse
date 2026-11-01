@@ -55,6 +55,8 @@ jobs:
           - { repo: Phaser-Studio, slug: phaser-studio }
           # OmniCast: Classroom Mode UI preview; live WebRTC calls aren't wired yet.
           - { repo: OmniCast,      slug: omnicast }
+          # Plaza Brawler: offline fighter for now (package com.omniverse.plazabrawler).
+          - { repo: Plaza-Brawler, slug: plaza-brawler }
     steps:
       - name: Check out ${{ matrix.repo }}
         uses: actions/checkout@v4
@@ -240,7 +242,7 @@ jobs:
       - name: Check every asset is present (releases are immutable)
         run: |
           missing=0
-          for f in omniverse-superapp kickback-social idle-plaza mesh-monitor phaser-studio omnicast; do
+          for f in omniverse-superapp kickback-social idle-plaza mesh-monitor phaser-studio omnicast plaza-brawler; do
             [ -s "dist/$f-android-arm64.apk" ] || { echo "::error::missing $f-android-arm64.apk"; missing=1; }
           done
           for f in omniverse-windows-x64.zip kickback-social-windows-x64.zip omni-node-windows-x64.zip; do

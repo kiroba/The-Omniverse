@@ -17,6 +17,7 @@ Signed builds are on the [Releases page](https://github.com/kiroba/The-Omniverse
 | KickBack | Human-first social feed: signed posts, profiles, wallet, biometric app lock | [kiroba/KickBack](https://github.com/kiroba/KickBack) |
 | OmniCast | 1:1 P2P video calls, and Classroom Mode (in development) | [kiroba/OmniCast](https://github.com/kiroba/OmniCast) |
 | Idle Plaza | Halo Plaza idle and brawler game | [kiroba/Idle-Plaza](https://github.com/kiroba/Idle-Plaza) |
+| Plaza Brawler | Offline fighting game for now (no online matches yet) | [kiroba/Plaza-Brawler](https://github.com/kiroba/Plaza-Brawler) |
 | Phaser Studio | 2D creator suite for games and mods | [kiroba/Phaser-Studio](https://github.com/kiroba/Phaser-Studio) |
 | Mesh Monitor | Health and telemetry dashboard for your hub and the mesh | [kiroba/Mesh-Monitor](https://github.com/kiroba/Mesh-Monitor) |
 | The Omni-Hub | The superapp: one container that holds every Omniverse experience | [kiroba/The-Omni-Hub](https://github.com/kiroba/The-Omni-Hub) |

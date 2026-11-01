@@ -41,9 +41,9 @@
     <div class="section-head"><h2>Tester steps · Round 1 (v0.1.15, Oct 31 2026)</h2></div>
     <p class="muted">Pre-alpha. Android only. Do these in order. Only the apps in this round are listed here; everything else under Apps is for later rounds.</p>
     <div class="grid">
-      <div class="card"><div class="icon">①</div><h3>Omni Node (the daemon)</h3>
-        <p>Uninstall any older Omni Node first. Install, open it and turn the <b>Network</b> switch on. Allow notifications and "keep running in background". The status card should go green or teal ("Connected to N nearby" / "Looking for nearby people..."). Then tap <b>Connect apps</b>, unlock, and <b>Copy token</b>. If the card turns red or the switch won't stay on, report it (step 5).</p>
-        <div class="actions"><a class="btn sm primary" href="https://github.com/kiroba/Omni-Node-Daemon/releases/download/v0.1.2-prealpha/app-debug.apk">Download Omni Node</a></div></div>
+      <div class="card"><div class="icon">①</div><h3>Omni Node 0.3 (the daemon)</h3>
+        <p>Uninstall any older Omni Node first. Install, open it and turn the <b>Network</b> switch on. Allow notifications and "keep running in background". The status card should go green or teal ("Connected to N nearby" / "Looking for nearby people..."). Allow "Nearby devices" if it asks. Then tap <b>Connect apps</b>, unlock, and <b>Copy token</b>. Leave <b>Relay calls</b> off for this round. If the card turns red or the switch won't stay on, report it (step 5).</p>
+        <div class="actions"><a class="btn sm primary" href="https://github.com/kiroba/Omni-Node-Daemon/releases/download/v0.3.0-prealpha/app-debug.apk">Download Omni Node</a></div></div>
       <div class="card"><div class="icon">②</div><h3>KickBack Social</h3>
         <p>Install and accept the tester consent screen. Open <b>Hub settings</b> (gear), choose <b>Remote hub</b>, type <b>127.0.0.1</b> and paste the token from step 1. Then make a post and react to one. Use the in-app Bug report button for anything odd.</p>
         <div class="actions"><a class="btn sm primary" href="https://github.com/kiroba/The-Omniverse/releases/download/v0.1.15/kickback-social-android-arm64.apk">Download KickBack</a></div></div>
@@ -64,8 +64,8 @@
     <div class="section-head"><h2>In the works · Nov 2026</h2></div>
     <p class="muted">Built and in review, not in the tester round yet. Nothing here is field-tested on real phones.</p>
     <div class="grid">
-      <div class="card"><h3>Omni Node 0.2</h3>
-        <p>Nearby discovery over Bluetooth and Wi-Fi Aware, an Add peer list, and an Internet line that says whether others can reach you. Nodes behind a home router join by dialing any reachable node. No Tailscale needed.</p></div>
+      <div class="card"><h3>Omni Node on your PC</h3>
+        <p>The same Omni Node screen on Windows, macOS and Linux: the same status words, Connect apps, Internet, Relay calls and Peers, with a tray icon and a "Start when I sign in" option.</p></div>
       <div class="card"><h3>Calls with no outside servers</h3>
         <p>OmniCast calls connect directly when they can. Otherwise they relay through another Omni node: desktops relay by default, and phones only if their owner turns on <b>Relay calls</b>, and only while charging on Wi-Fi, with a daily cap. No Google or Cloudflare servers.</p></div>
       <div class="card"><h3>OmniCast 1:1 calls</h3>

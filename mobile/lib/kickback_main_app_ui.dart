@@ -308,7 +308,12 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
     }
     switch (c?.state) {
       case HubConnectionState.unauthorized:
-        return (text: 'Remote hub: unauthorized • check the token in Settings', color: _red);
+        return (
+          text: remote
+              ? 'Remote hub: unauthorized • check the token in Settings'
+              : 'Omni Node: unauthorized • add its token in Settings',
+          color: _red
+        );
       case HubConnectionState.forbidden:
         return (text: 'Hub is not in remote mode • posts stay on this device', color: _red);
       case HubConnectionState.unreachable:
@@ -354,7 +359,11 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
       case HubConnectionState.connected:
         _snack(next.isRemote ? 'Connected to the remote hub.' : 'Using the daemon on this phone.', _teal);
       case HubConnectionState.unauthorized:
-        _snack('The hub refused the token (unauthorized). Copy it again from the hub phone.', _red);
+        _snack(
+            next.isRemote
+                ? 'The hub refused the token (unauthorized). Copy it again from the hub phone.'
+                : 'Omni Node refused the token. Copy it again from Omni Node > Connect apps.',
+            _red);
       case HubConnectionState.forbidden:
         _snack('That hub is not in remote mode. Start it with OMNI_HUB_REMOTE=1.', _red);
       case HubConnectionState.unreachable:
@@ -372,6 +381,7 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
     var mode = _hubSettings.mode;
     final addr = TextEditingController(text: _hubSettings.host);
     final token = TextEditingController(text: _hubSettings.token);
+    final localToken = TextEditingController(text: _hubSettings.localToken);
     final ipc = TextEditingController(text: '${_hubSettings.ipcPort}');
     final tel = TextEditingController(text: '${_hubSettings.telemetryPort}');
     var hideToken = true;
@@ -419,6 +429,21 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
                   subtitle: const Text('Another phone runs the daemon (e.g. over Tailscale)'),
                   contentPadding: EdgeInsets.zero,
                 ),
+                if (mode == HubMode.local) ...[
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: localToken,
+                    obscureText: hideToken,
+                    autocorrect: false,
+                    enableSuggestions: false,
+                    decoration: deco('Omni Node token',
+                        hint: 'Omni Node > Connect apps (leave empty for a Termux daemon)',
+                        suffix: IconButton(
+                          icon: Icon(hideToken ? Icons.visibility : Icons.visibility_off),
+                          onPressed: () => setSheet(() => hideToken = !hideToken),
+                        )),
+                  ),
+                ],
                 if (mode == HubMode.remote) ...[
                   const SizedBox(height: 8),
                   TextField(
@@ -476,6 +501,7 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
                             ipcPort: _hubSettings.ipcPort,
                             telemetryPort: _hubSettings.telemetryPort,
                             token: _hubSettings.token,
+                            localToken: localToken.text.trim(),
                           );
                         } else {
                           final parsed = HubSettings.parseAddress(addr.text);
@@ -500,6 +526,7 @@ class _KickBackMainScreenState extends State<KickBackMainScreen> {
                             ipcPort: ipcPort,
                             telemetryPort: telPort,
                             token: tok,
+                            localToken: _hubSettings.localToken,
                           );
                         }
                         Navigator.pop(sheetContext);

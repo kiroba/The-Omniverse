@@ -6,8 +6,11 @@ import 'kickback_platform.dart';
 /// ============================================================================
 /// KICKBACK HUB SETTING: which Omni-Hub (daemon) this app talks to
 /// ============================================================================
-/// - "This phone" (default): the daemon runs in Termux on this phone,
-///   127.0.0.1 :5000 / :9100, no token. Same as every earlier build.
+/// - "This phone" (default): the hub runs on this phone, 127.0.0.1 :5000 /
+///   :9100. Omni Node (the daemon as its own app) wants its local token on
+///   every loopback call: copy it from Omni Node > Connect apps into
+///   [HubSettings.localToken]; it is sent as "Authorization: Bearer <token>"
+///   (daemon v8.20.0+). Empty = no header, as with a plain Termux daemon.
 /// - "Remote hub": another phone runs the daemon (v8.7.0+, started with
 ///   OMNI_HUB_REMOTE=1) and this phone reaches it, usually over Tailscale
 ///   (its 100.x address). Every call sends "Authorization: Bearer <token>".
@@ -28,12 +31,16 @@ class HubSettings {
   final int telemetryPort;
   final String token;
 
+  /// Omni Node's local token for loopback calls (Omni Node > Connect apps).
+  final String localToken;
+
   const HubSettings({
     this.mode = HubMode.local,
     this.host = '',
     this.ipcPort = defaultIpcPort,
     this.telemetryPort = defaultTelemetryPort,
     this.token = '',
+    this.localToken = '',
   });
 
   bool get isRemote => mode == HubMode.remote && host.isNotEmpty;
@@ -48,7 +55,7 @@ class HubSettings {
           token: token,
           timeout: const Duration(seconds: 4),
         )
-      : const OmniHubClient();
+      : OmniHubClient(token: localToken.isEmpty ? null : localToken);
 
   String get label => isRemote ? 'Remote hub $host' : 'This $kickbackDeviceNoun (127.0.0.1)';
 
@@ -85,6 +92,7 @@ class HubSettingsStore {
   static const String _kIpc = 'kickback_hub_ipc_port_v1';
   static const String _kTel = 'kickback_hub_telemetry_port_v1';
   static const String _kToken = 'kickback_hub_token_v1';
+  static const String _kLocalToken = 'kickback_hub_local_token_v1';
 
   static const FlutterSecureStorage _storage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
@@ -98,12 +106,14 @@ class HubSettingsStore {
       final ipc = int.tryParse(await _storage.read(key: _kIpc) ?? '');
       final tel = int.tryParse(await _storage.read(key: _kTel) ?? '');
       final token = await _storage.read(key: _kToken) ?? '';
+      final localToken = await _storage.read(key: _kLocalToken) ?? '';
       return HubSettings(
         mode: mode == 'remote' && host.isNotEmpty ? HubMode.remote : HubMode.local,
         host: host,
         ipcPort: ipc ?? HubSettings.defaultIpcPort,
         telemetryPort: tel ?? HubSettings.defaultTelemetryPort,
         token: token,
+        localToken: localToken,
       );
     } catch (_) {
       return const HubSettings();
@@ -116,5 +126,6 @@ class HubSettingsStore {
     await _storage.write(key: _kIpc, value: '${s.ipcPort}');
     await _storage.write(key: _kTel, value: '${s.telemetryPort}');
     await _storage.write(key: _kToken, value: s.token);
+    await _storage.write(key: _kLocalToken, value: s.localToken);
   }
 }

@@ -135,3 +135,44 @@ async function init() {
 })();
 
 init();
+
+// ---- Tester report (no account): builds plain text, then the phone's share sheet or the clipboard.
+(function () {
+  var f = document.getElementById('tester-report');
+  if (!f) return;
+  var $ = function (id) { return document.getElementById(id); };
+  function text() {
+    return ['[Omniverse tester report]',
+      'App: ' + $('r-app').value,
+      'Step: ' + ($('r-step').value.trim() || '-'),
+      'What happened: ' + $('r-what').value.trim(),
+      'Phone: ' + ($('r-phone').value.trim() || '-'),
+      'Browser: ' + navigator.userAgent,
+      'Page: ' + location.href.split('#')[0]].join('\n');
+  }
+  function say(m) { $('r-msg').textContent = m; }
+  function ready() {
+    if (!$('r-what').value.trim()) { say('Please say what happened first.'); $('r-what').focus(); return false; }
+    return true;
+  }
+  function copy(t) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(t).then(function () { say('Copied. Paste it into a message to Keith.'); });
+    }
+    var a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select();
+    try { document.execCommand('copy'); say('Copied. Paste it into a message to Keith.'); }
+    catch (e) { say('Couldn\'t copy. Select the text and copy it yourself.'); }
+    document.body.removeChild(a);
+    return Promise.resolve();
+  }
+  $('r-copy').addEventListener('click', function () { if (ready()) copy(text()); });
+  $('r-send').addEventListener('click', function () {
+    if (!ready()) return;
+    var t = text();
+    if (navigator.share) {
+      navigator.share({ title: 'Omniverse tester report', text: t })
+        .then(function () { say('Thanks! Report shared.'); })
+        .catch(function (e) { if (e && e.name !== 'AbortError') copy(t); });
+    } else { copy(t); }
+  });
+})();

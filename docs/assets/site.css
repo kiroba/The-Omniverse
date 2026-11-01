@@ -51,3 +51,9 @@ h2{font-size:28px;margin:0 0 18px}
 .close{position:absolute;top:10px;right:14px;background:none;border:0;color:var(--mut);font-size:26px;cursor:pointer}
 footer{text-align:center;color:var(--mut);font-size:13px;padding:40px 5vw;border-top:1px solid var(--line)}
 @media(max-width:640px){.nav nav a:not(:last-child){display:none}}
+
+/* Tester report form (no account needed; nothing leaves the page until the tester shares it) */
+.report{display:flex;flex-direction:column;gap:8px}
+.report input,.report select,.report textarea{width:100%;box-sizing:border-box;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--txt);font:inherit}
+.report select option{color:#000}
+.report button{cursor:pointer;font:inherit}

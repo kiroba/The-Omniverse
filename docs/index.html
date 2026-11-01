@@ -54,8 +54,17 @@
         <p>Last step. If the Omniverse Superapp is installed, uninstall it first (they share an app ID). This shows where everything is heading.</p>
         <div class="actions"><a class="btn sm primary" href="https://github.com/kiroba/The-Omni-Hub/releases/download/v5.4.0-prealpha/omniverse-superapp-android-arm64.apk">Download Omni Hub</a></div></div>
       <div class="card"><div class="icon">⑤</div><h3>Report a problem</h3>
-        <p>Say which app and step, what you expected, what happened, and your phone model and Android version. A screenshot helps.</p>
-        <div class="actions"><a class="btn sm" href="https://github.com/kiroba/The-Omniverse/issues/new?title=%5BTester%5D%20&labels=tester-report">Open a report</a></div></div>
+        <p>No account needed. Fill this in, then tap <b>Send report</b> and pick the app you use to message Keith (text, WhatsApp, email). Nothing is uploaded from this page.</p>
+        <form id="tester-report" class="report" onsubmit="return false">
+          <select id="r-app" aria-label="Which app"><option>Omni Node</option><option>KickBack</option><option>OmniCast</option><option>Omni Hub</option><option>Other</option></select>
+          <input id="r-step" placeholder="Step (1-4) or screen" maxlength="80">
+          <textarea id="r-what" rows="3" placeholder="What happened, and what you expected" maxlength="2000" required></textarea>
+          <input id="r-phone" placeholder="Phone model and Android version" maxlength="80">
+          <div class="actions"><button type="button" class="btn sm primary" id="r-send">Send report</button>
+            <button type="button" class="btn sm" id="r-copy">Copy report</button></div>
+          <p id="r-msg" class="muted small" role="status"></p>
+        </form>
+        <p class="muted small">Have a GitHub account? <a href="https://github.com/kiroba/The-Omniverse/issues/new?title=%5BTester%5D%20&labels=tester-report">Open a report there</a> and attach a screenshot.</p></div>
     </div>
     <p class="muted small">Android may warn about installing from your browser: allow "Install unknown apps" for it, then install.</p>
   </section>

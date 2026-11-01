@@ -107,12 +107,18 @@ void main() {
 
   testWidgets('balance from the node; Buy sends a signed purchase and shows the new balance', (tester) async {
     final fake = FakeCredits();
+    // Tall phone-shaped surface so the catalog's Buy buttons are on screen.
+    tester.view.physicalSize = const Size(800, 1800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
     await tester.pumpWidget(storefront(fake));
     await settle(tester);
 
     expect(find.text('1000 test credits'), findsOneWidget);
     expect(find.text("Can't reach your node"), findsNothing);
 
+    await tester.ensureVisible(find.byKey(const Key('buy-item_01')));
+    await tester.pump();
     await tester.tap(find.byKey(const Key('buy-item_01')));
     await settle(tester);
 

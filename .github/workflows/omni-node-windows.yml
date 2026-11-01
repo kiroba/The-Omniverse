@@ -1,0 +1,89 @@
+name: Omni Node Windows zip
+
+# Builds omni-node-windows-x64.zip (desktop Omni Node + the daemon it starts) from kiroba/Omni-Daemon.
+# Called by release.yml; also runs on PRs that change this file, so the packaging is checked before a tag.
+on:
+  workflow_call:
+    inputs:
+      ref:
+        type: string
+        required: false
+        default: main
+  pull_request:
+    paths: [".github/workflows/omni-node-windows.yml", ".github/workflows/release.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    # Omni Node for desktop (kiroba/Omni-Daemon Admin/omni_node_desktop.py): the same screen as the
+    # Android Omni Node, plus the daemon it starts. Plain Python sources + a launcher; needs Python 3.12.
+    name: Windows · omni-node
+    runs-on: windows-latest
+    steps:
+      - name: Check out Omni-Daemon
+        uses: actions/checkout@v4
+        with:
+          repository: kiroba/Omni-Daemon
+          ref: ${{ inputs.ref || 'main' }}
+          path: daemon
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Package (daemon + every omni_* module it imports + desktop UI)
+        shell: bash
+        env: { PYTHONUTF8: "1" }
+        run: |
+          python - <<'PYEOF'
+          import ast, pathlib, shutil
+          src = pathlib.Path("daemon/Admin"); out = pathlib.Path("omni-node"); out.mkdir()
+          todo = ["omni_live_daemon_server", "omni_node_desktop", "omni_node_words"]; seen = set()
+          while todo:
+              m = todo.pop()
+              if m in seen or not (src / f"{m}.py").exists():
+                  continue
+              seen.add(m)
+              tree = ast.parse((src / f"{m}.py").read_text(encoding="utf-8"))
+              for n in ast.walk(tree):
+                  names = [a.name for a in n.names] if isinstance(n, ast.Import) else ([n.module] if isinstance(n, ast.ImportFrom) and n.module else [])
+                  todo += [x.split(".")[0] for x in names if x.startswith("omni_")]
+          for m in sorted(seen):
+              shutil.copy(src / f"{m}.py", out / f"{m}.py")
+          shutil.copy(src / "omni_node_desktop.pyw", out / "Omni Node.pyw")
+          (out / "Start Omni Node.cmd").write_text(
+              '@echo off\r\ncd /d "%~dp0"\r\npy -3 -m pip install --user --quiet cryptography pystray pillow\r\n'
+              'start "" pyw -3 "Omni Node.pyw"\r\n', encoding="ascii")
+          (out / "README.txt").write_text(
+              "Omni Node for Windows (pre-alpha)\r\n\r\n"
+              "Needs Python 3.12 from python.org (tick 'Add python.exe to PATH').\r\n"
+              "Double-click 'Start Omni Node.cmd'. The first run installs cryptography, pystray and pillow for your user.\r\n"
+              "It opens the same Omni Node screen as Android and starts the daemon. Close the window to keep it in the tray.\r\n"
+              "Turn on 'Start when I sign in' to run it at sign-in (no admin needed).\r\n", encoding="utf-8")
+          print("packaged:", " ".join(sorted(p.name for p in out.iterdir())))
+          PYEOF
+      - name: Smoke test (the packaged daemon starts and answers, the UI module imports)
+        shell: pwsh
+        working-directory: omni-node
+        env: { PYTHONUTF8: "1", OMNI_RELAY: "off", NO_PROXY: "127.0.0.1,localhost" }
+        run: |
+          python -m pip install --quiet cryptography
+          python -c "import omni_node_desktop, omni_node_words; print('ui import ok')"
+          $p = Start-Process python -ArgumentList "omni_live_daemon_server.py" -PassThru -RedirectStandardOutput d.log -RedirectStandardError d.err
+          $ok = $false
+          foreach ($i in 1..40) { Start-Sleep 1; try { $r = Invoke-RestMethod http://127.0.0.1:9100/api/v1/telemetry/node-health -TimeoutSec 2; Write-Host "daemon v$($r.version) up"; $ok = $true; break } catch {} }
+          Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue
+          if (-not $ok) { Get-Content d.log, d.err -ErrorAction SilentlyContinue | Select-Object -Last 40; throw "packaged daemon did not start" }
+          Remove-Item d.log, d.err -ErrorAction SilentlyContinue
+          Get-ChildItem -Recurse -Directory -Filter __pycache__ | Remove-Item -Recurse -Force
+          Remove-Item -Recurse -Force continuity_events.db*, .omni* -ErrorAction SilentlyContinue
+      - name: Zip
+        shell: pwsh
+        run: Compress-Archive -Path omni-node\* -DestinationPath omni-node-windows-x64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-omni-node
+          path: omni-node-windows-x64.zip
+          if-no-files-found: error
+          retention-days: 3
+

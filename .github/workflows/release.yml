@@ -1,4 +1,4 @@
-name: Publish Release (APKs + Windows)
+name: Publish Release (APKs + Windows + Omni Node desktop)
 
 # Push a tag like v0.9.0 (or run manually) to build every app and publish
 # a GitHub Release. Releases are free hosting for binaries on public repos,
@@ -217,8 +217,14 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
+  windows-node:
+    # Omni Node for desktop: see .github/workflows/omni-node-windows.yml (also runs on PRs that touch it).
+    uses: ./.github/workflows/omni-node-windows.yml
+    with:
+      ref: ${{ github.event.inputs.app_ref || 'main' }}
+
   publish:
-    needs: [android, windows]
+    needs: [android, windows, windows-node]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -237,7 +243,7 @@ jobs:
           for f in omniverse-superapp kickback-social idle-plaza mesh-monitor phaser-studio omnicast; do
             [ -s "dist/$f-android-arm64.apk" ] || { echo "::error::missing $f-android-arm64.apk"; missing=1; }
           done
-          for f in omniverse-windows-x64.zip kickback-social-windows-x64.zip; do
+          for f in omniverse-windows-x64.zip kickback-social-windows-x64.zip omni-node-windows-x64.zip; do
             [ -s "dist/$f" ] || { echo "::error::missing $f"; missing=1; }
           done
           if [ "$missing" = 1 ]; then

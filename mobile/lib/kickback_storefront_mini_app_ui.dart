@@ -22,6 +22,8 @@
 // which is Omni Node on 127.0.0.1 with its local token (Omni Node > Connect
 // apps) by default, or the remote hub with its bearer token.
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:omni_core_ui/omni_core_ui.dart';
@@ -861,7 +863,8 @@ class SqliteStorefrontCatalog implements StorefrontCatalogStore {
           'event_id': eventId,
           'event_type': 'ITEM_PURCHASED',
           'timestamp_ns': DateTime.now().microsecondsSinceEpoch * 1000,
-          'payload_json': '{"item_id":"$itemId","price":$price,"buyer_pubkey":"$buyerPubkey","to":"$to"}',
+          'payload_json': jsonEncode(
+              {'item_id': itemId, 'price': price, 'buyer_pubkey': buyerPubkey, 'to': to}),
         },
         conflictAlgorithm: ConflictAlgorithm.replace);
   }

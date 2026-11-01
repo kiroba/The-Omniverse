@@ -10,5 +10,6 @@ export 'src/stargate_identity.dart';
 export 'src/local_event_store.dart';
 export 'src/omni_hub_client.dart';
 export 'src/hub_feed.dart';
+export 'src/hub_credits.dart';
 export 'src/omni_ota_engine.dart';
 export 'src/human_badges.dart';

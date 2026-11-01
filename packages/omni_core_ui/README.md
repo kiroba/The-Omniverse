@@ -5,6 +5,7 @@ Shared core for every Omniverse app. Built from the Gemini "Omni-Hub bundling" b
 | Module | What it really does |
 |---|---|
 | `OmniHubClient` | The app's **only** door out. Talks to the Omni-Hub (local daemon) over loopback: `:9100` telemetry, `:5000` IPC gateway. The daemon alone talks to peers (`:5005` P2P sync, `:9101` UDP discovery). |
+| `HubCreditsClient` | The hub's TEST credits ledger (daemon v8.15.0+): balance, history and sends signed by the sender's own key (`buildSignedCreditTransfer`). No cash value. Never falls back to a local number: an unusable hub comes back as `CreditsState.unreachable` / `unauthorized` / ... so the app can say "Can't reach your node". Sends the app's token as `Authorization: Bearer` (Omni Node's local token on loopback, daemon v8.20.0+). |
 | `StargateIdentity` | Per-install Ed25519 key (seed in app-private SQLite). Signs and verifies events in the exact format of `Admin/omni_signing.py`. |
 | `LocalEventStore` | Offline-first, signed, hash-chained local log (SQLite). Writes are instant; `syncToHub()` pushes pending events to the hub in order. |
 | `OmniOta` | OTA updates: manifest from GitHub Releases today (OmniNet peers first once the mesh transport exists), optional Ed25519-pinned manifest, SHA-256 checked download, Android install prompt. |

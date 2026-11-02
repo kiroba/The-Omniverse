@@ -38,26 +38,29 @@
   </section>
 
   <section id="test">
-    <div class="section-head"><h2>Tester steps · Round 1 (v0.1.17, Nov 1 2026)</h2></div>
+    <div class="section-head"><h2>Tester steps · Round 1 (v0.1.18, Nov 2 2026)</h2></div>
     <p class="muted">Pre-alpha. Android only. Do these in order. Only the apps in this round are listed here; everything else under Apps is for later rounds.</p>
     <div class="grid">
-      <div class="card"><div class="icon">①</div><h3>Omni Node 0.3 (the daemon)</h3>
-        <p>Uninstall any older Omni Node first. Install, open it and turn the <b>Network</b> switch on. Allow notifications and "keep running in background". The status card should go green or teal ("Connected to N nearby" / "Looking for nearby people..."). Allow "Nearby devices" if it asks. Then tap <b>Connect apps</b>, unlock, and <b>Copy token</b>. Leave <b>Relay calls</b> off for this round. If the card turns red or the switch won't stay on, report it (step 5).</p>
-        <div class="actions"><a class="btn sm primary" href="https://github.com/kiroba/Omni-Node-Daemon/releases/download/v0.3.0-prealpha/app-debug.apk">Download Omni Node</a></div></div>
+      <div class="card"><div class="icon">①</div><h3>Omni Node 0.4 (the daemon)</h3>
+        <p>Uninstall any older Omni Node first. Install, open it and turn the <b>Network</b> switch on. Allow notifications and "keep running in background". The status card should go green or teal ("Connected to N nearby" / "Looking for nearby people..."). Allow "Nearby devices" if it asks. Then tap <b>Connect apps</b>, unlock, and <b>Copy token</b>. Leave <b>Relay calls</b> off for this round. If the card turns red or the switch won't stay on, report it (step 6). New in 0.4: <b>Pair a device</b> links your phone to your own PC or another phone with a 6-digit code or QR, and paired devices go quiet to everyone else. Pairing is optional this round.</p>
+        <div class="actions"><a class="btn sm primary" href="https://github.com/kiroba/Omni-Node-Daemon/releases/download/v0.4.0-prealpha/app-debug.apk">Download Omni Node</a></div></div>
       <div class="card"><div class="icon">②</div><h3>KickBack Social</h3>
         <p>Install and accept the tester consent screen. Open <b>Hub settings</b> (gear), choose <b>Remote hub</b>, type <b>127.0.0.1</b> and paste the token from step 1. Then make a post and react to one. Use the in-app Bug report button for anything odd.</p>
-        <div class="actions"><a class="btn sm primary" href="https://github.com/kiroba/The-Omniverse/releases/download/v0.1.17/kickback-social-android-arm64.apk">Download KickBack</a></div></div>
+        <div class="actions"><a class="btn sm primary" href="https://github.com/kiroba/The-Omniverse/releases/download/0.1.18/kickback-social-android-arm64.apk">Download KickBack</a></div></div>
       <div class="card"><div class="icon">③</div><h3>OmniCast (1:1 calls)</h3>
         <p>1:1 video calls are now available through your own Omni Node. Call another tester and check how the call screen says it connected (direct, through the router, or relayed through an Omni node). Classroom Mode is still look-only; tell us what you think of the screens.</p>
-        <div class="actions"><a class="btn sm primary" href="https://github.com/kiroba/The-Omniverse/releases/download/v0.1.17/omnicast-android-arm64.apk">Download OmniCast</a></div></div>
-      <div class="card"><div class="icon">④</div><h3>Omni Hub (preview of the final look)</h3>
+        <div class="actions"><a class="btn sm primary" href="https://github.com/kiroba/The-Omniverse/releases/download/0.1.18/omnicast-android-arm64.apk">Download OmniCast</a></div></div>
+      <div class="card"><div class="icon">④</div><h3>Plaza Brawler</h3>
+        <p>A fighting game that plays offline. Install and play a match. To link it to your Omni Node, open <b>Settings</b> and paste the token from step 1; the health check should turn green and your fighter comes from your plaza profile. Try <b>Check for updates</b> too.</p>
+        <div class="actions"><a class="btn sm primary" href="https://github.com/kiroba/The-Omniverse/releases/download/0.1.18/plaza-brawler-android-arm64.apk">Download Plaza Brawler</a></div></div>
+      <div class="card"><div class="icon">⑤</div><h3>Omni Hub (preview of the final look)</h3>
         <p>Last step. If the Omniverse Superapp is installed, uninstall it first (they share an app ID). This shows where everything is heading.</p>
         <div class="actions"><a class="btn sm primary" href="https://github.com/kiroba/The-Omni-Hub/releases/download/v5.4.0-prealpha/omniverse-superapp-android-arm64.apk">Download Omni Hub</a></div></div>
-      <div class="card"><div class="icon">⑤</div><h3>Report a problem</h3>
+      <div class="card"><div class="icon">⑥</div><h3>Report a problem</h3>
         <p>No account needed. Fill this in, then tap <b>Send report</b> and pick the app you use to message Keith (text, WhatsApp, email). Nothing is uploaded from this page.</p>
         <form id="tester-report" class="report" onsubmit="return false">
-          <select id="r-app" aria-label="Which app"><option>Omni Node</option><option>KickBack</option><option>OmniCast</option><option>Omni Hub</option><option>Other</option></select>
-          <input id="r-step" placeholder="Step (1-4) or screen" maxlength="80">
+          <select id="r-app" aria-label="Which app"><option>Omni Node</option><option>KickBack</option><option>OmniCast</option><option>Plaza Brawler</option><option>Omni Hub</option><option>Other</option></select>
+          <input id="r-step" placeholder="Step (1-5) or screen" maxlength="80">
           <textarea id="r-what" rows="3" placeholder="What happened, and what you expected" maxlength="2000" required></textarea>
           <input id="r-phone" placeholder="Phone model and Android version" maxlength="80">
           <div class="actions"><button type="button" class="btn sm primary" id="r-send">Send report</button>

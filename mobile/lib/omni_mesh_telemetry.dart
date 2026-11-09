@@ -322,7 +322,7 @@ const List<TelemetryTile> kNotWiredProtocols = [
   TelemetryTile.notWired('BLE discovery',
       'Admin/omni_ble_discovery_engine.py exists but is not wired into the daemon; discovery is UDP LAN beacons only'),
   TelemetryTile.notWired('NAT hole punching',
-      'Admin/omni_ice_cgnat_hole_puncher.py is not wired in; remote phones reach the hub over Tailscale'),
+      'Admin/omni_ice_cgnat_hole_puncher.py is not wired in; nodes behind NAT meet through a reachable relay peer'),
   TelemetryTile.notWired('OmniCast call media (WebRTC)',
       'Only the signaling mailbox is live; a call-media stats feed from the apps would fill this'),
 ];
@@ -354,6 +354,81 @@ const List<TelemetryTile> kNotWiredServices = [
   TelemetryTile.notWired('App crash / error rates',
       'Only manual bug reports reach the hub; automatic crash reporting is not built'),
 ];
+
+
+/// A tile fed by the hub's `capabilities` block (daemon v8.32.0+): the daemon
+/// states what is not wired or parked and why, so these tiles render the
+/// hub's own report. Older hubs (no block) fall back to [fallbackDetail],
+/// which must say the same thing in the same words.
+TelemetryTile _capTile(Map<String, dynamic> caps, String key, String label,
+    {required String fallbackDetail}) {
+  final e = _map(caps[key]);
+  final detail = e['detail']?.toString() ?? fallbackDetail;
+  switch (e['state']) {
+    case 'wired':
+      return TelemetryTile(label, 'on', TileStatus.ok, detail: detail);
+    case 'parked':
+      return TelemetryTile(label, 'Parked', TileStatus.off, detail: detail);
+    default:
+      return TelemetryTile(label, 'Not wired yet', TileStatus.notWired, detail: detail);
+  }
+}
+
+/// Users tiles fed by signed app check-ins (users.app_checkins in the
+/// summary, daemon v8.16.0+). Hubs whose summary predates the block fall
+/// back to the not-wired pair; a hub that reports the block shows live
+/// aggregates even at zero. Aggregates only: counts and version histograms,
+/// never an install id.
+List<TelemetryTile> _checkinTiles(Map<String, dynamic> u) {
+  final ci = _map(u['app_checkins']);
+  if (ci.isEmpty || ci['state'] == 'error') return kNotWiredUsers;
+  final consent = _map(ci['consent']);
+  final byVersion = _map(consent['by_version']);
+  final versions = _map(ci['app_versions']);
+  final versionBits = <String>[];
+  for (final app in versions.keys) {
+    final vs = _map(versions[app]);
+    for (final v in vs.keys) {
+      versionBits.add('$app $v x${fmtInt(vs[v])}');
+    }
+  }
+  final platforms = _map(ci['platforms']);
+  final platformBits = platforms.keys.map((k) => '$k ${fmtInt(platforms[k])}').join(' - ');
+  return [
+    TelemetryTile(
+        'Consent acceptances',
+        '${fmtInt(consent['accepted'])} accepted - ${fmtInt(consent['not_accepted'])} not accepted',
+        _int(consent['accepted']) > 0 ? TileStatus.ok : TileStatus.idle,
+        detail: [
+          'signed app check-ins (POST /api/telemetry/app-checkin)',
+          '${fmtInt(ci['installs'])} installs reporting',
+          if (byVersion.isNotEmpty)
+            'agreement ${byVersion.entries.map((e) => 'v${e.key} x${fmtInt(e.value)}').join(', ')}',
+        ].join(' - ')),
+    TelemetryTile(
+        'App versions in the field',
+        versionBits.isEmpty ? 'no check-ins yet' : versionBits.take(6).join(' - '),
+        versionBits.isEmpty ? TileStatus.idle : TileStatus.ok,
+        detail: platformBits.isEmpty ? 'one row per install + app, 90-day retention' : platformBits),
+  ];
+}
+
+/// Services tile fed by services.app_crashes (daemon v8.16.0+): daily crash
+/// counts by exception type name only - no messages, no stacks.
+List<TelemetryTile> _crashTiles(Map<String, dynamic> sv) {
+  final cr = _map(sv['app_crashes']);
+  if (cr.isEmpty || cr['state'] == 'error') return kNotWiredServices;
+  final kinds = _map(cr['top_kinds']);
+  return [
+    TelemetryTile(
+        'App crash / error rates',
+        '${fmtInt(cr['last_24h'])} today - ${fmtInt(cr['last_7d'])} in 7d',
+        _int(cr['last_7d']) > 0 ? TileStatus.warn : TileStatus.ok,
+        detail: kinds.isEmpty
+            ? 'counts arrive in app check-ins; type names only, no messages or stacks'
+            : 'top kinds: ${kinds.entries.map((e) => '${e.key} x${fmtInt(e.value)}').join(', ')}'),
+  ];
+}
 
 // ---------------------------------------------------------------------------
 // Section builders
@@ -405,7 +480,20 @@ List<TelemetrySection> _liveSections(HubSnapshot snap, String appBuild) {
     final p = _map(raw);
     protocols.add(_protocolTile(p));
   }
-  protocols.addAll(kNotWiredProtocols);
+  final caps = _map(s['capabilities']);
+  protocols.addAll([
+    _capTile(caps, 'gossipsub', 'GossipSub pub/sub',
+        fallbackDetail:
+            'Admin/omni_gossipsub_swarm_router.py exists but the daemon does not run it; events relay over HTTP /p2p/sync'),
+    _capTile(caps, 'ble_discovery', 'BLE discovery',
+        fallbackDetail:
+            'Admin/omni_ble_discovery_engine.py exists but is not wired into the daemon; discovery is UDP LAN beacons only'),
+    _capTile(caps, 'nat_hole_punching', 'NAT hole punching',
+        fallbackDetail:
+            'Admin/omni_ice_cgnat_hole_puncher.py is not wired in; nodes behind NAT meet through a reachable relay peer'),
+    _capTile(caps, 'call_media_stats', 'OmniCast call media (WebRTC)',
+        fallbackDetail: 'Only the signaling mailbox is live; a call-media stats feed from the apps would fill this'),
+  ]);
 
   final sec = _map(s['security']);
   final rejected = _int(sec['events_rejected_signature']) + _int(sec['events_rejected_untrusted']);
@@ -449,7 +537,11 @@ List<TelemetrySection> _liveSections(HubSnapshot snap, String appBuild) {
           detail: 'remote hub mode is on'),
     TelemetryTile('Unsigned rows in store', fmtInt(sec['unsigned_rows_in_store']), TileStatus.idle,
         detail: 'the genesis row is unsigned by design'),
-    ...kNotWiredSecurity,
+    _capTile(caps, 'hardware_attestation', 'Hardware attestation',
+        fallbackDetail:
+            'Would need a device attestation check (e.g. Android key attestation) that the hub verifies; not built'),
+    _capTile(caps, 'store_encryption', 'Encrypted event store',
+        fallbackDetail: 'Admin/omni_sqlcipher_db_engine.py is not used; the daemon stores events in plain SQLite (WAL)'),
   ];
 
   final f = _map(s['finance']);
@@ -471,7 +563,13 @@ List<TelemetrySection> _liveSections(HubSnapshot snap, String appBuild) {
       TelemetryTile('Treasury fees', '${fmtInt(f['fees_collected'])} credits collected', TileStatus.idle,
           detail: 'fee ${fmtInt(f['treasury_fee_bps'])} bps'),
     ],
-    ...kNotWiredFinance,
+    _capTile(caps, 'subscriptions', 'Subscriptions',
+        fallbackDetail: 'No subscription billing exists; would be fed by a payments backend reporting to the hub'),
+    _capTile(caps, 'in_app_credit_transfers', 'In-app credit transfers',
+        fallbackDetail:
+            'The hub has a loopback-only /api/credits/transfer, but no app calls it and remote phones cannot reach it'),
+    _capTile(caps, 'cash_payments', 'Cash payments / payouts',
+        fallbackDetail: 'Credits are closed-loop TEST credits with no cash value; nothing is redeemable'),
   ];
 
   final u = _map(s['users']);
@@ -481,7 +579,7 @@ List<TelemetrySection> _liveSections(HubSnapshot snap, String appBuild) {
         _int(u['active_24h']) > 0 ? TileStatus.ok : TileStatus.idle),
     TelemetryTile('New in 7 days', fmtInt(u['new_7d']), TileStatus.idle),
     TelemetryTile('Bug reports', fmtInt(u['bug_reports']), TileStatus.idle, detail: 'stored as signed chain events'),
-    ...kNotWiredUsers,
+    ..._checkinTiles(u),
   ];
 
   final sv = _map(s['services']);
@@ -500,7 +598,7 @@ List<TelemetrySection> _liveSections(HubSnapshot snap, String appBuild) {
           TileStatus.idle),
     _omnimindTile(agent['live'] == true, agent['last_report_ago_s'], snap.omnimind),
     TelemetryTile('This app build', appBuild, TileStatus.idle),
-    ...kNotWiredServices,
+    ..._crashTiles(sv),
   ];
 
   return [
@@ -558,6 +656,13 @@ TelemetryTile _protocolTile(Map<String, dynamic> p) {
                 'rejected ${fmtInt(_int(counts['rejected_signature']) + _int(counts['rejected_mesh']))}',
             if (prefixes.isNotEmpty) 'peers ${prefixes.map((e) => '$e…').join(', ')}',
           ].where((e) => e.isNotEmpty).join(' • '));
+    case 'ble_discovery':
+      return TelemetryTile(name, '${fmtInt(p['nearby'])} nearby', status,
+          detail: [
+            '${p['detail'] ?? ''}',
+            seen,
+            'reports ${fmtInt(counts['reports'])} - refused ${fmtInt(counts['rejected'])}',
+          ].where((e) => e.isNotEmpty).join(' - '));
     case 'negentropy':
       final run = p['last_run'] is Map<String, dynamic> ? p['last_run'] as Map<String, dynamic> : null;
       return TelemetryTile(

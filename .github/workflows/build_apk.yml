@@ -21,6 +21,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+          flutter-version: '3.47.9'
       - name: Run package tests
         working-directory: packages/omni_core_ui
         run: |
@@ -66,6 +67,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+          flutter-version: '3.47.9'
 
       - name: 🧹 Clean Pre-build Cache & Install Dependencies
         run: |
@@ -106,6 +108,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+          flutter-version: '3.47.9'
           cache: true
 
       - name: 🔨 Build KickBack for Windows

@@ -122,7 +122,7 @@ jobs:
             || { echo "::error::Release keystore did not open with OMNI_RELEASE_KEYSTORE_PASSWORD / OMNI_RELEASE_KEY_ALIAS"; exit 1; }
           echo "OMNI_KEYSTORE=$KS" >> "$GITHUB_ENV"
       - uses: subosito/flutter-action@v2
-        with: { channel: stable, cache: true }
+        with: { channel: stable, cache: true, flutter-version: '3.47.9' }
       - name: OTA public key (pins signed update manifests when the secret exists)
         env:
           OMNI_OTA_SIGNING_KEY: ${{ secrets.OMNI_OTA_SIGNING_KEY }}
@@ -192,7 +192,7 @@ jobs:
           ref: ${{ env.APP_REF }}
           path: app
       - uses: subosito/flutter-action@v2
-        with: { channel: stable, cache: true }
+        with: { channel: stable, cache: true, flutter-version: '3.47.9' }
       - name: Build Windows
         # App repos only carry Android; add a Windows runner at build time.
         working-directory: app

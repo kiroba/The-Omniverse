@@ -17,6 +17,10 @@ const APPS = [
     desc: "Classroom Mode preview. Live calls aren't wired yet." },
   { id: "brawler", name: "Plaza Brawler", icon: "🥊", platform: "android", asset: "plaza-brawler-android-arm64.apk",
     desc: "An offline fighter for now: you play on your own phone, with no online matches yet." },
+  { id: "windows", name: "The Omni-Hub for Windows", icon: "🪟", platform: "windows", asset: "omniverse-windows-x64.zip",
+    desc: "Desktop app for Windows 10 and 11 (x64)." },
+  { id: "kickback-win", name: "The KickBack for Windows", icon: "💬", platform: "windows", asset: "kickback-social-windows-x64.zip",
+    desc: "KickBack on your PC, talking to the daemon on your network." },
   { id: "builder", name: "Interactive GUI Builder", icon: "🛠", platform: "tools", href: "downloads/omniverse_interactive_gui_builder.py",
     desc: "Python desktop panel for standalone builds." },
 ];

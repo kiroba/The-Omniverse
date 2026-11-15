@@ -12,8 +12,8 @@ import 'kickback_platform.dart';
 ///   [HubSettings.localToken]; it is sent as "Authorization: Bearer <token>"
 ///   (daemon v8.20.0+). Empty = no header, as with a plain Termux daemon.
 /// - "Remote hub": another phone runs the daemon (v8.7.0+, started with
-///   OMNI_HUB_REMOTE=1) and this phone reaches it, usually over Tailscale
-///   (its 100.x address). Every call sends "Authorization: Bearer <token>".
+///   OMNI_HUB_REMOTE=1) and this phone reaches it over the network
+///   (its address on that network). Every call sends "Authorization: Bearer <token>".
 ///   Posts are still signed with this phone's own key.
 ///
 /// Stored in flutter_secure_storage (Android Keystore-encrypted), the token

@@ -153,7 +153,7 @@ class _DesktopGatewayShellState extends State<DesktopGatewayShell> {
         _buildDesktopCard(
           'ENGINE 02: KNIT P2P MESH & MERKLE DAG CONSENSUS',
           'HTTP sync on :5005 + UDP 9101 LAN discovery',
-          '$_activePeers peers (LAN / Tailscale) | GossipSub, BLE & Wi-Fi Aware: roadmap, not built',
+          '$_activePeers peers (LAN / internet) | GossipSub, BLE & Wi-Fi Aware: roadmap, not built',
           Colors.cyanAccent,
         ),
         const SizedBox(height: 16),

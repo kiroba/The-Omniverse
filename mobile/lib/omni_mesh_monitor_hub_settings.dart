@@ -9,7 +9,7 @@ import 'omni_mesh_telemetry.dart';
 /// - "This phone" (default): the daemon runs in Termux on this phone,
 ///   127.0.0.1 :5000 / :9100, no token.
 /// - "Remote hub": another device runs the daemon (v8.7.0+, OMNI_HUB_REMOTE=1),
-///   usually reached over Tailscale (its 100.x address). Every call sends
+///   usually reached over the network (its address on that network). Every call sends
 ///   "Authorization: Bearer <token>" (the hub's ~/.omni/hub_token).
 /// Stored in flutter_secure_storage (Android Keystore-encrypted), token
 /// included, under the Mesh Monitor's own keys.

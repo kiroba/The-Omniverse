@@ -11,7 +11,7 @@ import 'omni_mesh_telemetry.dart';
 /// MOBILE MESH MONITOR (LIVE TELEMETRY DASHBOARD)
 /// ============================================================================
 /// Reads one Omni-Hub (the daemon on this phone in Termux, or a remote hub over
-/// Tailscale with its bearer token, set in Hub settings) every 12 seconds and
+/// the network with its bearer token, set in Hub settings) every 12 seconds and
 /// on pull-to-refresh:
 ///   Hub v8.12.0+: GET :5000/api/telemetry/summary (aggregate counts only)
 ///   Older hubs:   node-health + events/stats + events/feed, with the sections
@@ -240,7 +240,7 @@ class _MeshMonitorMainScreenState extends State<MeshMonitorMainScreen> {
         break;
       case HubState.offline:
         text = _settings.isRemote
-            ? 'Nothing answered at ${_settings.host}:${_settings.ipcPort}. Is the hub running and Tailscale connected?'
+            ? 'Nothing answered at ${_settings.host}:${_settings.ipcPort}. Is the hub running and reachable?'
             : 'No daemon on this phone. Start it in Termux:  bash Admin/start_local_stack.sh\n'
                 'Or point Hub settings at a remote hub.';
         break;
@@ -455,7 +455,7 @@ class _HubSettingsDialogState extends State<_HubSettingsDialog> {
               groupValue: _mode,
               onChanged: (v) => setState(() => _mode = v!),
               title: const Text('Remote hub'),
-              subtitle: const Text('Another device over Tailscale (needs its token)', style: TextStyle(fontSize: 11)),
+              subtitle: const Text('Another device on the network (needs its token)', style: TextStyle(fontSize: 11)),
             ),
             if (remote) ...[
               TextField(

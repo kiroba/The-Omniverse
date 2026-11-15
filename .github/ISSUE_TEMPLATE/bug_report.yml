@@ -44,7 +44,7 @@ body:
       options:
         - Same Wi-Fi as hub
         - Mobile data
-        - Tailscale remote
+        - Remote (internet)
         - Other
   - type: textarea
     id: what_happened

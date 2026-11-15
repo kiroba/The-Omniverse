@@ -11,8 +11,6 @@ const APPS = [
     desc: "The human-verified social feed." },
   { id: "plaza", name: "Idle Plaza", icon: "🕹", platform: "android", asset: "idle-plaza-android-arm64.apk",
     desc: "Hang out and idle in the plaza." },
-  { id: "monitor", name: "Mesh Monitor", icon: "📡", platform: "android", asset: "mesh-monitor-android-arm64.apk",
-    desc: "Watch your peers and mesh health live." },
   { id: "phaser", name: "OmniPhaser Studio", icon: "🎨", platform: "android", asset: "phaser-studio-android-arm64.apk",
     desc: "2D creation studio." },
   { id: "omnicast", name: "OmniCast", icon: "📺", platform: "android", asset: "omnicast-android-arm64.apk",

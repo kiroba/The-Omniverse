@@ -2,7 +2,7 @@
 
 **Rule one: human first. Simple, human first.**
 
-The Omniverse is the whole ecosystem, a peer-to-peer social and gaming world. Each person's phone or PC runs a small local hub, and the hubs sync signed events directly with each other, over LAN or Tailscale, with no central server. The apps only talk to their own local hub.
+The Omniverse is the whole ecosystem, a peer-to-peer social and gaming world. Each person's phone or PC runs a small local hub, and the hubs sync signed events directly with each other, over LAN or the internet, with no central server. The apps only talk to their own local hub.
 
 **Status: pre-alpha.** Android only (arm64, Android 8.0+). Testing with a small, invited group. Test credits have no cash value.
 
@@ -26,7 +26,7 @@ Signed builds are on the [Releases page](https://github.com/kiroba/The-Omniverse
 
 | Piece | What it does | Repo |
 | --- | --- | --- |
-| Omni daemon | The networked protocol on each device: signed event log, peer sync (negentropy catch-up), Internet reach without Tailscale, self-hosted call relay (STUN/TURN), test-credits ledger, OmniCast signaling | [kiroba/Omni-Daemon](https://github.com/kiroba/Omni-Daemon) |
+| Omni daemon | The networked protocol on each device: signed event log, peer sync (negentropy catch-up), Internet reach by rendezvous and relay, self-hosted call relay (STUN/TURN), test-credits ledger, OmniCast signaling | [kiroba/Omni-Daemon](https://github.com/kiroba/Omni-Daemon) |
 | Omni Node | The daemon as its own Android app: one Network switch, nearby radios (BLE, Wi-Fi Aware), Connect apps token, opt-in Relay calls | [kiroba/Omni-Node-Daemon](https://github.com/kiroba/Omni-Node-Daemon) |
 | Omni-Core-UI | Shared Flutter package: Ed25519 identity, local event store, hub client, signed OTA updates, status badges | [kiroba/Omni-Core-UI](https://github.com/kiroba/Omni-Core-UI) |
 | OmniMind | AI agent that maintains the worlds and runs every game NPC, including NPCs built by community devs | [kiroba/OmniMind](https://github.com/kiroba/OmniMind) |
@@ -45,7 +45,7 @@ Signed builds are on the [Releases page](https://github.com/kiroba/The-Omniverse
 
 ```
  App (Flutter)  ──loopback──▶  Local Omni daemon  ◀──signed sync──▶  Other daemons
-   uses Omni-Core-UI            (:5000 / :9100)     (:5005, LAN or Tailscale)
+   uses Omni-Core-UI            (:5000 / :9100)     (:5005, LAN or internet)
 ```
 
 - Every event is Ed25519-signed and hash-chained, and every hub verifies it.

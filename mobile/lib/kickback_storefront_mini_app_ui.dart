@@ -290,7 +290,7 @@ class _OmniMarketStorefrontMiniAppState extends State<OmniMarketStorefrontMiniAp
     switch (r.state) {
       case CreditsState.unreachable:
         return remote
-            ? 'Nothing answered at $where. Check that the hub is running and Tailscale is on for both devices.'
+            ? 'Nothing answered at $where. Check that the hub is running and reachable from this device.'
             : 'Nothing answered at $where. Open Omni Node and check that it is running.';
       case CreditsState.unauthorized:
         return remote

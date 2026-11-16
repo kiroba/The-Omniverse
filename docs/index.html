@@ -41,29 +41,29 @@
     <div class="section-head"><h2>Tester steps · Round 1 (latest release)</h2></div>
     <p class="muted">Pre-alpha. Android only. Do these in order. The KickBack, OmniCast and Plaza Brawler buttons always download the <a href="https://github.com/kiroba/The-Omniverse/releases/latest">latest release</a>. Only the apps in this round are listed here; everything else under Apps is for later rounds.</p>
     <div class="grid">
-      <div class="card"><div class="icon">①</div><h3>Omni Node 0.5 (the daemon)</h3>
-        <p>Uninstall any older Omni Node first (0.5.0 and older won't upgrade in place). From 0.5.1 on, <b>Check for updates</b> installs new versions over the top. Install, open it and turn the <b>Network</b> switch on. Allow notifications and "keep running in background". The status card should go green or teal ("Connected to N nearby" / "Looking for nearby people..."). Allow "Nearby devices" if it asks. Then tap <b>Connect apps</b>, unlock, and <b>Copy token</b>. Leave <b>Relay calls</b> off for this round. If the card turns red or the switch won't stay on, report it (step 6). New in 0.5: the phone and PC apps now share one core, and there's a <b>Check for updates</b> button. Since 0.4: <b>Pair a device</b> links your phone to your own PC or another phone with a 6-digit code or QR, and paired devices go quiet to everyone else. Pairing is optional this round.</p>
-        <div class="actions"><a class="btn sm primary" id="omni-node-dl" href="https://github.com/kiroba/Omni-Node-Daemon/releases/download/v0.5.1-prealpha/app-debug.apk">Download Omni Node</a> <span class="muted" id="omni-node-ver">v0.5.1-prealpha</span></div></div>
+      <div class="card"><div class="icon">①</div><h3>Omni Node 0.5.7 (the daemon)</h3>
+        <p>Uninstall any older Omni Node first (0.5.0 and older won't upgrade in place). From 0.5.1 on, <b>Check for updates</b> installs new versions over the top. Install, open it and turn the <b>Network</b> switch on. Allow notifications and "keep running in background". The status card should go green or teal ("Connected to N nearby" / "Looking for nearby people..."). Allow "Nearby devices" if it asks. Then tap <b>Connect apps</b>, unlock, and <b>Copy token</b>. Leave <b>Relay calls</b> off for this round. If the card turns red or the switch won't stay on, report it (step 7). The phone and PC apps share one core, and there's a <b>Check for updates</b> button. <b>Pair a device</b> links your phone to your own PC or another phone with a 6-digit code or QR, and paired devices go quiet to everyone else. Pairing is optional this round. Proven Nov 14, 2026: a desktop node synced with a phone on the same LAN and over the internet (128 reconciles, 0 errors). This build runs daemon 8.33.2, which also carries Plaza Brawler's dual-signed PvP match results.</p>
+        <div class="actions"><a class="btn sm primary" id="omni-node-dl" href="https://github.com/kiroba/Omni-Node-Daemon/releases/download/v0.5.7-prealpha/app-debug.apk">Download Omni Node</a> <span class="muted" id="omni-node-ver">v0.5.7-prealpha</span></div></div>
       <div class="card"><div class="icon">②</div><h3>KickBack Social</h3>
-        <p>Install and accept the tester consent screen. Open <b>Hub settings</b> (gear), choose <b>Remote hub</b>, type <b>127.0.0.1</b> and paste the token from step 1. Then make a post and react to one. Use the in-app Bug report button for anything odd.</p>
+        <p>Install and accept the tester consent screen. Open <b>Hub settings</b> (gear), choose <b>Remote hub</b>, type <b>127.0.0.1</b> and paste the token from step 1. Then make a post and react to one. From Settings you can also import your LPE Halo identity (transfer code) and bring your own public Mastodon posts into KickBack. Use the in-app Bug report button for anything odd.</p>
         <div class="actions"><a class="btn sm primary" href="https://github.com/kiroba/The-Omniverse/releases/latest/download/kickback-social-android-arm64.apk">Download KickBack</a></div></div>
       <div class="card"><div class="icon">③</div><h3>OmniCast (1:1 calls)</h3>
-        <p>1:1 video calls are now available through your own Omni Node. Call another tester and check how the call screen says it connected (direct, through the router, or relayed through an Omni node). Classroom Mode is still look-only; tell us what you think of the screens.</p>
+        <p>1:1 video calls are now available through your own Omni Node. Call another tester and check how the call screen says it connected (direct, through the router, or relayed through an Omni node). Classroom Mode is still look-only; tell us what you think of the screens. Honest edge: calls between real phones on <i>different</i> networks haven't been field-tested yet — the first trial is Nov 18/19, 2026.</p>
         <div class="actions"><a class="btn sm primary" href="https://github.com/kiroba/The-Omniverse/releases/latest/download/omnicast-android-arm64.apk">Download OmniCast</a></div></div>
-      <div class="card"><div class="icon">⑤</div><h3>LPE — your Halo</h3>
-        <p>Create the Halo you fight as in Plaza Brawler. In <b>LPE</b>, open <b>Connect apps</b> in Omni Node, copy this phone's node token, paste it into LPE's Node tab, then save your profile from the Creator tab (handles are lowercase). LPE ships on the dev-cycle flow: the button opens its build list — sign in, open the newest run, and download the <b>lpe-android</b> artifact.</p>
+      <div class="card"><div class="icon">④</div><h3>LPE — your Halo</h3>
+        <p>Create the Halo you fight as in Plaza Brawler. In <b>LPE</b>, open <b>Connect apps</b> in Omni Node, copy this phone's node token, paste it into LPE's Node tab, then save your profile from the Creator tab (handles are lowercase). The newest build adds Halo appearance choosers — figure, skin, shirt, pants, shoes, hair colour and style, with an idle animation and the crown cosmetic (merged Nov 16, 2026; tell us how it looks on your phone). LPE ships on the dev-cycle flow: the button opens its build list — sign in, open the newest run, and download the <b>lpe-android</b> artifact.</p>
         <div class="actions"><a class="btn sm primary" href="https://github.com/kiroba/LPE/actions">Get the latest LPE build</a></div></div>
-      <div class="card"><div class="icon">④</div><h3>Plaza Brawler</h3>
-        <p>A fighting game that plays offline. Install and play a match. To link it to your Omni Node, open <b>Settings</b> and paste the token from step 1; the health check should turn green and your fighter comes from your plaza profile. Try <b>Check for updates</b> too.</p>
+      <div class="card"><div class="icon">⑤</div><h3>Plaza Brawler</h3>
+        <p>A fighting game — now with online versus. Play offline against the AI, or pair with another player for a PvP match (lockstep versus, proven phone-vs-laptop Nov 15, 2026, with dual-signed match results). To link it to your Omni Node, open <b>Settings</b> and paste the token from step 1; the health check should turn green and your fighter comes from your plaza profile. Try <b>Check for updates</b> too. There's also a Windows build with controller support in the latest release, for playtesting at a PC.</p>
         <div class="actions"><a class="btn sm primary" href="https://github.com/kiroba/The-Omniverse/releases/latest/download/plaza-brawler-android-arm64.apk">Download Plaza Brawler</a></div></div>
-      <div class="card"><div class="icon">⑤</div><h3>Omni Hub (preview of the final look)</h3>
+      <div class="card"><div class="icon">⑥</div><h3>Omni Hub (preview of the final look)</h3>
         <p>Last step. If the Omniverse Superapp is installed, uninstall it first (they share an app ID). This shows where everything is heading.</p>
         <div class="actions"><a class="btn sm primary" href="https://github.com/kiroba/The-Omni-Hub/releases/download/v5.4.0-prealpha/omniverse-superapp-android-arm64.apk">Download Omni Hub</a></div></div>
-      <div class="card"><div class="icon">⑥</div><h3>Report a problem</h3>
+      <div class="card"><div class="icon">⑦</div><h3>Report a problem</h3>
         <p>No account needed. Fill this in, then tap <b>Send report</b> and pick the app you use to message Keith (text, WhatsApp, email). Nothing is uploaded from this page.</p>
         <form id="tester-report" class="report" onsubmit="return false">
           <select id="r-app" aria-label="Which app"><option>Omni Node</option><option>KickBack</option><option>OmniCast</option><option>Plaza Brawler</option><option>Omni Hub</option><option>Other</option></select>
-          <input id="r-step" placeholder="Step (1-5) or screen" maxlength="80">
+          <input id="r-step" placeholder="Step (1-6) or screen" maxlength="80">
           <textarea id="r-what" rows="3" placeholder="What happened, and what you expected" maxlength="2000" required></textarea>
           <input id="r-phone" placeholder="Phone model and Android version" maxlength="80">
           <div class="actions"><button type="button" class="btn sm primary" id="r-send">Send report</button>
@@ -77,14 +77,18 @@
 
   <section id="next">
     <div class="section-head"><h2>In the works · Nov 2026</h2></div>
-    <p class="muted">Built and in review, not in the tester round yet. Nothing here is field-tested on real phones.</p>
+    <p class="muted">Where things stand, honestly: the desktop Omni Node is field-proven (Nov 14, 2026) and Plaza Brawler PvP is proven phone-vs-laptop (Nov 15). OmniCast calls between real phones on different networks are still untested — first trial Nov 18/19. Everything below the first two cards is roadmap: designed or being built, not shipped.</p>
     <div class="grid">
-      <div class="card"><h3>Omni Node on your PC</h3>
-        <p>The same Omni Node screen on Windows, macOS and Linux: the same status words, Connect apps, Internet, Relay calls and Peers, with a tray icon and a "Start when I sign in" option.</p></div>
+      <div class="card"><h3>Omni Node on your PC — proven</h3>
+        <p>The same Omni Node screen on Windows and Linux (macOS from source): the same status words, Connect apps, Internet, Relay calls and Peers. On Nov 14, 2026 a desktop node synced with a phone on the same LAN and over the internet — 128 reconciles, 0 errors, stores converged. It ships in the same v0.5.7 release as the phone app.</p></div>
       <div class="card"><h3>Calls with no outside servers</h3>
-        <p>OmniCast calls connect directly when they can. Otherwise they relay through another Omni node: desktops relay by default, and phones only if their owner turns on <b>Relay calls</b>, and only while charging on Wi-Fi, with a daily cap. No Google or Cloudflare servers.</p></div>
-      <div class="card"><h3>OmniCast 1:1 calls</h3>
-        <p>Video calls through your own Omni Node. The call screen shows how it connected: direct, through the router, or relayed through an Omni node. Classroom Mode stays look-only for now.</p></div>
+        <p>OmniCast calls connect directly when they can. Otherwise they relay through another Omni node: desktops relay by default, and phones only if their owner turns on <b>Relay calls</b>, and only while charging on Wi-Fi, with a daily cap. No Google or Cloudflare servers. The relay path between different networks is the part still waiting on its first real-phone trial.</p></div>
+      <div class="card"><h3>Next up: the Nov 30 cycle</h3>
+        <p>After the Nov 28 STLGameDev playtest (our showcase window is 12–2 PM; builds freeze Nov 22), the next dev cycle fires Nov 30: the split-package migration starting at Omni-Core-UI, envelope encryption for stored events, the OmniMind rebuild, cross-app per-person stats, and a single front door from link → LPE → Halo → Omni Plaza.</p></div>
+      <div class="card"><h3>Omni Plaza, alive (roadmap)</h3>
+        <p>The Plaza is being built as a living shared space — your Halo lives there, people you meet appear there, and games are places you walk up to. First scenery set (storefronts, a big events billboard, trees) is being built now; new anime low-poly Halo figures are the current art direction, with the realistic line on hold. None of this is in a tester build yet.</p></div>
+      <div class="card"><h3>Hactik Games Studios (roadmap)</h3>
+        <p>Plaza Brawler is a Hactik Games Studios game. Its splash screen is drafted and arrives after the playtest — not in the current builds.</p></div>
     </div>
   </section>
 
@@ -100,7 +104,7 @@
     </div>
     <div id="app-grid" class="grid"></div>
     <p id="release-note" class="muted small"></p>
-    <p class="muted small">Direct links, always the latest release: <a href="https://github.com/kiroba/The-Omniverse/releases/latest/download/omniverse-superapp-android-arm64.apk">Omni-Hub (Superapp)</a> · <a href="https://github.com/kiroba/The-Omniverse/releases/latest/download/kickback-social-android-arm64.apk">KickBack</a> · <a href="https://github.com/kiroba/The-Omniverse/releases/latest/download/idle-plaza-android-arm64.apk">Idle Plaza</a> · <a href="https://github.com/kiroba/The-Omniverse/releases/latest/download/phaser-studio-android-arm64.apk">OmniPhaser Studio</a> · <a href="https://github.com/kiroba/The-Omniverse/releases/latest/download/omnicast-android-arm64.apk">OmniCast</a> · <a href="https://github.com/kiroba/The-Omniverse/releases/latest/download/plaza-brawler-android-arm64.apk">Plaza Brawler</a> · <a href="https://github.com/kiroba/The-Omniverse/releases/latest/download/omniverse-windows-x64.zip">Omni-Hub for Windows</a> · <a href="https://github.com/kiroba/The-Omniverse/releases/latest/download/kickback-social-windows-x64.zip">KickBack for Windows</a>.</p>
+    <p class="muted small">Direct links, always the latest release: <a href="https://github.com/kiroba/The-Omniverse/releases/latest/download/omniverse-superapp-android-arm64.apk">Omni-Hub (Superapp)</a> · <a href="https://github.com/kiroba/The-Omniverse/releases/latest/download/kickback-social-android-arm64.apk">KickBack</a> · <a href="https://github.com/kiroba/The-Omniverse/releases/latest/download/idle-plaza-android-arm64.apk">Omni Plaza</a> · <a href="https://github.com/kiroba/The-Omniverse/releases/latest/download/phaser-studio-android-arm64.apk">OmniStudio</a> · <a href="https://github.com/kiroba/The-Omniverse/releases/latest/download/omnicast-android-arm64.apk">OmniCast</a> · <a href="https://github.com/kiroba/The-Omniverse/releases/latest/download/plaza-brawler-android-arm64.apk">Plaza Brawler</a> · <a href="https://github.com/kiroba/The-Omniverse/releases/latest/download/omniverse-windows-x64.zip">Omni-Hub for Windows</a> · <a href="https://github.com/kiroba/The-Omniverse/releases/latest/download/kickback-social-windows-x64.zip">KickBack for Windows</a>.</p>
   </section>
 
   <section id="releases">

@@ -4,7 +4,9 @@
 
 The Omniverse is the whole ecosystem, a peer-to-peer social and gaming world. Each person's phone or PC runs a small local hub, and the hubs sync signed events directly with each other, over LAN or the internet, with no central server. The apps only talk to their own local hub.
 
-**Status: pre-alpha.** Android only (arm64, Android 8.0+). Testing with a small, invited group. Test credits have no cash value.
+**Status: pre-alpha.** Android first (arm64, Android 8.0+), with Windows desktop builds for Omni Node, Plaza Brawler, Mesh Monitor and OmniStudio. Testing with a small, invited group. Test credits have no cash value.
+
+**Next public step:** the STLGameDev playtest on **Sat Nov 28, 2026** (St. Louis County Library, Clark Family branch; our showcase window is 12–2 PM). The playtest builds freeze on Nov 22. Made by **Hactik Games Studios**.
 
 ## Download
 
@@ -14,12 +16,13 @@ Signed builds are on the [Releases page](https://github.com/kiroba/The-Omniverse
 
 | App | What it is | Repo |
 | --- | --- | --- |
-| KickBack | Human-first social feed: signed posts, profiles, wallet, biometric app lock | [kiroba/KickBack](https://github.com/kiroba/KickBack) |
-| OmniCast | 1:1 P2P video calls, and Classroom Mode (in development) | [kiroba/OmniCast](https://github.com/kiroba/OmniCast) |
-| Idle Plaza | Halo Plaza idle and brawler game | [kiroba/Idle-Plaza](https://github.com/kiroba/Idle-Plaza) |
-| Plaza Brawler | Offline fighting game for now (no online matches yet) | [kiroba/Plaza-Brawler](https://github.com/kiroba/Plaza-Brawler) |
-| Phaser Studio | 2D creator suite for games and mods | [kiroba/Phaser-Studio](https://github.com/kiroba/Phaser-Studio) |
-| Mesh Monitor | Health and telemetry dashboard for your hub and the mesh | [kiroba/Mesh-Monitor](https://github.com/kiroba/Mesh-Monitor) |
+| KickBack | Human-first social feed: signed posts, profiles, wallet, biometric app lock; LPE identity transfer import and Mastodon public-post import | [kiroba/KickBack](https://github.com/kiroba/KickBack) |
+| OmniCast | 1:1 P2P video calls through your own Omni Node, and Classroom Mode (in development) | [kiroba/OmniCast](https://github.com/kiroba/OmniCast) |
+| LPE | Live Persona Engine: create your Halo — your identity home, with appearance choosers | [kiroba/LPE](https://github.com/kiroba/LPE) |
+| Omni Plaza | The living shared plaza where your Halo lives (standalone app; the repo keeps its Idle-Plaza name until the post-playtest rename sweep) | [kiroba/Idle-Plaza](https://github.com/kiroba/Idle-Plaza) |
+| Plaza Brawler | 2D fighter: offline vs AI, plus online PvP versus (lockstep, proven phone-vs-laptop Nov 15, 2026); Windows build with controller support | [kiroba/Plaza-Brawler](https://github.com/kiroba/Plaza-Brawler) |
+| OmniStudio | Creator suite for games and mods (.omnimod packs); Windows + Linux desktop build with a read-only local API hook | [kiroba/OmniStudio](https://github.com/kiroba/OmniStudio) |
+| Mesh Monitor | Health and telemetry dashboard for your hub and the mesh; Windows build | [kiroba/Mesh-Monitor](https://github.com/kiroba/Mesh-Monitor) |
 | The Omni-Hub | The superapp: one container that holds every Omniverse experience | [kiroba/The-Omni-Hub](https://github.com/kiroba/The-Omni-Hub) |
 
 ## Core pieces
@@ -38,7 +41,7 @@ Signed builds are on the [Releases page](https://github.com/kiroba/The-Omniverse
 | --- | --- |
 | The Omniverse | The whole ecosystem |
 | The Omni-Hub | The superapp people open: the container for every experience |
-| Apps | KickBack, OmniCast, Idle Plaza, Phaser Studio, Mesh Monitor |
+| Apps | KickBack, OmniCast, LPE, Omni Plaza, Plaza Brawler, OmniStudio, Mesh Monitor |
 | Continuity Engine | Combines a person's profile across their devices' daemons |
 | Omni daemon | The network protocol on each device |
 | OmniMind | Runs the worlds and every NPC |
@@ -50,8 +53,21 @@ Signed builds are on the [Releases page](https://github.com/kiroba/The-Omniverse
 
 - Every event is Ed25519-signed and hash-chained, and every hub verifies it.
 - Apps never talk to peers directly. Only the daemon does.
-- No third-party servers, calls included: OmniCast connects directly when it can, otherwise through another Omni node's built-in relay (desktops by default; phones opt in, Wi-Fi + charging only). In review and not field-tested yet.
+- No third-party servers, calls included: OmniCast connects directly when it can, otherwise through another Omni node's built-in relay (desktops by default; phones opt in, Wi-Fi + charging only).
+- Field-proven so far: the desktop Omni Node synced with a phone on the same LAN and over the internet (Nov 14, 2026 — 128 reconciles, 0 errors, stores converged), and Plaza Brawler PvP played a full phone-vs-laptop match (Nov 15, 2026; dual-signed results via daemon 8.33.2). Still untested: OmniCast 1:1 calls between real phones on different networks — the first trial is the friend test on Nov 18/19, 2026.
 - Hosting costs about $0: GitHub Pages for the site, GitHub Releases for binaries, and the free Actions tier for builds.
+
+## Roadmap — the Nov 30, 2026 cycle
+
+After the Nov 28 playtest (playtest-breakage fixes first), the next dev cycle fires on Mon Nov 30, 2026:
+
+- **Split-package migration:** Omni-Core-UI first, then the apps, one CI-verified PR each.
+- **Envelope encryption:** S1 Core-UI → S2 apps → S4 daemon secrets → S3 daemon store (envelope-over-SQLCipher; no private-layer field in plaintext).
+- **OmniMind rebuild** scaffold, with its grading channel.
+- **Cross-app per-person stats.**
+- **Stage-2 front door:** one path from link → LPE → Halo → Plaza.
+
+Also in progress, not shipped yet: the anime low-poly Halo figures (the realistic figure line is on hold; one Halo, each app renders its own view), the first Omni Plaza scenery set (storefronts, billboard, trees — being built locally), and the Hactik Games Studios splash screen for Plaza Brawler (drafted, not built). The Idle-Plaza → Omni Plaza code/repo rename sweep itself waits until after Nov 28 — docs already use the new names.
 
 ## This repo
 

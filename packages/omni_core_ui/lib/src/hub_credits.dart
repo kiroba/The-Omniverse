@@ -99,7 +99,7 @@ enum CreditsState {
   /// The hub answered 200.
   ok,
 
-  /// Nothing answered (Omni Node off, Tailscale off, wrong address).
+  /// Nothing answered (Omni Node off, network unavailable, wrong address).
   unreachable,
 
   /// The hub refused the token (401 "local token" / "bearer token").

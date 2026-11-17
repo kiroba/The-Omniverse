@@ -182,7 +182,7 @@ jobs:
           # Superapp: unchanged asset name (omniverse-windows-x64.zip).
           # project = the app repo's pubspec name.
           - { repo: The-Omni-Hub, project: omniverse_superapp, slug: omniverse-superapp, zip: omniverse-windows-x64.zip, title: The Omni-Hub }
-          # KickBack desktop: talks to the daemon on this PC (127.0.0.1) or a remote one over Tailscale.
+          # KickBack desktop: talks to the daemon on this PC (127.0.0.1) or a remote one over the network.
           - { repo: KickBack,     project: kickback,           slug: kickback-social,    zip: kickback-social-windows-x64.zip, title: The KickBack }
     steps:
       - name: Check out ${{ matrix.repo }}

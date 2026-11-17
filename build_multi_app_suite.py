@@ -328,7 +328,7 @@ class MainActivity: {activity_class}()
 """
     if remote_hub_cleartext:
         # KickBack "Remote hub" setting: plain HTTP to another phone's daemon, usually its
-        # Tailscale 100.x IP (Tailscale encrypts the link; the daemon also requires a bearer
+        # private network IP (the link is encrypted; the daemon also requires a bearer
         # token). IP ranges can't be listed in a domain-config, so cleartext is allowed app-wide
         # for this app only. Its other traffic (OTA updates) uses https URLs.
         network_security_xml = """<?xml version="1.0" encoding="utf-8"?>

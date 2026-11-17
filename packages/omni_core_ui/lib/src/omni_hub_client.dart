@@ -16,7 +16,7 @@ import 'hub_feed.dart';
 /// outward-facing API to secure and version.
 ///
 /// Remote hub (daemon v8.7.0+, OMNI_HUB_REMOTE=1): [host] can be another
-/// phone's address (e.g. its Tailscale 100.x IP). Then [token] is sent as
+/// phone's network address (for example, 192.168.1.42). Then [token] is sent as
 /// "Authorization: Bearer <token>" on every call, and the hub answers 401 if
 /// it is missing or wrong. Posts still carry this phone's own signature; the
 /// remote hub stores them with this phone as the author and never re-signs.
@@ -227,7 +227,7 @@ enum HubConnectionState {
   /// The hub is there but not serving remote phones (HTTP 403, remote mode off).
   forbidden,
 
-  /// Nothing answered (daemon off, Tailscale off, wrong address).
+  /// Nothing answered (daemon off, network unavailable, wrong address).
   unreachable,
 
   /// Any other answer.

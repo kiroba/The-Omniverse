@@ -7,7 +7,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 /// ============================================================================
 /// KickBack ships as an Android APK and, from v0.1.8, as a Windows desktop
 /// build (kickback-social-windows-x64.zip) that talks to the Omni daemon on the
-/// same PC ("This device" = 127.0.0.1) or to a remote hub over Tailscale.
+/// same PC ("This device" = 127.0.0.1) or to a remote hub over the network.
 ///
 /// Plugin support on Windows, and what this file does about it:
 /// - sqflite (local event log + legacy seed): the sqflite plugin has no Windows
@@ -22,7 +22,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 /// - ota_update: Android-only. OmniOta skips in-app updates on other platforms.
 /// - http / dart:io HttpClient / cryptography / crypto: pure Dart, no
 ///   cleartext restriction on Windows, so http:// to 127.0.0.1 and to a
-///   Tailscale 100.x hub works as it does on Android (where the generated
+///   private network hub works as it does on Android (where the generated
 ///   network_security_config allows it).
 /// ============================================================================
 

@@ -75,12 +75,23 @@ function renderReleases(rels) {
     $("#release-list").innerHTML = `<p class="muted">No releases published yet. The first one appears here automatically when a version tag is pushed.</p>`;
     return;
   }
-  $("#release-list").innerHTML = rels.slice(0, 8).map((r, i) => `
+  // History shows only the three newest releases. Download links are offered
+  // only for the latest release (older bundles read as "current" otherwise),
+  // and Mesh Monitor assets are never offered here — Mesh Monitor was removed
+  // from the public tester page on Nov 15, 2026 (it still ships inside the
+  // release bundle for the team). Older releases link to GitHub instead.
+  $("#release-list").innerHTML = rels.slice(0, 3).map((r, i) => {
+    const assets = (r.assets || []).filter((a) => !/mesh-monitor/i.test(a.name));
+    const assetHtml = i === 0
+      ? `<div class="assets">${assets.map((a) => `<a href="${a.browser_download_url}">⬇ ${esc(a.name)} <span class="muted small">${mb(a.size)}</span></a>`).join("")}</div>`
+      : `<div class="assets"><a href="${r.html_url}" target="_blank" rel="noopener">See this release on GitHub</a></div>`;
+    return `
     <details class="row" ${i === 0 ? "open" : ""}>
       <summary><span>${esc(r.name || r.tag_name)} ${r.prerelease ? '<span class="pill">beta</span>' : ""}</span><span class="muted small">${date(r.published_at)}</span></summary>
       <div class="body">${esc((r.body || "").slice(0, 1200))}</div>
-      <div class="assets">${r.assets.map((a) => `<a href="${a.browser_download_url}">⬇ ${esc(a.name)} <span class="muted small">${mb(a.size)}</span></a>`).join("")}</div>
-    </details>`).join("");
+      ${assetHtml}
+    </details>`;
+  }).join("");
 }
 
 function renderIssues(items) {

@@ -29,7 +29,16 @@ jobs:
           repository: kiroba/Omni-Daemon
           ref: ${{ inputs.ref || 'main' }}
           path: daemon
-      - uses: actions/setup-python@v5
+            - name: Check out Omni-Node-Daemon (VERSION file only)
+        uses: actions/checkout@v4
+        with:
+          repository: kiroba/Omni-Node-Daemon
+          ref: main
+          path: node-version
+          sparse-checkout: |
+            VERSION
+          sparse-checkout-cone-mode: false
+          - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
       - name: Package (daemon + every omni_* module it imports + desktop UI)
         shell: bash
@@ -51,6 +60,16 @@ jobs:
           for m in sorted(seen):
               shutil.copy(src / f"{m}.py", out / f"{m}.py")
           shutil.copy(src / "omni_node_desktop.pyw", out / "Omni Node.pyw")
+          # Stamp the Omni Node version from its single source (Omni-Node-Daemon's VERSION
+          # file), the same value the APK build stamps in. omni_node_core.node_version()
+          # reads the generated module first, then the NODE_VERSION file; with neither
+          # present it reports 'dev' — which is what every zip built before this fix did.
+          node_version = pathlib.Path("node-version/VERSION").read_text(encoding="utf-8").strip()
+          if not node_version:
+              raise SystemExit("Omni-Node-Daemon VERSION file is empty; cannot stamp the node version")
+          (out / "omni_node_version.py").write_text(f'VERSION = "{node_version}"\n', encoding="utf-8")
+          (out / "NODE_VERSION").write_text(node_version + "\n", encoding="utf-8")
+          print("stamped Omni Node version:", node_version)
           (out / "Start Omni Node.cmd").write_text(
               '@echo off\r\ncd /d "%~dp0"\r\npy -3 -m pip install --user --quiet cryptography pystray pillow\r\n'
               'start "" pyw -3 "Omni Node.pyw"\r\n', encoding="ascii")
@@ -69,6 +88,10 @@ jobs:
         run: |
           python -m pip install --quiet cryptography
           python -c "import omni_node_desktop, omni_node_words; print('ui import ok')"
+          $v = python -c "import omni_node_core; print(omni_node_core.node_version())"
+          $want = (Get-Content ..\node-version\VERSION -Raw).Trim()
+          Write-Host "node_version() = $v (want $want)"
+          if ($v -ne $want -or $v -eq "dev") { throw "node version stamp missing or wrong: got '$v', want '$want'" }
           $p = Start-Process python -ArgumentList "omni_live_daemon_server.py" -PassThru -RedirectStandardOutput d.log -RedirectStandardError d.err
           $ok = $false
           foreach ($i in 1..40) { Start-Sleep 1; try { $r = Invoke-RestMethod http://127.0.0.1:9100/api/v1/telemetry/node-health -TimeoutSec 2; Write-Host "daemon v$($r.version) up"; $ok = $true; break } catch {} }

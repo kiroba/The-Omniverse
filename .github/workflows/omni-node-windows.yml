@@ -37,8 +37,8 @@ jobs:
           path: node-version
           sparse-checkout: |
             VERSION
-              sparse-checkout-cone-mode: false
-    - uses: actions/setup-python@v5
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
       - name: Package (daemon + every omni_* module it imports + desktop UI)
         shell: bash

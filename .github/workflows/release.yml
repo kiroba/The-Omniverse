@@ -184,6 +184,8 @@ jobs:
           - { repo: The-Omni-Hub, project: omniverse_superapp, slug: omniverse-superapp, zip: omniverse-windows-x64.zip, title: The Omni-Hub }
           # KickBack desktop: talks to the daemon on this PC (127.0.0.1) or a remote one over the network.
           - { repo: KickBack,     project: kickback,           slug: kickback-social,    zip: kickback-social-windows-x64.zip, title: The KickBack }
+          # Plaza Brawler desktop: the fighter on Windows, same code as the APK.
+          - { repo: Plaza-Brawler, project: plaza_brawler,    slug: plaza-brawler,     zip: plaza-brawler-windows-x64.zip, title: OmniBrawler }
     steps:
       - name: Check out ${{ matrix.repo }}
         uses: actions/checkout@v4
@@ -245,7 +247,7 @@ jobs:
           for f in omniverse-superapp kickback-social idle-plaza mesh-monitor phaser-studio omnicast plaza-brawler; do
             [ -s "dist/$f-android-arm64.apk" ] || { echo "::error::missing $f-android-arm64.apk"; missing=1; }
           done
-          for f in omniverse-windows-x64.zip kickback-social-windows-x64.zip omni-node-windows-x64.zip; do
+          for f in omniverse-windows-x64.zip kickback-social-windows-x64.zip plaza-brawler-windows-x64.zip omni-node-windows-x64.zip; do
             [ -s "dist/$f" ] || { echo "::error::missing $f"; missing=1; }
           done
           if [ "$missing" = 1 ]; then
